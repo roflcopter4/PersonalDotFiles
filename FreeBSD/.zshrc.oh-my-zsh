@@ -1,0 +1,143 @@
+
+# Some Pre ohmyzsh init.
+
+export mSHELL='zsh'
+if [[ -f ~/.localconfig.zsh ]]; then
+    source ~/.localconfig.zsh
+fi
+
+if [[ $(uname -o) == 'Cygwin' ]]; then
+    export IS_CYGWIN=1
+elif [[ $(uname -o) =~ 'GNU/Linux' ]]; then
+    if [[ $(uname -r) =~ 'ARCH' ]]; then
+        if ! [[ $PATH =~ "$HOME"/".local/bin" ]]; then
+            #export PATH=""$HOME"/.local/bin":"/usr/local/bin":"$PATH":"$HOME""/.gem/ruby/2.4.0/bin"
+            export PATH=""$HOME"/.local/bin:"$PATH":"$HOME"/.gem/ruby/2.4.0/bin"
+        fi
+    fi
+fi
+
+DEBUG_THEME=false
+
+
+# =======================================================================================
+# =======================================================================================
+# Ohmyzsh stuff
+
+export ZSH="${HOME}/.oh-my-zsh"
+
+# Set name of the theme to load. Optionally, if you set this to "random"
+# it'll load a random theme each time that oh-my-zsh is loaded.
+# See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
+#ZSH_THEME="myTheme"
+#ZSH_THEME="philPrompt"
+#ZSH_THEME="Powerline-Shell"
+#ZSH_THEME="powerline"
+#ZSH_THEME="myTheme_MK2"
+#ZSH_THEME="myTheme_MK3"
+if [[ "$IsCmderStr" = 'ConEmu found!'$'\r' ]] || [[ $VSCODE_PID ]]; then
+    #ZSH_THEME="myTheme_MK5"
+    #ZSH_THEME="myTheme_MK6-oneliner"
+    #ZSH_THEME="mh-myEdit"
+    ZSH_THEME="myTheme_MK4"
+elif "$DEBUG_THEME"; then
+    ZSH_THEME="myTheme_DEBUG"
+else
+    ZSH_THEME="myTheme_MK8"
+fi
+#ZSH_THEME="myTheme_MK5"
+
+# Uncomment the following line to use case-sensitive completion.
+CASE_SENSITIVE="true"
+
+# Uncomment the following line to use hyphen-insensitive completion. Case
+# sensitive completion must be off. _ and - will be interchangeable.
+ #HYPHEN_INSENSITIVE="true"
+
+# Uncomment the following line to disable bi-weekly auto-update checks.
+DISABLE_AUTO_UPDATE="true"
+
+# Uncomment the following line to change how often to auto-update (in days).
+export UPDATE_ZSH_DAYS=7
+
+# Uncomment the following line to disable colors in ls.
+ #DISABLE_LS_COLORS="true"
+
+# Uncomment the following line to disable auto-setting terminal title.
+# DISABLE_AUTO_TITLE="true"
+
+# Uncomment the following line to enable command auto-correction.
+ENABLE_CORRECTION="true"
+
+# Uncomment the following line to display red dots whilst waiting for completion.
+ #COMPLETION_WAITING_DOTS="true"
+
+# Uncomment the following line if you want to disable marking untracked files
+# under VCS as dirty. This makes repository status check for large repositories
+# much, much faster.
+# DISABLE_UNTRACKED_FILES_DIRTY="true"
+
+# Uncomment the following line if you want to change the command execution time
+# stamp shown in the history command output.
+# The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
+# HIST_STAMPS="mm/dd/yyyy"
+
+# Would you like to use another custom folder than $ZSH/custom?
+# ZSH_CUSTOM=/path/to/new-custom-folder# User configuration
+
+# export MANPATH="/usr/local/man:$MANPATH"
+
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+export ARCHFLAGS="-arch x86_64"
+
+# ssh
+# export SSH_KEY_PATH="~/.ssh/rsa_id"
+
+# =======================================================================================
+# Plugins
+
+# Initialize variable and then add to it for convenience
+# NOTE: Syntax highlighting MUST be last!
+plugins=()
+
+plugins+=(git)
+plugins+=(copydir)
+plugins+=(colored-man-pages-EDIT)
+plugins+=(cp)
+#plugins+=(compleat)
+
+plugins+=(zsh-syntax-highlighting)
+
+
+# =======================================================================================
+# Path to your oh-my-zsh installation.
+source $ZSH/oh-my-zsh.sh
+
+
+# =======================================================================================
+# =======================================================================================
+# Post ohmyzsh stuff (consider placing in .ohmyzsh/custom)
+
+if [[ -f ~/.aliases ]]; then
+    source ~/.aliases
+elif [[ -f ~/.bash_aliases ]]; then
+    source ~/.bash_aliases
+fi
+
+if [[ $IS_CYGWIN ]]; then
+    export LAD=$(cygpath "$LOCALAPPDATA")
+fi
+
+export AURDEST=""$HOME"/Downloads/AUR"
+
+#source "/usr/lib/python3.6/site-packages/powerline/bindings/zsh/powerline.zsh"

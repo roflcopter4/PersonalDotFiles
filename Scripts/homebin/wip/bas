@@ -1,0 +1,17 @@
+#!/bin/bash
+# returns $2 relative to $1
+[ $# -eq 2 ] || exit 1
+
+src="$(realpath "$1")"
+target="$(realpath "$2")"
+
+[ "${src}" = "${target}" ] && echo '.' && exit
+
+common_part=$src
+back=
+while [ "${target#$common_part}" = "${target}" ]; do
+    common_part=$(dirname $common_part)
+    back="${back}${back:+/}.."
+done
+
+echo "${back}${target#$common_part/}"

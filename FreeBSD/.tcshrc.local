@@ -1,0 +1,63 @@
+#############################################################################
+##
+## .tcshrc.local
+##
+## Author: Simos Xenitellis (simos.lists@googlemail.com)
+##
+## This is the .tcshrc.local file, part of the TCSHRC project
+## at http://tcshrc.sourceforge.net
+##
+## Here you add your aliases, sets, completions and bindkeys that you want
+## to override from the default settings.
+
+
+
+setenv	CLICOLOR_FORCE	1
+
+if ( `uname` == 'FreeBSD' ) then
+#    setenv	CC	/usr/local/llvm-devel/bin/clang
+#    setenv	CXX	/usr/local/llvm-devel/bin/clang++
+#    setenv	CPP	/usr/local/llvm-devel/bin/cpp
+    set path = ($HOME/bin $HOME/.local/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /sbin /bin) 
+
+else if ( `uname` == 'DragonFly' ) then
+    set path = ($HOME/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /sbin /bin) 
+
+else
+    set path = ($HOME/.local/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin) 
+endif
+
+if ( -e `where gls` ) then
+	alias ls	"gls -h --color=always --group-directories-first"
+	alias ll	"ls -go"
+	alias la	"ls -A"
+	alias lla	"ls -goA"
+	alias lls	"ls -go  | less -r"
+	alias las	"ls -goA | less -r"
+else
+	alias ls	"ls -FG"
+	alias la	"ls -A"
+	alias ll	"ls -l"
+	alias lla	"ls -lA"
+	alias lls	"ll  | less -r"
+	alias las	"lla | less -r"
+endif
+
+setenv	EDITOR	vi
+setenv	PAGER	less
+
+set savehist = (10000 merge)
+set autolist = ambiguous
+# Use history to aid expansion
+set autoexpand
+set autorehash
+
+bindkey "^W" backward-delete-word
+bindkey -k up history-search-backward
+bindkey -k down history-search-forward
+
+# For some fucking reason the virtual console in FreeBSD is not recognized as
+# such, and is instead called 'xterm'. What the fuck. I'll just have to assume
+# that I'd only ever use the c shell in the virtual console and set TERM to 
+# something more appropriate. Or maybe that's stupid.
+#setenv	TERM	linux

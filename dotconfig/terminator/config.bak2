@@ -1,0 +1,47 @@
+[global_config]
+  geometry_hinting = True
+  inactive_color_offset = 1.0
+[keybindings]
+[layouts]
+  [[default]]
+    [[[child0]]]
+      fullscreen = False
+      last_active_term = cb1920fd-39cc-442b-af89-5b23a3029e88
+      last_active_window = True
+      maximised = False
+      order = 0
+      parent = ""
+      position = 462:208
+      size = 857, 743
+      title = links
+      type = Window
+    [[[terminal1]]]
+      order = 0
+      parent = child0
+      profile = default
+      type = Terminal
+      uuid = cb1920fd-39cc-442b-af89-5b23a3029e88
+[plugins]
+[profiles]
+  [[default]]
+    cursor_blink = False
+    cursor_color = "#aaaaaa"
+    cursor_color_fg = False
+    font = DinaPowerline 10
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#1953eb:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
+    scroll_on_output = True
+    scrollback_infinite = True
+    use_system_font = False
+  [[Balls]]
+    cursor_color = "#aaaaaa"
+    cursor_color_fg = False
+    font = DinaPowerline 10
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#1953eb:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
+    scroll_on_output = True
+    scrollback_infinite = True
+    use_system_font = False
+  [[FUCK]]
+    cursor_color = "#aaaaaa"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#3465a4:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#5c5cff:#ff00ff:#00ffff:#ffffff"

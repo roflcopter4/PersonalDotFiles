@@ -1,0 +1,64 @@
+[global_config]
+  always_split_with_profile = True
+  geometry_hinting = True
+  homogeneous_tabbar = False
+  inactive_color_offset = 1.0
+  scroll_tabbar = True
+[keybindings]
+  help = <Primary><Shift>F1
+[layouts]
+  [[default]]
+    [[[child0]]]
+      fullscreen = False
+      last_active_term = cb1920fd-39cc-442b-af89-5b23a3029e88
+      #last_active_window = True
+      last_active_window = False
+      maximised = False
+      order = 0
+      parent = ""
+      position = 462:208
+      size = 900, 700
+      title = links
+      type = Window
+    [[[terminal1]]]
+      order = 0
+      parent = child0
+      profile = Balls
+      type = Terminal
+      uuid = cb1920fd-39cc-442b-af89-5b23a3029e88
+[plugins]
+[profiles]
+  [[default]]
+    cursor_blink = False
+    cursor_color = "#aaaaaa"
+    cursor_color_fg = False
+    delete_binding = ascii-del
+    font = DinaPowerline 10
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#1953eb:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
+    scrollback_infinite = True
+    use_system_font = False
+  [[Balls]]
+    cursor_color = "#aaaaaa"
+    cursor_color_fg = False
+    font = DinaPowerline 8
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#0075ff:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
+    scrollback_infinite = True
+    use_system_font = False
+  [[FUCK]]
+    cursor_color = "#aaaaaa"
+  [[New Profile]]
+    cursor_color = "#aaaaaa"
+    font = DinaPowerline 8
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#0000ee:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#5c5cff:#ff00ff:#00ffff:#ffffff"
+    scrollback_infinite = True
+    use_system_font = False
+  [[ShittyProfile]]
+    cursor_color = "#aaaaaa"
+    font = DinaPowerline 8
+    foreground_color = "#ffffff"
+    palette = "#000000:#cd0000:#00cd00:#cdcd00:#0000ee:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#5c5cff:#ff00ff:#00ffff:#ffffff"
+    scrollback_infinite = True
+    use_system_font = False

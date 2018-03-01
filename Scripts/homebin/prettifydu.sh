@@ -1,0 +1,54 @@
+#!/bin/sh
+
+LANG=C
+
+if [ -d "$1" ] || [ "$#" -eq 0 ]; then
+    input="$(\du "$@" -d1 | sort -nr)"
+else
+    input="$(\du "$@" | sort -nr)"
+fi
+#input="$(\du -d1 | sort -nr)"
+
+IFS='
+'
+NewString=''
+
+longest=0
+for line in $input; do
+    byteStr=$(printf "$line" | perl -pe 's/^(\d+)\t.*/$1/')
+
+    while [ $(printf "$byteStr" | ag '\d{4}') ]; do
+        line=$(printf "$line" | perl -pe 's/^(\d+?)(\d{3}(?:,|\s))(.*)/$1,$2$3/')
+        byteStr=$(printf "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
+    done
+
+    line=$(echo "$line" | perl -pe "s|$HOME|~|")
+
+    if [ -z "$NewString" ]; then
+        NewString="$line"
+    else
+        NewString=$(printf '%s\n%s' "$NewString" "$line")
+    fi
+
+    strLen=${#byteStr}
+    if [ "$strLen" -gt "$longest" ]; then
+        longest=$strLen
+    fi
+done
+
+
+#for line in $NewString; do
+    #byteStr=$(printf "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
+    #strLen=${#byteStr}
+    #if [ "$strLen" -lt "$longest" ]; then
+        #dif=$(( $longest - $strLen ))
+        #line=$(printf "$line" | perl -pe "s/^(.*)/(' ' x $dif) . \$1/e")
+    #fi
+    #echo "$line"
+#done
+
+for line in $NewString; do
+    byteStr=$(printf "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
+    therest=$(printf "$line" | perl -pe 's/^[0-9,]+(\t.*)/$1/')
+    printf "%${longest}s%s\n" $byteStr $therest
+done

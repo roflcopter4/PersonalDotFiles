@@ -1,0 +1,366 @@
+
+ID_SHELL() {                                                     
+    if ! ( [ $(uname) = 'DragonFly' ]  || \
+           [ $(uname -o) = 'Cygwin' ]  || [ $(uname -o) = 'Msys' ] )
+    then
+        printf "%s" "$(basename "$(ps -o comm= $$)")"
+    elif [ "$IS_ZSH" = 'true' ]; then
+        printf "%s" 'zsh'
+    else
+        printf "%s" 'OTHER'
+    fi
+}
+
+
+Exists() {
+    command -v "$1" >/dev/null 2>&1
+    return $?
+}
+
+
+# -g  -> Soft global alias - add global flag if shell is zsh.
+# -G  -> Hard global alias - same as above but don't make alias at all unless zsh.
+# -s  -> Soft sudo         - add sudo if not root.
+# -S  -> Hard sudo         - add sudo if not root, and don't make alias otherwise.
+# -t  -> Test program      - only make alias if the given command exists.
+# -T  -> Better test       - only make alias if its base command exists.
+mkalias() {
+    do_sudo=''
+    do_test=''
+    do_global=''
+    alias_cmd=''
+
+    while getopts 'gGsSt:T' ARG; do
+        case "$ARG" in
+            'g')
+                [ "$(ID_SHELL)" = 'zsh' ] && do_global="YES"
+                ;;
+            'G')
+                [ "$(ID_SHELL)" = 'zsh' ] || return 1
+                do_global="YES"
+                ;;
+            's')
+                [ $(id -u) -ne 0 ] && do_sudo='YES'
+                ;;
+            'S')
+                [ $(id -u) -ne 0 ] && do_sudo='YES' || return 1
+                ;;
+            't')
+                command -v "$OPTARG" >/dev/null 2>&1 || return 1
+                ;;
+            'T')
+                do_test='YES'
+                ;;
+            '?')
+                echo 'Invalid arg -> '"'$ARG'" >&2 ; return 1
+                ;;
+        esac
+    done
+
+    shift $(( ${OPTIND} - 1 ))
+
+    if [ "$do_test" ]; then
+        TEMP="$(echo "$1" | sed "s/[^=]*=['\"]\{0,1\}\([[:alnum:][:punct:]]*\).*['\"]\{0,1\}/\\1/")"
+        command -v "$TEMP" >/dev/null 2>&1 || return 1
+    fi
+
+
+    if [ "$do_sudo" ] && (command -v sudo >/dev/null 2>&1); then
+        alias_cmd="$(echo "$1" | sed 's/\([^=]*=\)\(.*\)/\1sudo \2/')"
+    else
+        alias_cmd="$1"
+    fi
+
+    [ "$do_global" ] && alias -g "$alias_cmd" || alias "$alias_cmd"
+
+    unset do_global alias_cmd do_sudo do_test TEMP
+}
+
+
+#---------------------------------------------------------
+# ls aliases
+#---------------------------------------------------------
+
+MOARINFO='true'
+
+# Aliases based on the standard ls will hide backups.
+if [ $(command -v gls) ]; then
+    # If 'gls' exists, we're probably on a BSD system, and should use it
+    alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
+else
+    alias ls='LC_ALL=C ls -B -H --color --group-directories-first'
+fi
+
+if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
+    alias ll='ls -l -h'
+    alias lll='ls -go -h'
+else
+    alias ll='ls -go -h'
+    alias lll='ls -l -h'
+fi
+
+alias la='ls -A'
+alias lla='ll -A -h'
+alias laa='lll -A -h'
+alias llt='ll -t'
+alias lat='ll -At'
+
+# I don't remember why these even exist.
+alias LS='LC_ALL=C \ls -H --group-directories-first'
+alias l='LS -CF --color'
+alias llb='l -l -h'
+alias lab='la -l -h'
+
+# Force less to take raw characters (color).
+[ "$LESS" ] || alias less='less -r'
+
+# Some extras
+alias Ll='ll -L'
+alias Lla='lla -L'
+alias Ls='ls -L'
+
+# ---------------------------------------------------------
+
+# Grep with color, from default bashrc.
+mkalias -g grep='grep --colour=auto'
+mkalias -g fgrep='fgrep --color=auto'
+mkalias -g egrep='egrep --color=auto'
+
+# Pretty basic.
+alias whack='pkill -9'
+alias chpx='chmod +x'
+alias chmx='chmod -x'
+alias info='info --vi-keys'
+alias du='du -h'
+alias du1='du -d1'
+alias dus='du -s'
+alias df='df -h'
+alias lns='ln -s'
+alias dmesg='dmesg --color=always'
+alias dmesgl='dmesg | \less -r'
+alias suvi='sudoedit'
+
+# God I am lazy
+alias CO="./configure"
+alias CH="./configure --help"
+alias CMK='mkdir build && cd build'
+
+# Dubious
+mkalias -G ulb='/usr/local/bin'
+#mkalias -G pl='| pl'
+alias wcli='wpa_cli'
+
+# Yet more git aliases.
+alias gcred='git config credential.helper store'
+alias glgs="git log --graph --pretty='
+%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --shortstat"
+alias glgsa="git log --graph --pretty='
+%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --stat"
+
+# The rest.
+mkalias -Tg clformat='clang-format-3.6' 
+mkalias -Tg clformat='clang-format' 
+mkalias -T cdif='colordiff'
+mkalias -T pylint='pylint -f colorized' 
+mkalias -T pylint2='pylint2 -f colorized' 
+mkalias -T pylint3='pylint3 -f colorized' 
+mkalias -T sage='sage -q' 
+mkalias -T ari='aria2c' 
+mkalias -T par='par-format'
+
+
+case "$SYSID" in 
+    'gentoo'|'laptop-gentoo')
+        (command -v 'esearch' >/dev/null 2>&1) && alias ems='esearch' || alias ems='emerge --search'
+        mkalias -T qs='qsearch'
+        mkalias -s emr='emerge'
+        mkalias -s empr='emerge --pretend'
+        mkalias -s ema='emerge --ask'
+        mkalias -s emp='emerge --ask --buildpkg'
+        mkalias -s emupdate='emerge --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude "chromium"'
+        mkalias -s emupdateP='emerge --pretend --update --deep --newuse --with-bdeps=y @world'
+        mkalias -s emupdateF='emerge --update --deep --newuse --with-bdeps=y @world'
+        mkalias -TS ufed='ufed'
+        mkalias -TS euse='euse' 
+        ;;
+esac
+
+# Linux Aliases
+if ! [ "$(uname)" = 'DragonFly' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then
+    if command -v 'pacman' >/dev/null 2>&1; then
+        mkalias -s pacman='pacman --color=always' 
+        mkalias -s pacs='\pacman --color=always -S' 
+        mkalias -s pacup='\pacman --color=always -Syu' 
+        alias      pacss='\pacman --color=always -Ss' 
+        alias      paci='\pacman --color=always -Si' 
+        alias      pac='\pacman --color=always' 
+    fi
+    mkalias -T pacaur='pacaur --color=always' 
+    mkalias -T pacg='pacget -s' 
+
+    mkalias -s stl='systemctl'
+    mkalias -T n.='nemo . >/dev/null 2>&1 &' 
+    mkalias -T e.='nemo . >/dev/null 2>&1 &' 
+    mkalias -T d.='dolphin . >/dev/null 2>&1 &' 
+
+    mkalias -TS ualt='update-alternatives' 
+    mkalias -TS apt='apt' 
+
+elif [ "$(uname)" = 'FreeBSD' ] || [ "$(uname)" = 'DragonFly' ]; then
+    mkalias -S pkg='pkg'
+    mkalias -S make='make'
+    alias mic='make install clean'
+    alias mc='make config-recursive'
+    alias pki='\pkg rinfo'
+    alias pks='\pkg search'
+fi
+
+#Exists 'gcp' && ! [ "$(command -v gcp)" = '/usr/bin/gcp' ] && unalias gcp
+
+if [ "$IS_CYGWIN" ]; then
+    mkalias -T apt='apt-cyg' 
+    mkalias -T pacman='pac-cyg --color=always'
+fi
+
+if [ "$IS_WINDOWS" ]; then
+    alias e.='explorer .'
+    alias vi=''
+    unalias vi
+
+    if command -v 'pacman' >/dev/null 2>&1; then
+        alias pacs='pacman -S --color=always' 
+        alias pacss='pacman -Ss --color=always' 
+        alias paci='pacman -Si --color=always' 
+    fi
+fi
+
+if [ "$TERM" = 'linux' ]; then
+    mkalias -T vi='vim' 
+fi
+
+
+# ----------------------------------------------------------
+# Functions
+
+
+# Alias-like functions, pipe ls to less
+lls() {
+    ll "$@" | \less -r
+}
+las() {
+    lla "$@" | \less -r
+}
+
+
+gitc() {
+    [ "$1" ] && ONE="$1" && shift || return 1
+    [ "$1" ] && TWO="$1" && shift
+    case "$ONE" in
+        '-gs')
+            git clone --recursive 'https://github.com/'"$TWO" $@ --depth 1
+            ;;
+        '-gd')
+            git clone --recursive 'https://github.com/'"$TWO" $@
+            ;;
+        '-d')
+            git clone --recursive "$TWO" $@
+            ;;
+        *)
+            git clone --recursive "$ONE" $@ --depth 1
+            ;;
+    esac
+}
+
+
+if [ $(uname) = 'DragonFly' ] || [ $(uname) = 'FreeBSD' ]; then
+    Exists 'gfind' && FIND='gfind'
+else
+    FIND='find'
+fi
+[ "$FIND" ] && \
+ifind() {
+        if [ $# -eq 1 ]; then
+            find -iname '*'"$1"'*'
+        elif [ $# -eq 2 ]; then
+            find "$1" -iname '*'"$2"'*'
+        else
+            echo "USAGE: $0 [dir] (EXPR)"
+            echo "Directory is optional."
+        fi
+}
+
+
+lessinfo() {
+    if [ "$#" -eq 0 ]; then
+        echo "No page supplied"
+        return 1
+    fi
+    info --subnodes -o - "$1" | less
+}
+
+
+Exists 'emacs' && {
+    emacs () {
+        command emacs -g 120x75 "$@" > /dev/null 2>&1 &
+    }
+    alias emacsn='/usr/bin/emacs -nw'
+}
+
+
+Exists 'eovim' && \
+eov() {
+    (
+        NoExtChars='True' && export NoExtChars
+        eovim -g '125x55' $@ > /dev/null 2>&1 &
+    )
+}
+
+Exists 'nvim-qt' && \
+gvi() {
+    (
+        export NVIM_QT='true'
+        nvim-qt --geometry 850x880 $@ >/dev/null 2>&1
+    )
+}
+
+
+Exists 'fzf' && \
+cdfzf() {
+    cd $(dirname $(fzf "$@"))
+}
+
+
+[ "$IS_CYGWIN" ] && \
+tab() {
+    mintty.exe -i /Cygwin.ico -e /bin/xhere /bin/bash.exe
+}
+
+
+Exists 'J7Z.sh' && \
+j7z() {
+    J7Z.sh "$@" >/dev/null 2>&1 &
+}
+
+
+cppMacroOnly() { (
+    [ "$ZSH_VERSION" ] && set -o shwordsplit
+    [ $# -eq 0 ] && exit 1;
+    [ $# -eq 1 ] && __file="$1" && __CPP='clang' && __ARGS='-E -P -'
+    [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS=$@
+    perl -pe 's/^#include.*\n//g' "$__file" | $__CPP $__ARGS
+) }
+
+
+case "$SYSID" in
+    'gentoo'|'gentoo-laptop')
+        etcp() {
+            cd /etc/portage
+        }
+        wut() { 
+            ag --nofilename 'DESCRIPTION=' "${1}/" | sort -u | perl -pe 's/^\n//'
+        }
+        ;;
+esac
+
+
+unset TEMP alias_cmd do_global do_test do_sudo

@@ -1,0 +1,136 @@
+
+# Nothing to put here at the moment, decided zplug belings in local.
+
+
+export ZSH="${HOME}/.zplug/repos/robbyrussell/oh-my-zsh"
+CASE_SENSITIVE="true"
+DISABLE_AUTO_UPDATE="true"
+ENABLE_CORRECTION="true"
+
+plugins=()
+
+plugins+=(git)
+plugins+=(copydir)
+plugins+=(colored-man-pages-EDIT)
+plugins+=(cp)
+#plugins+=(compleat)
+
+plugins+=(zsh-syntax-highlighting)
+
+
+
+################################################################################
+###                                                                          ###
+###  zplug                                                                   ###
+###                                                                          ###
+################################################################################
+
+
+## Check if zplug is installed
+#if [[ ! -d ~/.zplug ]]; then
+    #git clone https://github.com/zplug/zplug ~/.zplug
+    #source ~/.zplug/init.zsh && zplug update --self
+#else
+    ## Load zplug
+    #source ~/.zplug/init.zsh
+#fi
+
+## Use Oh-My-Zsh libs, with some options
+#CASE_SENSITIVE="true"
+#ENABLE_CORRECTION="false"
+#zplug "robbyrussell/oh-my-zsh", use:"lib/*.zsh"
+
+## Github Plugins
+#zplug "zsh-users/zsh-history-substring-search"
+#zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
+#zplug "tcnksm/docker-alias", use:zshrc
+#zplug "k4rthik/git-cal", as:command, frozen:1
+##zplug "junegunn/fzf-bin", \
+    ##from:gh-r, \
+    ##as:command, \
+    ##rename-to:fzf, \
+
+## Set the priority when loading
+## (If the defer tag is given 2 or above, run after compinit command)
+#zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+## Oh-My-Zsh plugins
+#zplug "plugins/git",       from:oh-my-zsh
+#zplug "plugins/compleat",  from:oh-my-zsh
+#zplug "plugins/copydir",   from:oh-my-zsh 
+#zplug "plugins/cp",        from:oh-my-zsh
+
+## Pretzo plugins
+##zplug "modules/prompt", from:prezto
+
+##zplug "b4b4r07/enhancd", at:v1
+##zplug "mollifier/anyframe", at:4c23cb60
+#zplug "b4b4r07/enhancd"
+#zplug "mollifier/anyframe"
+#zplug "b4b4r07/79ee61f7c140c63d2786", \
+    #from:gist, \
+    #as:command, \
+    #use:get_last_pane_path.sh
+
+## Bitbucket
+#zplug "b4b4r07/hello_bitbucket", \
+    #from:bitbucket, \
+    #as:command, \
+    #use:"*.sh"
+
+## Rename a command with the string captured with `use` tag
+#zplug "b4b4r07/httpstat", \
+    #as:command, \
+    #use:'(*).sh', \
+    #rename-to:'$1'
+
+## Group dependencies
+## Load "emoji-cli" if "jq" is installed in this example
+##zplug "stedolan/jq", \
+    ##from:gh-r, \
+    ##as:command, \
+    ##rename-to:jq
+##zplug "b4b4r07/emoji-cli",  on:"stedolan/jq"
+##if zplug check b4b4r07/enhancd; then
+    ##export ENHANCD_FILTER=fzf-tmux
+##fi
+
+#### ===================================================================
+
+#zplug 'wting/autojump', \
+    #hook-build:"./install.py -d ~/.local"
+#[[ -f "$HOME/.local/etc/profile.d/autojump.sh" ]] && source "$HOME/.local/etc/profile.d/autojump.sh"
+
+
+
+## Local plugins
+#local PluginDir="$HOME/personaldotfiles/zsh/plugins"
+#zplug ""$PluginDir"/colored-man-pages-EDIT", from:local
+##zplug ""$PluginDir"/PersonalSetup",          from:local
+##zplug ""$PluginDir"/xtar",                   from:local
+
+## Manage itself!
+#zplug 'zplug/zplug', hook-build:'zplug --self-manage'
+
+## Install plugins if there are plugins that have not been installed
+#if ! zplug check --verbose; then
+    #printf "Install? [y/N]: "
+    #if read -q; then
+        #echo; zplug install
+    #fi
+#fi
+
+
+################################################################################
+###                                                                          ###
+###  zplug end                                                               ###
+###                                                                          ###
+################################################################################
+
+
+PATH=$PATH:$ZPLUG_BIN
+if [[ "$(uname -r)" =~ 'ARCH' ]]; then
+    PATH="$HOME"/.local/bin:/usr/local/bin:"$PATH":"$HOME"/.gem/ruby/2.4.0/bin
+fi
+
+export PATH

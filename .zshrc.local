@@ -1,0 +1,553 @@
+# Filename:      /etc/skel/.zshrc
+# Purpose:       config file for zsh (z shell)
+# Authors:       (c) grml-team (grml.org)
+# Bug-Reports:   see http://grml.org/bugs/
+# License:       This file is licensed under the GPL v2 or any later version.
+################################################################################
+# Nowadays, grml's zsh setup lives in only *one* zshrc file.
+# That is the global one: /etc/zsh/zshrc (from grml-etc-core).
+# It is best to leave *this* file untouched and do personal changes to
+# your zsh setup via ${HOME}/.zshrc.local which is loaded at the end of
+# the global zshrc.
+#
+# That way, we enable people on other operating systems to use our
+# setup, too, just by copying our global zshrc to their ${HOME}/.zshrc.
+# Adjustments would still go to the .zshrc.local file.
+################################################################################
+
+################################################################################
+###                                                                          ###
+###  zplug                                                                   ###
+###                                                                          ###
+################################################################################
+
+zplug load
+
+################################################################################
+###                                                                          ###
+###  zplug end                                                               ###
+###                                                                          ###
+################################################################################
+
+
+# Setup my theme
+local LoadTheme="myTheme_MK19"
+local ThemeName="${HOME}/personaldotfiles/zsh/themes/${LoadTheme}.zsh-theme"
+if [[ -f "$ThemeName" ]]; then
+    # Necessary to use my prompt apparently.
+    prompt off
+    # Load in my theme the old fashioned way.
+    DEBUG_THEME=false
+    source "$ThemeName"
+fi
+
+local SourceIfExist() {
+    [[ -f "$1" ]] && source "$1"
+}
+
+
+if [[ $(uname) == 'DragonFly' ]]; then
+    export CC=/usr/local/llvm-devel/bin/cc
+    export CXX=/usr/local/llvm-devel/bin/c++
+
+elif [[ $(uname -o) == 'Cygwin' ]]; then
+    export IS_CYGWIN=1
+    export IS_WINDOWS=1
+    export LAD=$(cygpath "$LOCALAPPDATA")
+    SourceIfExist "${PluginDir}/MountCygDrives/mountCygDrives.zsh"
+
+elif [[ "$(uname -o)" =~ 'Msys' ]] || [[ "$(uname -o)" =~ 'Mingw' ]]; then
+    export IS_MSYS=1
+
+elif [[ $(uname -o) =~ 'GNU/Linux' ]]; then
+    # Arch Linux Specific Config
+    if [[ "$(uname -r)" =~ 'ARCH' ]] || [[ "$(uname -r)" =~ 'ARTIX' ]]; then
+        export AURDEST="${HOME}/Downloads/AUR"
+    fi
+fi
+
+
+local hackPath() {
+    local newPath=(  )
+    local found_evil=0
+    local proscribed_paths=( 'zplug' 'sbin' )
+    for elem in "${path[@]}"; do
+        found_evil=0
+        for evil in "${proscribed_paths[@]}"; do
+            if [[ "$elem" =~ "$evil" ]]; then
+                found_evil=1
+                break
+            fi
+        done
+        if [[ $found_evil -eq 0 ]]; then
+            newPath+=( "$elem" )
+        fi
+    done
+    newPath+=( "$ZPLUG_BIN" )
+    export path=( "${newPath[@]}" )
+}
+[[ "$(uname -r)" =~ 'ARCH' ]] && hackPath
+
+# SOME SPECIFIC CONFIG I CAN'T PRESENTLY BE BOTHERED TO PUT SOMEWHERE ELSE
+zstyle ':completion:*'               menu select=2
+
+# ============== Various settings
+command -v 'thefuck' >/dev/null 2>&1 && eval $(thefuck --alias)
+setopt multios
+
+
+# -------------------------------------------------------------------------------
+# KEY BINDINGS
+
+#bindkey -v
+#bindkey -M vicmd 'k' up-line-or-beginning-search
+#bindkey -M vicmd 'j' down-line-or-beginning-search
+
+bind2maps       viins       -- -s '^a'   beginning-of-somewhere
+bind2maps       viins       -- -s '^e'   end-of-somewhere
+bind2maps       viins       -- -s '^h'   backward-delete-char
+bind2maps       viins       -- -s '^?'   backward-delete-char
+bind2maps       viins       -- -s '^w'   backward-kill-word
+
+
+# -------------------------------------------------------------------------------
+# Environment Variables
+
+export IS_ZSH='true'
+SourceIfExist "${HOME}/.aliases"
+
+#[[ "$(command -v ag)" ]] && export FZF_DEFAULT_COMMAND='ag --hidden -u --ignore .git --ignore .vimbackup --ignore .vimviews --ignore .vimundo -g ""'
+[[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"
+export LESS='-R -M --shift 5 -i'
+export DISTCC_HOSTS="+zeroconf"
+export MANWIDTH=120
+
+SourceIfExist "${HOME}/.local/etc/profile.d/autojump.sh"
+
+
+# Lazy solution to platform specific stuff.
+[[ -f "${HOME}/.localconfig.zsh" ]] && mv "${HOME}/.localconfig.zsh" "${HOME}/.Localconfig.zsh"
+SourceIfExist "${HOME}/.Localconfig.zsh"
+
+# -------------------------------------------------------------------------------
+# Functions
+
+
+xcd() {
+    [[ "$(command -v xtar)" ]] || { echo "xtar not found!"; exit 1; }
+
+    local OutDir
+    local Timestamp=$(date +%s)
+    local Archive="$1"
+    local base="$(echo "$Archive" | perl -pe 's/(.*?)\.(tar.*|tgz|txz|tbz)/$1/')"
+
+    [[ "$base" == "$Archive" ]] && base="$(echo "$Archive" | perl -pe 's/(.*?)\.(zip|rar|7z|gz|bz2|xz)/$1/')"
+    [[ "$base" == "$Archive" ]] && base="$(echo "$Archive" | perl -pe 's/(.*?)\.*$/$1/')"
+    [[ -e "$base" ]] && OutDir="${base}-${Timestamp}" || OutDir="$base"
+
+    xtar "$Archive" "$OutDir" && cd "$OutDir"
+}
+
+
+# xcd() {
+#     if [[ "$#" -eq 0 ]] || [[ "$1" == '-h' ]] || [[ "$1" == '--help' ]]; then
+#         printf "%s\n\n%s%s\n" "USAGE: $0 [ ARCHIVE ]" "Extracts an archive " \
+#                "with xtar or 7z and cd's to the extracted directory."
+#         return 1
+#     elif [[ -z "$(command -v xtar)" ]]; then
+#         echo "ERROR: xtar not found in path."
+#         return 2
+#     elif [[ -z "$(command -v 7z)" ]]; then
+#         echo "ERROR: 7z not found in path."
+#         return 2
+#     fi
+# 
+#     Timestamp=$(date +%s)
+#     Archive="$1"
+#     base=$(echo "$Archive" | perl -pe 's/(.*?)\.(tar.*|tgz|txz|tbz)/$1/')
+#     if [[ "$base" == "$Archive" ]]; then
+#         base=$(echo "$Archive" | perl -pe 's/(.*?)\.(zip|rar|7z|gz|bz2|xz)/$1/')
+#         if [[ "$base" == "$Archive" ]]; then
+#             #echo "ERROR: Unknown filetype, refusing to extract."
+#             #return 3
+#         #else
+#             #if [[ -d "$base" ]]; then OutDir="$base-$Timestamp"; else OutDir="$base"; fi
+#             #echo "Extracting ${Archive} with 7z"
+#             #7z x "$Archive" -o"$OutDir"
+#             #cd "$OutDir"
+#         fi
+#     fi
+#     #else
+#     if [[ -d "$base" ]]; then OutDir="$base-$Timestamp"; else OutDir="$base"; fi
+#     echo "Extracting ${Archive} with xtar"
+#     xtar -q "$Archive" "$OutDir"
+#     cd "$OutDir"
+#     #fi
+# }
+
+dwx() {
+    if [[ "$#" -eq 0 ]] || [[ "$1" == '-h' ]] || [[ "$1" == '--help' ]]; then
+        printf "%s\n\n%s%s\n" "USAGE: $0 [ DOWNLOAD ... ]" "Downloads a " \
+               "tarball and automatically extracts and cd's to its directory." 
+        return 1
+    fi
+
+    file_list=( )
+    # The shell throws an error if it tries to glob in an empty directory.
+    [[ "$(\ls)" ]] && for file in *; do
+        file_list+="$file"
+    done
+
+    aria2c "$@" || return $?
+    candidate=''
+
+    if [[ "$(\ls)" ]]; then
+        for file in *; do
+            if ! [[ ${file_list[(i)$file]} -le ${#file_list} ]]; then
+                candidate="$file"
+                break
+            fi
+        done
+    else
+        echo "ERROR: No files in directory; download failed?"
+        return 4
+    fi
+
+    if [[ "$candidate" ]]; then
+        echo ''
+        xcd "$candidate"
+    else
+        echo "ERROR: No candidate file found; nothing to extract."
+        return 3
+    fi
+}
+
+
+[[ "$SYSID" =~ 'gentoo' ]] && \
+wutall() {
+    local i A first w
+    for i in "${1:-.}/"*; do
+        [ -d "$i" ] && {
+            printf "%s \\ " "$(Colorize - <<< "bYELLOW(<<${i##*/}>>)")"
+            A=( $(wut "${i}") ) 
+            first=true
+            for w in "${A[@]}"; do
+                if ${first}; then
+                    printf "%s" "${w/DESCRIPTION=\"/}"
+                    first=false
+                elif [[ "${w}" =~ 'DESCRIPTION=' ]]; then
+                    break
+                else
+                    printf " ${w/\"/}"
+                fi
+            done
+            echo
+        }
+    done | column -t -s'\' -o'- '
+}
+
+
+# cd () {
+    #(( ${#argv} == 0 )) && builtin cd && return
+
+    #local CD_CMD
+    #if [[ "$(command -v cdd)" ]]; then
+        #CD_CMD="__enhancd::cd"
+    #else
+        #CD_CMD='builtin cd'
+    #fi
+
+    #if (( ${#argv} == 1 )); then
+        #if [[ -f ${1} ]]; then
+            #[[ ! -e ${1:h} ]] && return 1
+            #print "Correcting ${1} to ${1:h}"
+            #$CD_CMD ${1:h}
+        #elif [[ "${1}" == '..' ]]; then
+            #builtin cd '..'
+        #fi
+    #else
+        #$CD_CMD $@
+    #fi
+#}
+
+
+
+# =============================================================================
+# =============================================================================
+# =============================================================================
+# End my stuff
+# =============================================================================
+# =============================================================================
+# =============================================================================
+
+
+
+## Inform users about upgrade path for grml's old zshrc layout, assuming that:
+## /etc/skel/.zshrc was installed as ~/.zshrc,
+## /etc/zsh/zshrc was installed as ~/.zshrc.global and
+## ~/.zshrc.local does not exist yet.
+if [ -r ~/.zshrc -a -r ~/.zshrc.global -a ! -r ~/.zshrc.local ] ; then
+    printf '-!-\n'
+    printf '-!- Looks like you are using the old zshrc layout of grml.\n'
+    printf '-!- Please read the notes in the grml-zsh-refcard, being'
+    printf '-!- available at: http://grml.org/zsh/\n'
+    printf '-!-\n'
+    printf '-!- If you just want to get rid of this warning message execute:\n'
+    printf '-!-        touch ~/.zshrc.local\n'
+    printf '-!-\n'
+fi
+
+## Settings for umask
+#if (( EUID == 0 )); then
+#    umask 002
+#else
+#    umask 022
+#fi
+
+## Now, we'll give a few examples of what you might want to use in your
+## .zshrc.local file (just copy'n'paste and uncomment it there):
+
+## Prompt theme extension ##
+
+# Virtualenv support
+
+#function virtual_env_prompt () {
+#    REPLY=${VIRTUAL_ENV+(${VIRTUAL_ENV:t}) }
+#}
+#grml_theme_add_token  virtual-env -f virtual_env_prompt '%F{magenta}' '%f'
+#zstyle ':prompt:grml:left:setup' items rc virtual-env change-root user at host path vcs percent
+
+## ZLE tweaks ##
+
+## use the vi navigation keys (hjkl) besides cursor keys in menu completion
+#bindkey -M menuselect 'h' vi-backward-char        # left
+#bindkey -M menuselect 'k' vi-up-line-or-history   # up
+#bindkey -M menuselect 'l' vi-forward-char         # right
+#bindkey -M menuselect 'j' vi-down-line-or-history # bottom
+
+## set command prediction from history, see 'man 1 zshcontrib'
+#is4 && zrcautoload predict-on && \
+#zle -N predict-on         && \
+#zle -N predict-off        && \
+#bindkey "^X^Z" predict-on && \
+#bindkey "^Z" predict-off
+
+## press ctrl-q to quote line:
+#mquote () {
+#      zle beginning-of-line
+#      zle forward-word
+#      # RBUFFER="'$RBUFFER'"
+#      RBUFFER=${(q)RBUFFER}
+#      zle end-of-line
+#}
+#zle -N mquote && bindkey '^q' mquote
+
+## define word separators (for stuff like backward-word, forward-word, backward-kill-word,..)
+#WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>' # the default
+#WORDCHARS=.
+#WORDCHARS='*?_[]~=&;!#$%^(){}'
+#WORDCHARS='${WORDCHARS:s@/@}'
+
+# just type '...' to get '../..'
+#rationalise-dot() {
+#local MATCH
+#if [[ $LBUFFER =~ '(^|/| |	|'$'\n''|\||;|&)\.\.$' ]]; then
+#  LBUFFER+=/
+#  zle self-insert
+#  zle self-insert
+#else
+#  zle self-insert
+#fi
+#}
+#zle -N rationalise-dot
+#bindkey . rationalise-dot
+## without this, typing a . aborts incremental history search
+#bindkey -M isearch . self-insert
+
+#bindkey '\eq' push-line-or-edit
+
+## some popular options ##
+
+## add `|' to output redirections in the history
+#setopt histallowclobber
+
+## try to avoid the 'zsh: no matches found...'
+#setopt nonomatch
+
+## warning if file exists ('cat /dev/null > ~/.zshrc')
+#setopt NO_clobber
+
+## don't warn me about bg processes when exiting
+#setopt nocheckjobs
+
+## alert me if something failed
+#setopt printexitvalue
+
+## Allow comments even in interactive shells
+#setopt interactivecomments
+
+
+## compsys related snippets ##
+
+## changed completer settings
+#zstyle ':completion:*' completer _complete _correct _approximate
+#zstyle ':completion:*' expand prefix suffix
+
+## another different completer setting: expand shell aliases
+#zstyle ':completion:*' completer _expand_alias _complete _approximate
+
+## to have more convenient account completion, specify your logins:
+#my_accounts=(
+# {grml,grml1}@foo.invalid
+# grml-devel@bar.invalid
+#)
+#other_accounts=(
+# {fred,root}@foo.invalid
+# vera@bar.invalid
+#)
+#zstyle ':completion:*:my-accounts' users-hosts $my_accounts
+#zstyle ':completion:*:other-accounts' users-hosts $other_accounts
+
+## add grml.org to your list of hosts
+#hosts+=(grml.org)
+#zstyle ':completion:*:hosts' hosts $hosts
+
+## telnet on non-default ports? ...well:
+## specify specific port/service settings:
+#telnet_users_hosts_ports=(
+#  user1@host1:
+#  user2@host2:
+#  @mail-server:{smtp,pop3}
+#  @news-server:nntp
+#  @proxy-server:8000
+#)
+#zstyle ':completion:*:*:telnet:*' users-hosts-ports $telnet_users_hosts_ports
+
+## the default grml setup provides '..' as a completion. it does not provide
+## '.' though. If you want that too, use the following line:
+#zstyle ':completion:*' special-dirs true
+
+## aliases ##
+
+## translate
+#alias u='translate -i'
+
+## instead of global aliase it might be better to use grmls $abk assoc array, whose contents are expanded after pressing ,.
+#$abk[SnL]="| sort -n | less"
+
+## get top 10 shell commands:
+alias top10='print -l ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
+
+## Execute \kbd{./configure}
+#alias CO="./configure"
+
+## Execute \kbd{./configure --help}
+#alias CH="./configure --help"
+
+## miscellaneous code ##
+
+## Use a default width of 80 for manpages for more convenient reading
+#export MANWIDTH=${MANWIDTH:-80}
+
+## Set a search path for the cd builtin
+#cdpath=(.. ~)
+
+## variation of our manzsh() function; pick you poison:
+#manzsh()  { /usr/bin/man zshall |  most +/"$1" ; }
+
+## Switching shell safely and efficiently? http://www.zsh.org/mla/workers/2001/msg02410.html
+#bash() {
+#    NO_SWITCH="yes" command bash "$@"
+#}
+#restart () {
+#    exec $SHELL $SHELL_ARGS "$@"
+#}
+
+## Handy functions for use with the (e::) globbing qualifier (like nt)
+#contains() { grep -q "$*" $REPLY }
+#sameas() { diff -q "$*" $REPLY &>/dev/null }
+#ot () { [[ $REPLY -ot ${~1} ]] }
+
+## get_ic() - queries imap servers for capabilities; real simple. no imaps
+#ic_get() {
+#    emulate -L zsh
+#    local port
+#    if [[ ! -z $1 ]] ; then
+#        port=${2:-143}
+#        print "querying imap server on $1:${port}...\n";
+#        print "a1 capability\na2 logout\n" | nc $1 ${port}
+#    else
+#        print "usage:\n  $0 <imap-server> [port]"
+#    fi
+#}
+
+## List all occurrences of programm in current PATH
+#plap() {
+#    emulate -L zsh
+#    if [[ $# = 0 ]] ; then
+#        echo "Usage:    $0 program"
+#        echo "Example:  $0 zsh"
+#        echo "Lists all occurrences of program in the current PATH."
+#    else
+#        ls -l ${^path}/*$1*(*N)
+#    fi
+#}
+
+## Find out which libs define a symbol
+#lcheck() {
+#    if [[ -n "$1" ]] ; then
+#        nm -go /usr/lib/lib*.a 2>/dev/null | grep ":[[:xdigit:]]\{8\} . .*$1"
+#    else
+#        echo "Usage: lcheck <function>" >&2
+#    fi
+#}
+
+## Download a file and display it locally
+#uopen() {
+#    emulate -L zsh
+#    if ! [[ -n "$1" ]] ; then
+#        print "Usage: uopen \$URL/\$file">&2
+#        return 1
+#    else
+#        FILE=$1
+#        MIME=$(curl --head $FILE | \
+#               grep Content-Type | \
+#               cut -d ' ' -f 2 | \
+#               cut -d\; -f 1)
+#        MIME=${MIME%$'\r'}
+#        curl $FILE | see ${MIME}:-
+#    fi
+#}
+
+## Memory overview
+#memusage() {
+#    ps aux | awk '{if (NR > 1) print $5;
+#                   if (NR > 2) print "+"}
+#                   END { print "p" }' | dc
+#}
+
+## print hex value of a number
+#hex() {
+#    emulate -L zsh
+#    if [[ -n "$1" ]]; then
+#        printf "%x\n" $1
+#    else
+#        print 'Usage: hex <number-to-convert>'
+#        return 1
+#    fi
+#}
+
+## log out? set timeout in seconds...
+## ...and do not log out in some specific terminals:
+#if [[ "${TERM}" == ([Exa]term*|rxvt|dtterm|screen*) ]] ; then
+#    unset TMOUT
+#else
+#    TMOUT=1800
+#fi
+
+## associate types and extensions (be aware with perl scripts and anwanted behaviour!)
+#check_com zsh-mime-setup || { autoload zsh-mime-setup && zsh-mime-setup }
+#alias -s pl='perl -S'
+
+## ctrl-s will no longer freeze the terminal.
+#stty erase "^?"

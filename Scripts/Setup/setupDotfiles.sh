@@ -11,9 +11,7 @@ ln -sf "${HOME}/personaldotfiles/.spacemacs"		"${HOME}/"
 ln -sf "${HOME}/personaldotfiles/.aliases"		"${HOME}/"
 ln -sf "${HOME}/personaldotfiles/.nexrc"		"${HOME}/"
 
-#if [ -d "${HOME}/.emacs.d" ]; then
-    #cp "${HOME}/.emacs.d" "${HOME}/emacs.d.backup"
-    #git clone 'https://github.com/syl20bnr/spacemacs' "${HOME}/.emacs.d" --depth 1
-#fi
+[ -d "${HOME}/.emacs.d" ] || git clone 'https://github.com/syl20bnr/spacemacs' "${HOME}/.emacs.d"
+[ -d "${HOME}/.zplug" ]   || git clone 'https://github.com/zplug/zplug'        "${HOME}/.zplug"
 
-[ -d "${HOME}/.emacs.d" ] || git clone 'https://github.com/syl20bnr/spacemacs' "${HOME}/.emacs.d" --depth 1
+# vim: nolist

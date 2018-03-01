@@ -54,27 +54,27 @@ elif ! [ -w "$destDir" ] && ! [ "$DryRun" ]; then
 fi
 
 
-for file in "$srcDir"/*; do
-    if [ "$(echo "$file" | grep '\.sh$')" ]; then
-        target="$destDir/$(basename "$file" '.sh')"
+for file in "${srcDir}/"*; do
+    if [ "$(echo "${file}" | grep '\.sh$')" ]; then
+        target="${destDir}/$(basename "${file}" '.sh')"
         
         if [ "$HARDLINKS" ]; then
             if [ "$DryRun" ]; then
-                echo "Would HARD link $(basename "$file") to $target"
+                echo "Would HARD link $(basename "${file}") to ${target}"
             else
-                echo "HARD linking $(basename "$file") to $target"
+                echo "HARD linking $(basename "${file}") to ${target}"
                 ln -f "$file" "$target"
             fi
         else
             if [ "$DryRun" ]; then
-                echo "Would link $(basename "$file") to $target"
+                echo "Would link $(basename "${file}") to ${target}"
             else
-                echo "Linking $(basename "$file") to $target"
+                echo "Linking $(basename "${file}") to ${target}"
                 ln -sf "$file" "$target"
             fi
         fi
     else
-        echo "File $file is not a shell script, skipping..."
+        echo "File ${file} is not a shell script, skipping..."
     fi
 done
 

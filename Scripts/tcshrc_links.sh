@@ -1,10 +1,12 @@
 #!/bin/sh
 
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.set ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.alias ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.complete ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.set ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.bindkey ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.hosts ~/
-ln -sf ~/personaldotfiles/FreeBSD/.tcshrc.local ~/
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc"		"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.set"		"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.alias"		"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.complete"	"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.set"		"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.bindkey"	"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.hosts"		"${HOME}/"
+ln -sf "${HOME}/personaldotfiles/FreeBSD/.tcshrc.local"		"${HOME}/"
+
+# vim: nolist

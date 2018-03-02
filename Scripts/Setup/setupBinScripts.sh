@@ -10,6 +10,9 @@ else
     ln -sf "${HOME}/personaldotfiles/Scripts/misc/viRelated/run_vi.sh" "${HOME}/.local/bin/gvi"
 fi
 
-if [ "$(uname)" = 'Linux' ]; then
-    "${HOME}/personaldotfiles/Scripts/misc/ln_sh_scripts.sh" "${HOME}/personaldotfiles/Scripts/localbin" "/usr/local/bin"
+if [ "$(uname)" = 'Linux' ] && [ "$(id -u)" -eq 1 ] && [ x"$1" = x'sbin' ]; then
+    for file in "${HOME}/personaldotfiles/Scripts/localbin/"*; do
+        mkdir -p '/usr/local/sbin'
+        cp "$(basename "$file" .sh)" '/usr/local/sbin'
+    done
 fi

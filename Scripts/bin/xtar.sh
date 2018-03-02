@@ -35,6 +35,8 @@ more detailed information.
         piped to tar because 7zip cannot properly handle UN*X file permissions.
 -T    Simply rely on 'tar -xf' to handle the extraction. Will fail if tar fails
         to identify the archive.
+-A    If the archive contains only one file that is a directory, use it as the
+        top directory for the output even if it has a name like 'usr'.
 -f    Force: try to extract an unknown archive by sheer trial and error.
 EOF
     exit 0
@@ -182,8 +184,8 @@ do_extract() {
             mv -- "$tmp" "$odir"
 
         else
-            if [ -d "${odir}/${lonefile}" ]; then
-                for d in 'usr' 'bin' 'share' 'lib' 'etc' 'lib64' 'lib32'; do
+            if [ -z "$SetUsUpTheBomb" ] && [ -d "${odir}/${lonefile}" ]; then
+                for d in 'usr' 'bin' 'share' 'lib' 'lib64' 'lib32'; do
                     [ "${d}" = "$lonefile" ] && BOMB='YES' && break
                 done
             fi
@@ -460,7 +462,7 @@ rel_path() {
 # Main Code
 
 VER='xtar version 2.0'
-OPTSTRING='hVvo:cbgt7Tf'
+OPTSTRING='hVvo:cbgt7TAf'
 TimeStamp="$(date +%s)"
 first=true
 odir=
@@ -469,8 +471,9 @@ awful_shell=
 
 odir_param=
 combine=
-prefer='bsdtar'
+prefer=
 using=
+SetUsUpTheBomb=
 FORCE=
 no7z=
 
@@ -532,6 +535,9 @@ while getopts "${OPTSTRING}N" ARG; do
             ;;
         T)
             using='tar'
+            ;;
+        A)
+            SetUsUpTheBomb='MakeYourTime'
             ;;
         f)
             FORCE='YES'

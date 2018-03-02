@@ -7,7 +7,7 @@ printf -- '\n-----  Linking all dotfiles.  -----\n\n'
 "$HOME/personaldotfiles/Scripts/Setup/setupDotfiles.sh" "$1"
 
 printf -- '\n-----  Linking bin scripts.  -----\n\n'
-"$HOME/personaldotfiles/Scripts/Setup/setupBinScripts.sh"
+"$HOME/personaldotfiles/Scripts/Setup/setupBinScripts.sh" "$1"
 
 if [ "$(command -v fish)" ]; then
     printf -- '\n-----  Setting up fish -----\n\n'

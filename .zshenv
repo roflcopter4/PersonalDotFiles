@@ -51,7 +51,7 @@ if (( $#lp > 0 )) && [[ -x $lp[1] ]] ; then
 elif [[ -x /usr/bin/lesspipe.sh ]] ; then
     export LESSOPEN="|lesspipe.sh %s"
 fi
-[[ "$(command -v highlight)" ]] && export LESSCOLORIZER='highlight --out-format=truecolor -s molokai -t8'
+command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=molokai"
 unset lp
 export READNULLCMD=${PAGER:-/usr/bin/pager}
 # MAKEDEV should be usable on udev as well by default:

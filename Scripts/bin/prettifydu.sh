@@ -2,7 +2,7 @@
 
 LANG=C
 
-if [ -d "$1" ] || [ "$#" -eq 0 ]; then
+if [ -d "$1" ] || [ $# -eq 0 ]; then
     input="$(\du "$@" -d1 | sort -nr)"
 else
     input="$(\du "$@" | sort -nr)"
@@ -15,25 +15,23 @@ NewString=''
 
 longest=0
 for line in $input; do
-    byteStr=$(printf "$line" | perl -pe 's/^(\d+)\t.*/$1/')
+    byteStr="$(printf '%s' "$line" | perl -pe 's/^(\d+)\t.*/$1/')"
 
-    while [ $(printf "$byteStr" | ag '\d{4}') ]; do
-        line=$(printf "$line" | perl -pe 's/^(\d+?)(\d{3}(?:,|\s))(.*)/$1,$2$3/')
-        byteStr=$(printf "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
+    while [ "$(printf '%s' "$byteStr" | ag '\d{4}')" ]; do
+        line="$(printf '%s' "$line" | perl -pe 's/^(\d+?)(\d{3}(?:,|\s))(.*)/$1,$2$3/')"
+        byteStr="$(printf '%s' "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')"
     done
 
-    line=$(echo "$line" | perl -pe "s|$HOME|~|")
+    line="$(echo "$line" | perl -pe "s|${HOME}|~|")"
 
     if [ -z "$NewString" ]; then
         NewString="$line"
     else
-        NewString=$(printf '%s\n%s' "$NewString" "$line")
+        NewString="$(printf '%s\n%s' "$NewString" "$line")"
     fi
 
     strLen=${#byteStr}
-    if [ "$strLen" -gt "$longest" ]; then
-        longest=$strLen
-    fi
+    [ "$strLen" -gt "$longest" ] && longest=$strLen
 done
 
 
@@ -48,7 +46,7 @@ done
 #done
 
 for line in $NewString; do
-    byteStr=$(printf "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
-    therest=$(printf "$line" | perl -pe 's/^[0-9,]+(\t.*)/$1/')
-    printf "%${longest}s%s\n" $byteStr $therest
+    byteStr=$(printf '%s' "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')
+    therest=$(printf '%s' "$line" | perl -pe 's/^[0-9,]+(\t.*)/$1/')
+    printf '%*s%s\n' "${longest}" "$byteStr" "$therest"
 done

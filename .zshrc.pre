@@ -7,11 +7,11 @@
 
 
 # Check if zplug is installed
-if [[ ! -d ~/.zplug ]]; then
-    git clone https://github.com/zplug/zplug ~/.zplug
-    source ~/.zplug/init.zsh && zplug update --self
+if [[ ! -d "${HOME}/.zplug" ]]; then
+    git clone 'https://github.com/zplug/zplug' "${HOME}/.zplug"
+    source "${HOME}/.zplug/init.zsh"
 else
-    source ~/.zplug/init.zsh
+    source "${HOME}/.zplug/init.zsh"
 fi
 
 
@@ -45,7 +45,7 @@ if ! [[ -d "${HOME}/.local" ]]; then
     mkdir -p "${HOME}/.local/lib"
     mkdir -p "${HOME}/.local/etc"
 fi
-zplug 'wting/autojump', hook-build:"./install.py -d ~/.local"
+zplug 'wting/autojump', hook-build:"./install.py -d ${HOME}/.local"
 
 # Local plugins
 local PluginDir="${HOME}/personaldotfiles/zsh/plugins"

@@ -849,6 +849,8 @@ if IsSourced('ale')
 
     let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
     let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
+    "let g:ale_python_flake8_executable = 'flake8_3'
+    "let g:ale_python_pyflakes_executable = 'pyflakes_3'
     let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
 
     "let g:ale_linters = {'perl': ['perl', 'perlcritic']}

@@ -63,6 +63,7 @@ case "$SYSID" in
         export path=( "${HOME}"/.local/bin /usr/local/sbin /usr/sbin /sbin /usr/local/bin /usr/bin /bin /usr/games /usr/lib64/kde4/libexec /usr/lib64/qt/bin /usr/share/texmf/bin )
         ;;
     'gentoo'|'laptop-gentoo')
+        #export path=( "${HOME}/.local/bin" /opt/bin /usr/lib/ccache/bin /usr/local/sbin /usr/local/sbin/python /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /usr/sbin /usr/bin /sbin /bin )
         export path=( "${HOME}/.local/bin" /opt/bin /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /usr/sbin /usr/bin /sbin /bin )
         export PT=/var/tmp/portage
         export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"

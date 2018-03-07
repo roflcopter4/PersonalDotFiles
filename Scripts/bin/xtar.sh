@@ -7,37 +7,42 @@
 ShowUsage() {
     THIS="$(basename "$0")"
     [ "$1" ] && [ "$1" -ne 0 ] && out=2 || out=1
-    echo "Usage: ${THIS} -[${OPTSTRING}] archive(s)..." >&$out
+    echo "Usage: ${THIS} [options] archive(s)..." >&$out
     [ "$out" -eq 2 ] && exit "$1"
     echo; cat << 'EOF'
 Extract an archive safely to a unique directory, ensuring no irritating
 single sub-directories or lots of loose files are created. See the manual for
-more detailed information.
+more detailed information. Long options are only available if getopt(1) is GNU
+getopt. Otherwise the shell builtin getopts is used, which is more primative.
 
 --- OPTIONS ---
--h        Show this usage information.
--V        Show version.
--v        Verbose mode. Display progress information if possible.
--o [dir]  Explicitly specify output directory. If it already exists, time_t will
-            be appended to it. When used with multiple archives it will function
-            as a top directory with each archive extracted to sub-directories,
-            unless -c is supplied, whereupon all archives are combined into it.
--c        Combine multiple archives. When -o is not supplied, a directory name
-            is generated from the name of the first supplied archive.
+-h --help      Show this usage information.
+-V --version   Show version.
+-v --verbose   Verbose mode. Display progress information if possible.
+-o [dir]  --top [DIR]
+               Explicitly specify output directory. If it already exists,
+                 time_t will be appended to it. When used with multiple
+                 archives it will function as a top directory with each archive
+                 extracted to sub-directories, unless -c is supplied, whereupon
+                 all archives are combined into it.
+-c --combine   Combine multiple archives. When -o is not supplied, a directory
+                 name is generated from the name of the first supplied archive.
 
 -- TAR --
--b    Use bsdtar over 'tar' if it exists, otherwise fall back to tar. [default]
--g    Use gtar if it exists, otherwise fall back to tar.
--t    Use 'tar' by default.
+-b             Use bsdtar over 'tar' if it exists, otherwise fall back to tar.
+-g             Use gtar if it exists, otherwise fall back to tar.
+-t             Use 'tar' by default.
+--tar ARG      Explicity specify the location/name of 'tar'.
 
 -- EXTRACTION --
--7    Use 7zip for extractions if it is installed. Tar archives are subsequently
-        piped to tar because 7zip cannot properly handle UN*X file permissions.
--T    Simply rely on 'tar -xf' to handle the extraction. Will fail if tar fails
-        to identify the archive.
--A    If the archive contains only one file that is a directory, use it as the
-        top directory for the output even if it has a name like 'usr'.
--f    Force: try to extract an unknown archive by sheer trial and error.
+-7 --use7zip   Use 7zip for extractions if it is installed. Tar archives are
+                 subsequently piped to tar because 7zip cannot properly handle
+                 UN*X file permissions.
+-T --usetar    Simply rely on 'tar -xf' to handle the extraction. Will fail if
+                 tar fails to identify the archive.
+-A             If the archive contains only one file that is a directory, use
+                 it as the top dir even if it has a name like 'usr'.
+-f --force     Force: try to extract an unknown archive by trial and error.
 EOF
     exit 0
 }
@@ -238,12 +243,22 @@ extract_else() {
     dcmd=
     dcmdE1=
     dcmdE2=
+    to_stdout=
+    vredir=
     [ "x${using}" = 'x7zip' ] && ext='7z'
     determine_decompressor "$ext" || return $?
 
-    if [ "$vredir" ]; then
+    # Stream decompressors will place the output file in the same directory as
+    # the archive, so they have to send it to stdout in order for this to work.
+    if [ "$to_stdout" ]; then
+        echo "${dcmd}${dcmdE1} '${B}'${dcmdE2} > ${bname}"
+        ${dcmd}${dcmdE1} "${A}"${dcmdE2} > "${odir}/${bname}"
+
+    # The only way to make certain commands shut the hell up.
+    elif [ "$vredir" ]; then
         echo "${dcmd}${dcmdE1} '${B}'${dcmdE2} >/dev/null 2>&1"
         ${dcmd}${dcmdE1} "${A}"${dcmdE2} >/dev/null 2>&1
+
     else
         echo "${dcmd}${dcmdE1} '${B}'${dcmdE2}"
         ${dcmd}${dcmdE1} "${A}"${dcmdE2}
@@ -254,6 +269,11 @@ extract_else() {
 # NOTE: No space between the additional option variables and the main command
 #       to allow chaining options. If the main command lacks any a space must be
 #       added to the option.
+# XXX:  I didn't originally realize that stream decompressors wouldn't output
+#       to the working directory, so many commands had different options for T1 and
+#       E1. After I did realize this, most commands have the same option for
+#       both. I'm still going to use both options though, since a couple of
+#       commands still do have differences.
 # EXPORTS: dcmd dcmdT1 dcmdT2 dcmdE1
 determine_decompressor() {
     #echo $1
@@ -261,6 +281,8 @@ determine_decompressor() {
         z|Z)
             dcmd='uncompress'
             dcmdT1=' -c'
+            dcmdE1=' -c'
+            to_stdout='YES'
             return 0;;
     esac
 
@@ -268,7 +290,8 @@ determine_decompressor() {
         gz|z|Z)
             dcmd='gzip -d'
             dcmdT1='c'
-            dcmdE1='k'
+            dcmdE1='c'
+            to_stdout='YES'
             return 0;;
     esac
 
@@ -276,7 +299,8 @@ determine_decompressor() {
         bz|bz2)
             dcmd='bzip2 -d'
             dcmdT1='c'
-            dcmdE1='k'
+            dcmdE1='c'
+            to_stdout='YES'
             return 0;;
     esac
 
@@ -284,7 +308,8 @@ determine_decompressor() {
         xz|lzma|lz)
             dcmd='xz -d'
             dcmdT1='c'
-            dcmdE1='k'
+            dcmdE1='c'
+            to_stdout='YES'
             return 0;;
     esac
 
@@ -292,6 +317,8 @@ determine_decompressor() {
         lz4)
             dcmd='lz4 -d'
             dcmdT1='c'
+            dcmdT1='c'
+            to_stdout='YES'
             return 0;;
     esac
 
@@ -463,6 +490,8 @@ rel_path() {
 
 VER='xtar version 2.0'
 OPTSTRING='hVvo:cbgt7TAf'
+LONGOPTS='help,version,verbose,top:,combine,tar:,use7zip,usetar,force'
+
 TimeStamp="$(date +%s)"
 first=true
 odir=
@@ -476,10 +505,10 @@ using=
 SetUsUpTheBomb=
 FORCE=
 no7z=
+GnuGetopt=false
 
 # Verbiage - defaults to 'shut the hell up'.
 verb=false
-vredir=
 v7z=' -bso0 -bsp0'
 vzip=' -qq'
 
@@ -490,68 +519,105 @@ YELLOW='\033[33m'
 
 [ $# -eq 0 ] && ShowUsage 1  # Exit if no paramaters
 
-# For portability we're stuck with the POSIX builtin getopts rather than the
-# superior GNU getopt command. It's still much better than BSD's getopt.
-# Nonetheless, we should handle at least a few attempts at GNU style options.
-case "$1" in
-    '--help')
-        ShowUsage 0  # Exits
-        ;;
-    '--version')
-        echo "${VER}" && exit 0
-        ;;
-esac
+getopt -T >/dev/null 2>&1
+if [ $? -eq 4 ]; then
+    GnuGetopt=true
+    TEMP="$(getopt -n "${0##*/}" -o "${OPTSTRING}N" \
+            --longoptions "${LONGOPTS}" -- "$@")" || ShowUsage 2
+    eval set -- "$TEMP"
 
-while getopts "${OPTSTRING}N" ARG; do
-    case "$ARG" in
-        h)
+else
+    # For portability we're stuck with the POSIX builtin getopts rather than the
+    # superior GNU getopt command. It's still much better than BSD's getopt.
+    # Nonetheless, we should handle at least a few attempts at GNU style options.
+    case "$1" in
+        --help)
             ShowUsage 0  # Exits
             ;;
-        V)
+        --version)
             echo "${VER}" && exit 0
             ;;
-        v)
+    esac
+fi
+
+while 
+    if $GnuGetopt; then
+        ARG="$1"
+        OPTARG="$2"
+        true
+    else
+        getopts "${OPTSTRING}N" ARG
+    fi
+do
+    case "$ARG" in
+        h|-h|--help)
+            ShowUsage 0  # Exits
+            ;;
+        V|-V|--version)
+            echo "${VER}" && exit 0
+            ;;
+        v|-v|--verbose)
             verb=true
             v7z=
             vzip=
+            $GnuGetopt && shift
             ;;
-        o)
+        o|-o|--top)
             odir_param="$OPTARG"
+            $GnuGetopt && shift 2
             ;;
-        c)
+        c|-c|--combine)
             combine='YES'
+            $GnuGetopt && shift
             ;;
-        b)
+        b|-b)
             prefer='bsdtar'
+            $GnuGetopt && shift
             ;;
-        g)
+        g|-g)
             prefer='gtar'
+            $GnuGetopt && shift
             ;;
-        t)
+        t|-t)
             prefer='tar'
+            $GnuGetopt && shift
             ;;
-        7)
+        --tar)
+            prefer="$OPTARG"
+            shift 2
+            ;;
+        7|-7|--use7zip)
             using='7zip'
+            $GnuGetopt && shift
             ;;
-        T)
+        T|-T|--usetar)
             using='tar'
+            $GnuGetopt && shift
             ;;
-        A)
+        A|-A)
             SetUsUpTheBomb='MakeYourTime'
+            $GnuGetopt && shift
             ;;
-        f)
+        f|-f|--force)
             FORCE='YES'
+            $GnuGetopt && shift
             ;;
-        N)
+        N|-N)
             # UNDOCUMENTED - Avoid 7zip for testing backup commands.
             no7z='YES'
+            $GnuGetopt && shift
+            ;;
+        --)
+            shift; break
             ;;
         *)
+            echo 'bast'
             ShowUsage 2  # Exits
             ;;
     esac
 done
-shift $(( OPTIND - 1 ))
+$GnuGetopt || shift $(( OPTIND - 1 ))
+
 
 [ $# -eq 0 ] && echo 'No archive names provided.' >&2 && ShowUsage 3
 num_archives=$#

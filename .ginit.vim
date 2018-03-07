@@ -5,13 +5,10 @@ if WINDOWS()
 "elseif $QT == 'true'
 else
     GuiFont DinaPowerline:h8
-    "GuiFont Dina:h10
-"else
-    "GuiFont DinaTTF:h13
 endif
 
 
-GuiLinespace=9
+GuiLinespace=0
 
 "let g:nvim_qt = 1
 "let g:airline_left_sep='›'  " Slightly fancier than '>'

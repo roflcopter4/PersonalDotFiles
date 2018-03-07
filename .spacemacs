@@ -424,8 +424,9 @@ values."
    ))
 
 
-;; ==============================================================================
-;; ==============================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
 
 
 (defun dotspacemacs/user-init ()
@@ -490,7 +491,46 @@ values."
                              (1 'my-format-code-format-face         prepend)
                              (2 'my-format-code-directive-face      prepend))))
 
+
+  ;; ---------------------------------------------------------------
+  ;; HIGHLIGHTING #if (0) AS A COMMENT IN C
+  (defun my-c-mode-font-lock-if0 (limit)
+    (save-restriction
+      (widen)
+      (save-excursion
+	(goto-char (point-min))
+	(let ((depth 0) str start start-depth)
+	  (while (re-search-forward "^\\s-*#\\s-*\\(if\\|else\\|endif\\)" limit 'move)
+	    (setq str (match-string 1))
+	    (if (string= str "if")
+		(progn
+		  (setq depth (1+ depth))
+		  (when (and (null start) (looking-at "\\s-+0"))
+		    (setq start (match-end 0)
+			  start-depth depth)))
+	      (when (and start (= depth start-depth))
+		(c-put-font-lock-face start (match-beginning 0) 'font-lock-comment-face)
+		(setq start nil))
+	      (when (string= str "endif")
+		(setq depth (1- depth)))))
+	  (when (and start (> depth 0))
+	    (c-put-font-lock-face start (point) 'font-lock-comment-face)))))
+    nil)
+
+  (defun my-c-mode-common-hook ()
+    (font-lock-add-keywords
+     nil
+     '((my-c-mode-font-lock-if0 (0 font-lock-comment-face prepend))) 'add-to-end))
+
+  (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+
   )
+
+
+;; ==============================================================================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
 
 
 (defun dotspacemacs/user-config ()
@@ -569,17 +609,39 @@ values."
                 (message "No Compilation Errors")))))
 
 
-  ;; ==============================================================================
-  ;; ==============================================================================
+  ;; ==============================================================================================================================
+  ;; ==============================================================================================================================
   ;; Clang-format style
-  (setq clang-format-style "{BasedOnStyle: LLVM, AlignEscapedNewlinesLeft: true, AlignTrailingComments: true, AllowAllParametersOfDeclarationOnNextLine: true, AllowShortBlocksOnASingleLine: false, AllowShortFunctionsOnASingleLine: None, AllowShortIfStatementsOnASingleLine: false, AllowShortLoopsOnASingleLine: false, AlwaysBreakTemplateDeclarations: true, BreakBeforeBraces: Allman, ColumnLimit: 0, IndentCaseLabels: true, IndentWidth: 4, MaxEmptyLinesToKeep: 2, SpaceBeforeAssignmentOperators: true, SpaceBeforeParens: ControlStatements, Standard: Auto, TabWidth: 4}")
+  ;; (setq clang-format-style "{BasedOnStyle: LLVM,
+  ;;                            AlignEscapedNewlinesLeft: true,
+  ;;                            AlignTrailingComments: true,
+  ;;                            AllowAllParametersOfDeclarationOnNextLine: true,
+  ;;                            AllowShortBlocksOnASingleLine: false,
+  ;;                            AllowShortFunctionsOnASingleLine: None,
+  ;;                            AllowShortIfStatementsOnASingleLine: false,
+  ;;                            AllowShortLoopsOnASingleLine: false,
+  ;;                            AlwaysBreakTemplateDeclarations: true,
+
+  ;;                            BreakBeforeBraces: Linux,
+  ;;                            IndentWidth: 8,
+  ;;                            ColumnLimit: 0,
+  ;; 	                     TabWidth: 8,
+  ;;                            UseTab: Never,
+  ;;                            IndentCaseLabels: false,
+
+  ;;                            MaxEmptyLinesToKeep: 2,
+  ;;                            SpaceBeforeAssignmentOperators: true,
+  ;;                            SpaceBeforeParens: ControlStatements,
+  ;;                            Standard: Auto}"
+  ;; 	)
+  ;; (setq clang-format-style "{BasedOnStyle: LLVM, AlignEscapedNewlinesLeft: true, AlignTrailingComments: true, AllowAllParametersOfDeclarationOnNextLine: true, AllowShortBlocksOnASingleLine: false, AllowShortFunctionsOnASingleLine: None, AllowShortIfStatementsOnASingleLine: false, AllowShortLoopsOnASingleLine: false, AlwaysBreakTemplateDeclarations: true, BreakBeforeBraces: Linux, IndentWidth: 8, ColumnLimit: 100, TabWidth: 8, UseTab: Never, IndentCaseLabels: false, MaxEmptyLinesToKeep: 2, SpaceBeforeAssignmentOperators: true, SpaceBeforeParens: ControlStatements, Standard: Auto}")
   )
 
 
-;; ==============================================================================
-;; ==============================================================================
-;; ==============================================================================
-;; ==============================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
+;; ==============================================================================================================================
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

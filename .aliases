@@ -168,6 +168,8 @@ mkalias -T sage='sage -q'
 mkalias -T ari='aria2c' 
 mkalias -T par='par-format'
 
+mkalias -T wolf='wolframscript'
+
 
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')

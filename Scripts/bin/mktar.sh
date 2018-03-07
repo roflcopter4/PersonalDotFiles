@@ -5,6 +5,8 @@
 # that I wrote it at 4 am after having been awake for well past 48 hours and
 # was hearing voices might well explain even more.
 
+VER='mktar v0.9.0'
+
 Out_File=
 Top_Dir=
 Echo_Dir=
@@ -61,11 +63,24 @@ Make_Top_Dir() {
 }
 
 
+case "$1" in
+    '--help')
+        ShowUsage 0  # Exits
+        ;;
+    '--version')
+        echo "${VER}" && exit 0
+        ;;
+esac
+
+
 [ "$#" -eq 0 ] && ShowUsage 1
-while getopts 'h7bgt:o:l:' ARG; do
+while getopts 'hV7bgt:o:l:' ARG; do
     case "$ARG" in
         h)
-            ShowUsage 0
+            ShowUsage 0  # Exits
+            ;;
+        V)
+            echo "${VER}" && exit 0
             ;;
         7)
             Use7z=true

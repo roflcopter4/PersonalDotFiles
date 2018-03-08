@@ -9,7 +9,7 @@ ShowUsage() {
     [ "$1" ] && [ "$1" -ne 0 ] && out=2 || out=1
     echo "Usage: ${THIS} [options] archive(s)..." >&$out
     [ "$out" -eq 2 ] && exit "$1"
-    echo; cat << 'EOF'
+    echo; cat <<'EOF'
 Extract an archive safely to a unique directory, ensuring no irritating
 single sub-directories or lots of loose files are created. See the manual for
 more detailed information. Long options are only available if getopt(1) is GNU
@@ -130,7 +130,7 @@ get_odir() {
     local modpath
     if [ "${odir_param}" ]; then
         modpath="${bpath}/${odir_param}"
-        if [ "${num_archives}" -eq 1 ] || [ "${combine}" ]; then 
+        if [ "${num_archives}" -eq 1 ] || [ "${combine}" ]; then
             odir="${modpath}"
             oname="${odir_param}"
         else
@@ -162,31 +162,45 @@ handle_conflict() {
 # =================================================================================================
 
 
+# In one test I had a file starting with '-' that broke everything. I'm now so
+# paranoid that I put '--' after every standard command. It's probably though
+# since I don't plan on doing the same for all of the extraction commands
 do_extract() {
     local modpath tmp odir2 oname BOMB
     mkdir -p "$odir" && cd "$odir" || exit 20
 
+    # ${A}: The actual full path of the source file, used in the final command.
+    # ${B}: The path of the source file relative to the extraction directory.
+    #       Only used when echoing the command. Full paths are just safer.
     A="${bpath}/${fname}"
     B="$(rel_path "${odir}" "${A}")"
     echo "mkdir && cd -> $(basename "$odir")"
 
-    if $is_tar; then extract_tar; else extract_else; fi
+    # No lazy shortcuts, only an if...else statement is safe here.
+    if $is_tar; then
+        extract_tar
+    else
+        extract_else
+    fi
     ret=$?
     if [ $ret -ne 0 ]; then
         echo "$ret"
         handle_failure && printf '\nSuccess!\n' >&2 || return $?
     fi
 
-    if [ -z "$combine" ] && [ "$(command ls -1 -A -- "$odir" | wc -l)" -eq 1 ]; then
-        lonefile="$(command ls -1 -A -- "$odir")"
+    while [ -z "$combine" ] && [ "$(command ls -1 -A "$odir" | wc -l)" -eq 1 ]
+    do
+        lonefile="$(command ls -1 -A "$odir")"
         if (echo "$lonefile" | grep -q '^\.'); then
-            mv -- "${odir}/${lonefile}" "${odir}/${lonefile#.}" 
+            mv "${odir}/${lonefile}" "${odir}/${lonefile#.}"
+            lonefile="${lonefile#.}"
+        fi
 
-        elif [ "$lonefile" = "$bname" ]; then
+        if [ "$lonefile" = "$bname" ]; then
             tmp="$(handle_conflict "$bpath" "$bname")"
-            mv -- "${odir}/${lonefile}" "$tmp"
-            cd -- "$bpath" && rmdir "$odir"
-            mv -- "$tmp" "$odir"
+            mv "${odir}/${lonefile}" "$tmp"
+            cd "$bpath" && rmdir "$odir"
+            mv "$tmp" "$odir"
 
         else
             if [ -z "$SetUsUpTheBomb" ] && [ -d "${odir}/${lonefile}" ]; then
@@ -194,7 +208,7 @@ do_extract() {
                     [ "${d}" = "$lonefile" ] && BOMB='YES' && break
                 done
             fi
-            
+
             if [ -z "$BOMB" ]; then
                 if [ "$num_archives" -eq 1 ]; then
                     oname="${odir_param:-${lonefile}}"
@@ -205,34 +219,37 @@ do_extract() {
                     odir2="${modpath}/${lonefile}"
                     [ -e "$odir2" ] && odir2="$(handle_conflict "$modpath" "$lonefile")"
                 fi
-                mv -- "${odir}/${lonefile}" "$odir2"
-                rmdir -- "$odir"
+                mv "${odir}/${lonefile}" "$odir2"
+                cd "$odir2" && rmdir "$odir"
+                odir="$odir2"
+                odir2=
             fi
         fi
-        
-    fi
-    echo "Extracted to:  $(relpath "${bpath}" "${odir2:-${odir}}")"
+    done
+
+    #echo "Extracted to:  $(relpath "${bpath}" "${odir2:-${odir}}")"
+    echo "Extracted to:  $(relpath "${bpath}" "${odir}")"
     cd "$bpath" || exit 20
 }
 
 
 # Extract a .tar.* archive.
 extract_tar() {
-    dcmd=
-    dcmdT1=
-    dcmdT2=
+    cmd=
+    cmdT1=
+    cmdT2=
     if [ "x${using}" = 'xtar' ]; then
-        dcmd="${TAR} -xf"
-        echo "${dcmd} ${B}"
-        ${dcmd} "${A}"
+        cmd="${TAR} -xf"
+        echo "${cmd} '${B}'"
+        eval "${cmd} '${A}'"
     else
         [ "x${using}" = 'x7zip' ] && bext='7z'
         determine_decompressor "$bext" || return $?
-        if [ "$dcmdT1" = 'SPECIAL' ]; then
+        if [ "$cmdT1" = 'SPECIAL' ]; then
             handle_special_cases "$bext"
         else
-            echo "${dcmd}${dcmdT1} '${B}'${dcmdT2} | ${TAR} -xf -"
-            ${dcmd}${dcmdT1} "${A}"${dcmdT2} | ${TAR} -xf -
+            echo "${cmd}${cmdT1} '${B}'${cmdT2} | ${TAR} -xf -"
+            eval "${cmd}${cmdT1} '${A}'${cmdT2} | ${TAR} -xf -"
         fi
     fi
 }
@@ -240,9 +257,9 @@ extract_tar() {
 
 # Extract anything else.
 extract_else() {
-    dcmd=
-    dcmdE1=
-    dcmdE2=
+    cmd=
+    cmdE1=
+    cmdE2=
     to_stdout=
     vredir=
     [ "x${using}" = 'x7zip' ] && ext='7z'
@@ -251,130 +268,123 @@ extract_else() {
     # Stream decompressors will place the output file in the same directory as
     # the archive, so they have to send it to stdout in order for this to work.
     if [ "$to_stdout" ]; then
-        echo "${dcmd}${dcmdE1} '${B}'${dcmdE2} > ${bname}"
-        ${dcmd}${dcmdE1} "${A}"${dcmdE2} > "${odir}/${bname}"
+        echo "${cmd}${cmdE1} '${B}'${cmdE2} > ${bname}"
+        eval "${cmd}${cmdE1} '${A}'${cmdE2} > '${odir}/${bname}'"
 
     # The only way to make certain commands shut the hell up.
     elif [ "$vredir" ]; then
-        echo "${dcmd}${dcmdE1} '${B}'${dcmdE2} >/dev/null 2>&1"
-        ${dcmd}${dcmdE1} "${A}"${dcmdE2} >/dev/null 2>&1
+        echo "${cmd}${cmdE1} '${B}'${cmdE2} >/dev/null 2>&1"
+        eval "${cmd}${cmdE1} '${A}'${cmdE2} >/dev/null 2>&1"
 
     else
-        echo "${dcmd}${dcmdE1} '${B}'${dcmdE2}"
-        ${dcmd}${dcmdE1} "${A}"${dcmdE2}
+        echo "${cmd}${cmdE1} '${B}'${cmdE2}"
+        eval "${cmd}${cmdE1} '${A}'${cmdE2}"
     fi
 }
 
 
-# NOTE: No space between the additional option variables and the main command
-#       to allow chaining options. If the main command lacks any a space must be
-#       added to the option.
+# NOTE: If a space is required between the end of cmd and the start of the
+#       extra option, it must be added to the beginning of that option. The
+#       same goes for option 2 which occurs after the source file. This is
+#       simply to avoid there being a space when options do not appear, and
+#       also to allow the chaining of options where possible. Admittedly this
+#       is a little kludgy.
 # XXX:  I didn't originally realize that stream decompressors wouldn't output
-#       to the working directory, so many commands had different options for T1 and
-#       E1. After I did realize this, most commands have the same option for
-#       both. I'm still going to use both options though, since a couple of
-#       commands still do have differences.
-# EXPORTS: dcmd dcmdT1 dcmdT2 dcmdE1
+#       to the working directory, so many commands had different options for T1
+#       and E1. After I did realize this, most then had the same value for
+#       both. I removed the two variables completely for those cases. Before
+#       this nearly all commands used both variables.
+# EXPORTS: cmd cmdT1 cmdT2 cmdE1 to_stdout
 determine_decompressor() {
     #echo $1
     cmd_exists 'uncompress' && case "$1" in
         z|Z)
-            dcmd='uncompress'
-            dcmdT1=' -c'
-            dcmdE1=' -c'
+            cmd='uncompress -c'
             to_stdout='YES'
             return 0;;
     esac
 
-    cmd_exists 'gzip' && case "$1" in 
+    cmd_exists 'gzip' && case "$1" in
         gz|z|Z)
-            dcmd='gzip -d'
-            dcmdT1='c'
-            dcmdE1='c'
+            cmd='gzip -dc'
             to_stdout='YES'
             return 0;;
     esac
 
     cmd_exists 'bzip2' && case "$1" in
         bz|bz2)
-            dcmd='bzip2 -d'
-            dcmdT1='c'
-            dcmdE1='c'
+            cmd='bzip2 -dc'
             to_stdout='YES'
             return 0;;
     esac
 
     cmd_exists 'xz' && case "$1" in
         xz|lzma|lz)
-            dcmd='xz -d'
-            dcmdT1='c'
-            dcmdE1='c'
+            cmd='xz -dc'
             to_stdout='YES'
             return 0;;
     esac
 
     cmd_exists 'lz4' && case "$1" in
         lz4)
-            dcmd='lz4 -d'
-            dcmdT1='c'
-            dcmdT1='c'
+            cmd='lz4 -dc'
             to_stdout='YES'
             return 0;;
     esac
 
-    case "$1" in  # Tar ALWAYS exists
+    case "$1" in
         tar|cpio)
-            dcmd="${TAR} -xf"
-            dcmdT2=' -'
+            cmd="${TAR} -xf"
+            cmdT2=' -'  # NOTE: <-- Space required.
             return 0;;
     esac
 
     cmd_exists '7z' && [ -z "$no7z" ] && case "$1" in
         7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|\
         Z|z|jar|deb|rpm|a|ar|iso|img)
-            dcmd="7z${v7z}"
-            dcmdT1=' -so x'
-            dcmdE1=' x'
+            cmd="7z${v7z}"
+            cmdT1=' -so x'
+            cmdE1=' x'
             return 0;;
     esac
 
     cmd_exists 'zpaq' && case "$1" in
         zpaq)
-            dcmd='zpaq x'
-            dcmdT1='SPECIAL'
+            cmd='zpaq x'
+            cmdT1='SPECIAL'
             $verb || vredir='YES'
             return 0;;
     esac
 
     cmd_exists 'zip' && case "$1" in
         zip)
-            dcmd="unzip${vzip}"
-            dcmdT1=' -p'
+            cmd="unzip${vzip}"
+            cmdT1=' -p'
             return 0;;
     esac
 
     cmd_exists 'arc' && case "$1" in
         arc)
-            dcmd='arc'
-            dcmdT1=' p'
-            dcmdE1=' x'
+            cmd='arc'
+            cmdT1=' p'
+            cmdE1=' x'
             return 0;;
     esac
 
     cmd_exists 'unace' && case "$1" in
         ace|winace)
-            dcmd='unace x'
+            cmd='unace x'
             return 0;;
     esac
 
     cmd_exists 'unrar' && case "$1" in
         rar)
-            dcmd='unrar x'
+            cmd='unrar x'
             return 0;;
     esac
-    
-    if [ -z "${dcmd}" ]; then
-        [ -z "${FORCE}" ] && cat << EOF >&2
+
+    if [ -z "${cmd}" ]; then
+        [ -z "${FORCE}" ] && cat <<EOF >&2
 ERROR: File "${fname}"
        Either format is unrecognized or no known extraction utilities were
        found. Double check whether the required program is installed and is in
@@ -393,15 +403,15 @@ handle_special_cases() {
         zpaq)
             if [ "$vredir" ]; then
                 echo "zpac x '${B}' >/dev/null 2>&1"
-                zpaq x "${A}" >/dev/null 2>&1
+                eval "zpaq x '${A}' >/dev/null 2>&1"
             else
                 echo "zpac x '${B}'"
-                zpaq x "${A}"
+                eval "zpaq x '${A}'"
             fi
             for f in .*; do
                 if (echo "${f}" | grep -q '.tar$'); then
                     echo "tar -xf && rm -> '${f}'"
-                    tar -xf "${f}"
+                    eval "tar -xf '${f}'"
                     rm -f "${f}"
                     break
                 fi
@@ -424,23 +434,23 @@ handle_failure() {
         while true; do
             if cmd_exists '7z' && [ $index -eq 1 ]; then
                 echo "Trying 7zip" >&2
-                7z x${v7z} "${A}" && return
+                eval "7z x${v7z} '${A}'" && return
 
             elif cmd_exists 'patool' && [ $index -eq 2 ]; then
                 echo "Trying patool" >&2
-                patool extract "${A}" && return
+                eval "patool extract '${A}'" && return
 
             elif cmd_exists 'atool' && [ $index -eq 3 ]; then
                 echo "Trying atool" >&2
-                atool -x "${A}" && return
+                eval "atool -x '${A}'" && return
 
             elif cmd_exists 'zpaq' && [ $index -eq 4 ]; then
                 echo 'Trying zpaq' >&2
-                zpaq x "${A}" && return
+                eval "zpaq x '${A}'" && return
 
             elif [ $index -eq 5 ]; then
                 echo "Trying tar" >&2
-                tar -xf "${A}" && return
+                eval "tar -xf '${A}'" && return
 
             else
                 echo 'Total failure' >&2
@@ -467,20 +477,20 @@ rel_path() {
 
     [ "${this}" = "${target}" ] && echo '.' && return
 
-    while appendix="${target#"${this}/"}" 
+    while appendix="${target#"${this}/"}"
           [ "${this}" != '/' ] &&
           [ "${appendix}" = "${target}" ] &&
           [ "${appendix}" != "${this}" ]
     do
-        this="${this%/*}" 
-        rpath="${rpath}${rpath:+/}.." 
+        this="${this%/*}"
+        rpath="${rpath}${rpath:+/}.."
     done
 
     # Unnecessary '#/' to make 100% sure that there is never a leading '/'.
     if [ "${this}" = "${appendix}" ]; then
         echo "${rpath#/}"
     else
-        rpath="${rpath}${rpath:+${appendix:+/}}${appendix}" 
+        rpath="${rpath}${rpath:+${appendix:+/}}${appendix}"
         echo "${rpath#/}"
     fi
 }
@@ -506,6 +516,7 @@ SetUsUpTheBomb=
 FORCE=
 no7z=
 GnuGetopt=false
+GnuGetoptCMD=
 
 # Verbiage - defaults to 'shut the hell up'.
 verb=false
@@ -519,10 +530,19 @@ YELLOW='\033[33m'
 
 [ $# -eq 0 ] && ShowUsage 1  # Exit if no paramaters
 
-getopt -T >/dev/null 2>&1
-if [ $? -eq 4 ]; then
-    GnuGetopt=true
-    TEMP="$(getopt -n "${0##*/}" -o "${OPTSTRING}N" \
+# I've never heard of GNU Getopt being named ggetopt, but in the tiny chance
+# that some UN*X somewhere has done that we should test for it.
+for TST in 'getopt' '/usr/bin/getopt' '/usr/local/bin/getopt' 'ggetopt'; do
+    ${TST} -T >/dev/null 2>&1
+    if [ $? -eq 4 ]; then
+        GnuGetopt=true
+        GnuGetoptCMD="$TST"
+        break
+    fi
+done
+
+if $GnuGetopt; then
+    TEMP="$(${GnuGetoptCMD} -n "${0##*/}" -o "${OPTSTRING}N" \
             --longoptions "${LONGOPTS}" -- "$@")" || ShowUsage 2
     eval set -- "$TEMP"
 
@@ -540,7 +560,7 @@ else
     esac
 fi
 
-while 
+while
     if $GnuGetopt; then
         ARG="$1"
         OPTARG="$2"
@@ -642,9 +662,9 @@ for Archive in "$@"; do
     printf -- "${YELLOW}===============================================================================${NORMAL}\n"
     printf -- "${YELLOW}-----  Processing ${fname}  -----${NORMAL}\n"
 
-    [ -f "$Archive" ] || { 
+    [ -f "$Archive" ] || {
         echo "ERROR: File '${Archive}' either doesn't exist or is a directory. Skipping." >&2
-        continue;
+        continue
     }
 
     get_ext

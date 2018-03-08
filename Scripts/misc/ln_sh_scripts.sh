@@ -11,15 +11,15 @@ simple commands. Links will be full paths, not relative."
 }
 
 # Some basic error checking
-if [ $# -eq 0 ] || [ "$1" = '-h' -o "$1" = '--help' ]; then
+if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
     ShowUsage 0
     
 elif [ $# -eq 1 ]; then
-    echo "ERROR: No destination dir given.\n"
+    printf 'ERROR: No destination dir given.\n\n'
     ShowUsage 1
 
 elif [ $# -gt 4 ]; then
-    echo "ERROR: Too many paramaters.\n"
+    printf 'ERROR: Too many paramaters.\n\n'
     ShowUsage 2
 fi
 
@@ -30,7 +30,7 @@ while [ $# -gt 2 ]; do
     elif [ "$1" = '-H' ]; then
         HARDLINKS='true'
     else
-        echo "ERROR: Unknown paramater $1.\n"
+        printf 'ERROR: Unknown paramater %s.\n\n' "$1"
         ShowUsage 50
     fi
     shift
@@ -41,11 +41,11 @@ destDir="$(realpath "$2")"
 
 # Some more basic error checking
 if ! [ -d "$srcDir" ]; then
-    echo "ERROR: srcdir does not exist or is not a directory.\n"
+    printf 'ERROR: srcdir does not exist or is not a directory.\n\n'
     ShowUsage 3
 
 elif ! [ -d "$destDir" ]; then
-    echo "ERROR: destdir does not exist or is not a directory.\n"
+    printf 'ERROR: destdir does not exist or is not a directory.\n\n'
     ShowUsage 4
 
 elif ! [ -w "$destDir" ] && ! [ "$DryRun" ]; then
@@ -55,7 +55,7 @@ fi
 
 
 for file in "${srcDir}/"*; do
-    if [ "$(echo "${file}" | grep '\.sh$')" ]; then
+    if echo "${file}" | grep -q '\.sh$'; then
         target="${destDir}/$(basename "${file}" '.sh')"
         
         if [ "$HARDLINKS" ]; then

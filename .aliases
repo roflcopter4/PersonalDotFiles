@@ -25,55 +25,73 @@ Exists() {
 # -t  -> Test program      - only make alias if the given command exists.
 # -T  -> Better test       - only make alias if its base command exists.
 mkalias() {
-    do_sudo=''
-    do_test=''
-    do_global=''
-    alias_cmd=''
+    OPTIND=1  # For some incomprehensible reason bash doesn't reset OPTIND by default.
+    do_sudo=false do_test=false do_alt=false do_global=false
+    alias_cmd= alias_cmd_tmp=
 
-    while getopts 'gGsSt:T' ARG; do
+    while getopts 'gGsSt:TA' ARG "$@"; do
         case "$ARG" in
-            'g')
-                [ "$(ID_SHELL)" = 'zsh' ] && do_global="YES"
+            g)
+                [ "$(ID_SHELL)" = 'zsh' ] && do_global=true
                 ;;
-            'G')
+            G)
                 [ "$(ID_SHELL)" = 'zsh' ] || return 1
-                do_global="YES"
+                do_global=true
                 ;;
-            's')
-                [ $(id -u) -ne 0 ] && do_sudo='YES'
+            s)
+                [ "$(id -u)" -ne 0 ] && do_sudo=true
                 ;;
-            'S')
-                [ $(id -u) -ne 0 ] && do_sudo='YES' || return 1
+            S)
+                [ "$(id -u)" -ne 0 ] && do_sudo=true || return 1
                 ;;
-            't')
+            t)
                 command -v "$OPTARG" >/dev/null 2>&1 || return 1
                 ;;
-            'T')
-                do_test='YES'
+            T)
+                do_test=true
                 ;;
-            '?')
+            A)
+                do_alt=true
+                ;;
+            \?)
                 echo 'Invalid arg -> '"'$ARG'" >&2 ; return 1
                 ;;
         esac
     done
+    shift $((OPTIND - 1))
 
-    shift $(( ${OPTIND} - 1 ))
+    if $do_alt; then
+        TEMP="$(echo "$2" | sed "s/\([[:alnum:][:punct:]]*\).*/\\1/")"
+        if command -v "$TEMP" >/dev/null 2>&1; then
+            alias_cmd_tmp="${1}=${2}"
+        else
+            alias_cmd_tmp="${1}=${3}"
+        fi
 
-    if [ "$do_test" ]; then
+    elif $do_test; then
         TEMP="$(echo "$1" | sed "s/[^=]*=['\"]\{0,1\}\([[:alnum:][:punct:]]*\).*['\"]\{0,1\}/\\1/")"
         command -v "$TEMP" >/dev/null 2>&1 || return 1
-    fi
+        alias_cmd_tmp="$1"
 
-
-    if [ "$do_sudo" ] && (command -v sudo >/dev/null 2>&1); then
-        alias_cmd="$(echo "$1" | sed 's/\([^=]*=\)\(.*\)/\1sudo \2/')"
     else
-        alias_cmd="$1"
+        alias_cmd_tmp="$1"
     fi
 
-    [ "$do_global" ] && alias -g "$alias_cmd" || alias "$alias_cmd"
 
-    unset do_global alias_cmd do_sudo do_test TEMP
+    if $do_sudo && (command -v sudo >/dev/null 2>&1); then
+        alias_cmd="$(echo "$alias_cmd_tmp" | sed 's/\([^=]*=\)\(.*\)/\1sudo \2/')"
+    else
+        alias_cmd="$alias_cmd_tmp"
+    fi
+
+
+    if $do_global; then
+        eval 'alias -g "$alias_cmd"' 
+    else 
+        eval 'alias "$alias_cmd"'
+    fi
+
+    unset do_global alias_cmd do_sudo do_test TEMP alias_cmd_tmp
 }
 
 
@@ -84,7 +102,7 @@ mkalias() {
 MOARINFO='true'
 
 # Aliases based on the standard ls will hide backups.
-if [ $(command -v gls) ]; then
+if Exists 'gls'; then
     # If 'gls' exists, we're probably on a BSD system, and should use it
     alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
 else
@@ -127,6 +145,7 @@ mkalias -g fgrep='fgrep --color=auto'
 mkalias -g egrep='egrep --color=auto'
 
 # Pretty basic.
+mkalias -A 'cd' 'smartcd -P' 'cd -P'
 alias whack='pkill -9'
 alias chpx='chmod +x'
 alias chmx='chmod -x'
@@ -144,11 +163,6 @@ alias suvi='sudoedit'
 alias CO="./configure"
 alias CH="./configure --help"
 alias CMK='mkdir build && cd build'
-
-# Dubious
-mkalias -G ulb='/usr/local/bin'
-#mkalias -G pl='| pl'
-alias wcli='wpa_cli'
 
 # Yet more git aliases.
 alias gcred='git config credential.helper store'
@@ -173,7 +187,8 @@ mkalias -T wolf='wolframscript'
 
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
-        (command -v 'esearch' >/dev/null 2>&1) && alias ems='esearch' || alias ems='emerge --search'
+        #(Exists 'esearch') && alias ems='esearch' || alias ems='emerge --search'
+        mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
         mkalias -s emr='emerge'
         mkalias -s empr='emerge --pretend'
@@ -189,7 +204,7 @@ esac
 
 # Linux Aliases
 if ! [ "$(uname)" = 'DragonFly' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then
-    if command -v 'pacman' >/dev/null 2>&1; then
+    if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
         mkalias -s pacs='\pacman --color=always -S' 
         mkalias -s pacup='\pacman --color=always -Syu' 
@@ -229,7 +244,7 @@ if [ "$IS_WINDOWS" ]; then
     alias vi=''
     unalias vi
 
-    if command -v 'pacman' >/dev/null 2>&1; then
+    if Exists 'pacman'; then
         alias pacs='pacman -S --color=always' 
         alias pacss='pacman -Ss --color=always' 
         alias paci='pacman -Si --color=always' 
@@ -259,16 +274,16 @@ gitc() {
     [ "$1" ] && TWO="$1" && shift
     case "$ONE" in
         '-gs')
-            git clone --recursive 'https://github.com/'"$TWO" $@ --depth 1
+            git clone --recursive 'https://github.com/'"$TWO" "$@" --depth 1
             ;;
         '-gd')
-            git clone --recursive 'https://github.com/'"$TWO" $@
+            git clone --recursive 'https://github.com/'"$TWO" "$@"
             ;;
         '-d')
-            git clone --recursive "$TWO" $@
+            git clone --recursive "$TWO" "$@"
             ;;
         *)
-            git clone --recursive "$ONE" $@ --depth 1
+            git clone --recursive "$ONE" "$@" --depth 1
             ;;
     esac
 }
@@ -313,7 +328,7 @@ Exists 'eovim' && \
 eov() {
     (
         NoExtChars='True' && export NoExtChars
-        eovim -g '125x55' $@ > /dev/null 2>&1 &
+        eovim -g '125x55' "$@" > /dev/null 2>&1 &
     )
 }
 
@@ -321,7 +336,7 @@ Exists 'nvim-qt' && \
 gvi() {
     (
         export NVIM_QT='true'
-        nvim-qt --geometry 850x880 $@ >/dev/null 2>&1
+        nvim-qt --geometry 850x880 "$@" >/dev/null 2>&1
     )
 }
 
@@ -345,10 +360,10 @@ j7z() {
 
 
 cppMacroOnly() { (
-    [ "$ZSH_VERSION" ] && set -o shwordsplit
+    set -o shwordsplit >/dev/null 2>&1
     [ $# -eq 0 ] && exit 1;
     [ $# -eq 1 ] && __file="$1" && __CPP='clang' && __ARGS='-E -P -'
-    [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS=$@
+    [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS="$*"
     perl -pe 's/^#include.*\n//g' "$__file" | $__CPP $__ARGS
 ) }
 

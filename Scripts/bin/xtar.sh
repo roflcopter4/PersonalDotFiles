@@ -153,7 +153,7 @@ handle_conflict() {
     local newdir="${_bpath}/${_oname}-${TimeStamp}"
     while [ -e "$newdir" ]; do
         newdir="${_bpath}/${_oname}-${TimeStamp}-${res_count}"
-        res_count=$(( res_count + 1 ))
+        res_count=$((res_count + 1))
     done
     echo "$newdir"
 }
@@ -228,7 +228,7 @@ do_extract() {
     done
 
     #echo "Extracted to:  $(relpath "${bpath}" "${odir2:-${odir}}")"
-    echo "Extracted to:  $(relpath "${bpath}" "${odir}")"
+    echo "Extracted to:  $(rel_path "${bpath}" "${odir}")"
     cd "$bpath" || exit 20
 }
 
@@ -432,17 +432,17 @@ handle_failure() {
         index=1
         printf '\nAttempting to force extract\n\n' >&2
         while true; do
-            if cmd_exists '7z' && [ $index -eq 1 ]; then
-                echo "Trying 7zip" >&2
-                eval "7z x${v7z} '${A}'" && return
-
-            elif cmd_exists 'patool' && [ $index -eq 2 ]; then
+            if cmd_exists 'patool' && [ $index -eq 1 ]; then
                 echo "Trying patool" >&2
                 eval "patool extract '${A}'" && return
 
-            elif cmd_exists 'atool' && [ $index -eq 3 ]; then
+            elif cmd_exists 'atool' && [ $index -eq 2 ]; then
                 echo "Trying atool" >&2
                 eval "atool -x '${A}'" && return
+
+            elif cmd_exists '7z' && [ $index -eq 3 ]; then
+                echo "Trying 7zip" >&2
+                eval "7z x${v7z} '${A}'" && return
 
             elif cmd_exists 'zpaq' && [ $index -eq 4 ]; then
                 echo 'Trying zpaq' >&2
@@ -456,7 +456,7 @@ handle_failure() {
                 echo 'Total failure' >&2
                 break
             fi
-            index=$(( index + 1 ))
+            index=$((index + 1))
             echo
         done
     fi
@@ -498,25 +498,16 @@ rel_path() {
 # =================================================================================================
 # Main Code
 
+odir= is_tar= awful_shell= odir_param= combine= prefer= using= SetUsUpTheBomb=
+FORCE= no7z= GnuGetoptCMD=
+
 VER='xtar version 2.0'
 OPTSTRING='hVvo:cbgt7TAf'
 LONGOPTS='help,version,verbose,top:,combine,tar:,use7zip,usetar,force'
 
 TimeStamp="$(date +%s)"
 first=true
-odir=
-is_tar=
-awful_shell=
-
-odir_param=
-combine=
-prefer=
-using=
-SetUsUpTheBomb=
-FORCE=
-no7z=
 GnuGetopt=false
-GnuGetoptCMD=
 
 # Verbiage - defaults to 'shut the hell up'.
 verb=false
@@ -636,7 +627,7 @@ do
             ;;
     esac
 done
-$GnuGetopt || shift $(( OPTIND - 1 ))
+$GnuGetopt || shift $((OPTIND - 1))
 
 
 [ $# -eq 0 ] && echo 'No archive names provided.' >&2 && ShowUsage 3

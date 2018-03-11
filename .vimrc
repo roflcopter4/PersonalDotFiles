@@ -56,7 +56,7 @@ if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SY
 endif
 
 
-let mapleader=' '
+let g:mapleader=' '
 
 let &runtimepath = '~/.vim/local' . ',' . &runtimepath
 
@@ -429,6 +429,8 @@ if CheckDeinLoadState()
     call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
 
     call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
+
+    call dein#local(expand('~/.vim/bundles/findent'))
      
     if g:plugin_manager ==# 'dein'
         call dein#end()
@@ -483,7 +485,9 @@ endif
 " AutoCloseTag
 if IsSourced('HTML-AutoCloseTag')
     " Make it so AutoCloseTag works for xml and xhtml files as well
-    au FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
+    augroup HTML_CloseTag
+        autocmd FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
+    augroup END
     nmap <Leader>ac <Plug>ToggleAutoCloseMappings
 endif
 
@@ -964,7 +968,9 @@ if IsSourced('YouCompleteMe')
     " Haskell post write lint and check with ghcmod
     " $ `cabal install ghcmod` if missing and ensure ~/.cabal/bin is in your $PATH.
     if !executable('ghcmod')
-        autocmd BufWritePost *.hs GhcModCheckAndLintAsync
+        augroup YcmGhcMod
+            autocmd BufWritePost *.hs GhcModCheckAndLintAsync
+        augroup END
     endif
 
     " For snippet_complete marker.
@@ -1042,23 +1048,44 @@ if IsSourced('vim-autoformat')
         let g:formatdef_astyle_cs    = g:_Astyle_Allman_ . g:_Astyle_cs_
         let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
         let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
-    "}
+        "}
 
+        if len(findfile('.clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('.clang-format', expand('%:p:h').';')
+        elseif len(findfile('_clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('_clang-format', expand('%:p:h').';')
+        elseif filereadable(expand('~/.clang-format'))
+            let s:ClangFile = expand('~/.clang-format')
+        endif
 
-" g:ClangFormatConfigFileExists() ? 
-"     \('clang-format -lines='.a:firstline.':'.a:lastline.' --assume-filename="'.expand('%:p').'" -style=file') :
-"     \('clang-format -lines='.a:firstline.':'.a:lastline.' --assume-filename="'.expand('%:p').
-"         \'" -style="{BasedOnStyle: WebKit, AlignTrailingComments: true, '.
-"         \(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').
-"         \(&expandtab ? 'UseTab: Never, IndentWidth: '.shiftwidth() : 'UseTab: Always').'}"'
-"     \)
+        " let g:formatdef_clangformat = exists('s:ClangFile') ? 
+        "             \("'clang-format -i'.&shiftwidth.' -l'.&textwidth'.' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'") :
+        "             \("'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
+        "                 \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
+        "                 \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'")
 
-    "### Some generic options
-    let g:autoformat_autoindent = 0
-    let g:autoformat_retab = 0
-    let g:autoformat_remove_trailing_spaces = 0
-    let g:autoformat_verbosemode = 1
-endif
+        function! g:ZeroIsOneThousand()
+            if &textwidth ==# 0
+                return 1000
+            else
+                return &textwidth
+            endif
+        endfunction
+
+        if exists('s:ClangFile')
+            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
+        else
+            let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
+                                            \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
+                                            \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'"
+        endif
+
+        "### Some generic options
+        let g:autoformat_autoindent = 0
+        let g:autoformat_retab = 0
+        let g:autoformat_remove_trailing_spaces = 0
+        let g:autoformat_verbosemode = 1
+    endif
 
 
 " ### Line numbering ###
@@ -1124,38 +1151,38 @@ endif
 
 " Initialize directories
 function! InitializeDirectories()
-    let parent = $HOME
-    let prefix = 'vim'
-    let dir_list = {
+    let l:parent = $HOME
+    let l:prefix = 'vim'
+    let l:dir_list = {
                 \ 'backup': 'backupdir',
                 \ 'views': 'viewdir',
                 \ 'swap': 'directory' }
                  
     if has('persistent_undo')
-        let dir_list['undo'] = 'undodir'
+        let l:dir_list['undo'] = 'undodir'
     endif
      
     " Specify a different directory in which to place the vimbackup vimviews, vimundo, and vimswap
     " with:  let g:spf13_consolidated_directory = <full path to desired directory>
     if exists('g:spf13_consolidated_directory')
-        let common_dir = g:spf13_consolidated_directory . prefix
+        let l:common_dir = g:spf13_consolidated_directory . l:prefix
     else
-        let common_dir = parent . '/.' . prefix
+        let l:common_dir = l:parent . '/.' . l:prefix
     endif
      
-    for [dirname, settingname] in items(dir_list)
-        let directory = common_dir . dirname . '/'
+    for [l:dirname, l:settingname] in items(l:dir_list)
+        let l:directory = l:common_dir . l:dirname . '/'
         if exists('*mkdir')
-            if !isdirectory(directory)
-                call mkdir(directory)
+            if !isdirectory(l:directory)
+                call mkdir(l:directory)
             endif
         endif
-        if !isdirectory(directory)
-            echo 'Warning: Unable to create backup directory: ' . directory
-            echo 'Try: mkdir -p ' . directory
+        if !isdirectory(l:directory)
+            echo 'Warning: Unable to create backup directory: ' . l:directory
+            echo 'Try: mkdir -p ' . l:directory
         else
-            let directory = substitute(directory, ' ', '\\\\ ', 'g')
-            exec 'set ' . settingname . '=' . directory
+            let l:directory = substitute(l:directory, ' ', '\\\\ ', 'g')
+            exec 'set ' . l:settingname . '=' . l:directory
         endif
     endfor
 endfunction
@@ -1163,11 +1190,11 @@ call InitializeDirectories()
 
 " Initialize NERDTree as needed
 function! NERDTreeInitAsNeeded()
-    redir => bufoutput
+    redir => l:bufoutput
     buffers!
     redir END
-    let idx = stridx(bufoutput, 'NERD_tree')
-    if idx > -1
+    let l:idx = stridx(l:bufoutput, 'NERD_tree')
+    if l:idx > -1
         NERDTreeMirror
         NERDTreeFind
         wincmd l
@@ -1177,14 +1204,14 @@ endfunction
 " Strip whitespace
 function! StripTrailingWhitespace()
     " Preparation: save last search, and cursor position.
-    let _s=@/
-    let l = line('.')
-    let c = col('.')
+    let l:_s=@/
+    let l:l = line('.')
+    let l:c = col('.')
     " do the business:
     %s/\s\+$//e
     " clean up: restore previous search history, and cursor position
-    let @/=_s
-    call cursor(l, c)
+    let @/=l:_s
+    call cursor(l:l, l:c)
 endfunction
 
 " Shell command
@@ -1265,28 +1292,34 @@ endif
 " Normal Vim omni-completion
 if !exists('g:spf13_no_omni_complete')
     " Enable omni-completion.
-    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-    autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-    autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup spf13_omni_complete
+        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup END
 endif
 
 " Automatically switch to the current file directory when a new buffer is opened.
 if !exists('g:spf13_no_autochdir')
-    autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    augroup spf13_autchdir
+        autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    augroup END
 endif
 
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
-au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+augroup no_revertcursor_git
+    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+augroup END
 
 " Restore cursor to file position in previous editing session
 if !exists('g:spf13_no_restore_cursor')
     function! ResCur()
-        if line("'\"") <= line("$")
+        if line("'\"") <= line('$')
             silent! normal! g`"
             return 1
         endif
@@ -1315,20 +1348,22 @@ if !exists('g:spf13_no_views')
                 \ ]
 endif
 
-" Remove trailing whitespaces and ^M chars
-autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql 
-            \ autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') 
-            \ | call StripTrailingWhitespace() | endif
+augroup misc_config
+    " Remove trailing whitespaces and ^M chars
+    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql 
+                \ autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') 
+                \ | call StripTrailingWhitespace() | endif
 
-"autocmd FileType go autocmd BufWritePre <buffer> Fmt
-autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
-autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
-" preceding line best in a plugin but here for now.
-autocmd BufNewFile,BufRead *.coffee set filetype=coffee
-" Workaround vim-commentary for Haskell
-autocmd FileType haskell setlocal commentstring=--\ %s
-" Workaround broken colour highlighting in Haskell
-autocmd FileType haskell,rust setlocal nospell
+    "autocmd FileType go autocmd BufWritePre <buffer> Fmt
+    autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
+    autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
+    " preceding line best in a plugin but here for now.
+    autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+    " Workaround vim-commentary for Haskell
+    autocmd FileType haskell setlocal commentstring=--\ %s
+    " Workaround broken colour highlighting in Haskell
+    autocmd FileType haskell,rust setlocal nospell
+augroup END
 
 
 " ================================================================================================================
@@ -1472,14 +1507,14 @@ noremap k gk
 if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
     " Same for 0, home, end, etc
     function! WrapRelativeMotion(key, ...)
-        let vis_sel=''
+        let l:vis_sel=''
         if a:0
-            let vis_sel='gv'
+            let l:vis_sel='gv'
         endif
         if &wrap
-            execute 'normal!' vis_sel . 'g' . a:key
+            execute 'normal!' l:vis_sel . 'g' . a:key
         else
-            execute 'normal!' vis_sel . a:key
+            execute 'normal!' l:vis_sel . a:key
         endif
     endfunction
      
@@ -1500,25 +1535,25 @@ if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
     vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
 endif
 
-" The following two lines conflict with moving to top and bottom of the screen.
-if !exists('g:spf13_no_fastTabs')
-    map <S-H> gT
-    map <S-L> gt
-endif
-
-" Stupid shift key fixes
-if !exists('g:spf13_no_keyfixes')
-    command! -bang -nargs=* -complete=file E e<bang> <args>
-    command! -bang -nargs=* -complete=file W w<bang> <args>
-    command! -bang -nargs=* -complete=file Wq wq<bang> <args>
-    command! -bang -nargs=* -complete=file WQ wq<bang> <args>
-    command! -bang Wa wa<bang>
-    command! -bang WA wa<bang>
-    command! -bang Q q<bang>
-    command! -bang QA qa<bang>
-    command! -bang Qa qa<bang>
-    cmap Tabe tabe
-endif
+" " The following two lines conflict with moving to top and bottom of the screen.
+" if !exists('g:spf13_no_fastTabs')
+"     map <S-H> gT
+"     map <S-L> gt
+" endif
+" 
+" " Stupid shift key fixes
+" if !exists('g:spf13_no_keyfixes')
+"     command! -bang -nargs=* -complete=file E e<bang> <args>
+"     command! -bang -nargs=* -complete=file W w<bang> <args>
+"     command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+"     command! -bang -nargs=* -complete=file WQ wq<bang> <args>
+"     command! -bang Wa wa<bang>
+"     command! -bang WA wa<bang>
+"     command! -bang Q q<bang>
+"     command! -bang QA qa<bang>
+"     command! -bang Qa qa<bang>
+"     cmap Tabe tabe
+" endif
 
 " Yank from the cursor to the end of the line, to be consistent with C and D.
 nnoremap Y y$
@@ -1609,7 +1644,7 @@ endif
 
 " ================================================================================================================
 
-set ffs=unix,dos,mac
+set fileformats=unix,dos,mac
 
 augroup MyCrap
     autocmd!
@@ -1641,7 +1676,7 @@ endfunction
 function! ToggleBG()
     let s:tbg = &background
     " Inversion
-    if s:tbg == "dark"
+    if s:tbg ==# 'dark'
         set background=light
     else
         set background=dark
@@ -1680,26 +1715,26 @@ if has('nvim')
     " This is the dumbest possible way to set the colors for the terminal but I
     " can't actually think of any better way to do it.
     if !WIN_OR_CYG()
-        let s:colorlist = ["#000000", "#cd0000", "#00cd00", "#cdcd00", "#0075ff", "#cd00cd",
-                         \ "#00cdcd", "#e5e5e5", "#7f7f7f", "#ff0000", "#00ff00", "#ffff00",
-                         \ "#0075ff", "#ff00ff", "#00ffff", "#ffffff"]
+        let s:colorlist = ['#000000', '#cd0000', '#00cd00', '#cdcd00', '#0075ff', '#cd00cd',
+                         \ '#00cdcd', '#e5e5e5', '#7f7f7f', '#ff0000', '#00ff00', '#ffff00',
+                         \ '#0075ff', '#ff00ff', '#00ffff', '#ffffff']
 
-        let terminal_color_0  = s:colorlist[0]
-        let terminal_color_1  = s:colorlist[1]
-        let terminal_color_2  = s:colorlist[2]
-        let terminal_color_3  = s:colorlist[3]
-        let terminal_color_4  = s:colorlist[4]
-        let terminal_color_5  = s:colorlist[5]
-        let terminal_color_6  = s:colorlist[6]
-        let terminal_color_7  = s:colorlist[7]
-        let terminal_color_8  = s:colorlist[8]
-        let terminal_color_9  = s:colorlist[9]
-        let terminal_color_10 = s:colorlist[10]
-        let terminal_color_11 = s:colorlist[11]
-        let terminal_color_12 = s:colorlist[12]
-        let terminal_color_13 = s:colorlist[13]
-        let terminal_color_14 = s:colorlist[14]
-        let terminal_color_15 = s:colorlist[15]
+        let g:terminal_color_0  = s:colorlist[0]
+        let g:terminal_color_1  = s:colorlist[1]
+        let g:terminal_color_2  = s:colorlist[2]
+        let g:terminal_color_3  = s:colorlist[3]
+        let g:terminal_color_4  = s:colorlist[4]
+        let g:terminal_color_5  = s:colorlist[5]
+        let g:terminal_color_6  = s:colorlist[6]
+        let g:terminal_color_7  = s:colorlist[7]
+        let g:terminal_color_8  = s:colorlist[8]
+        let g:terminal_color_9  = s:colorlist[9]
+        let g:terminal_color_10 = s:colorlist[10]
+        let g:terminal_color_11 = s:colorlist[11]
+        let g:terminal_color_12 = s:colorlist[12]
+        let g:terminal_color_13 = s:colorlist[13]
+        let g:terminal_color_14 = s:colorlist[14]
+        let g:terminal_color_15 = s:colorlist[15]
     endif
 endif
 
@@ -1713,11 +1748,32 @@ let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
 let g:gonvim_draw_lint       = 1
 
+function! Test1()
+    execute 'i'."\r".'testingtesting'."\r".'.'."\r"
+endfunction
+
+function! DoIfZeroRange() range
+    let l:line1 = getline(a:firstline)
+    let l:line2 = getline(a:lastline)
+    "echo 'First:  '.a:firstline
+    "echo 'Second: '.a:lastline
+
+    if (l:line1 =~# '\v^[ ]*#[ ]*if 0$') && (l:line2 =~# '\v^[ ]*#[ ]*endif$')
+        :execute a:lastline.'d'
+        :execute a:firstline.'d'
+    else
+        call append(a:lastline, '#endif')
+        call append(a:firstline - 1, '#if 0')
+    endif
+endfunction
+
+command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
+noremap <silent> <leader>cf :IfZeroRange<CR>
 
 "if has('clipboard')
-    "if has('unnamedplus')  " When possible use + register for copy-paste
-        "set clipboard=unnamed,unnamedplus
-    "else         " On mac and Windows, use * register for copy-paste
-        "set clipboard=unnamed
-    "endif
+"if has('unnamedplus')  " When possible use + register for copy-paste
+"set clipboard=unnamed,unnamedplus
+"else         " On mac and Windows, use * register for copy-paste
+"set clipboard=unnamed
+"endif
 "endif

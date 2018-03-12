@@ -17,7 +17,7 @@ longest=0
 for line in $input; do
     byteStr="$(printf '%s' "$line" | perl -pe 's/^(\d+)\t.*/$1/')"
 
-    while [ "$(printf '%s' "$byteStr" | ag '\d{4}')" ]; do
+    while (printf '%s' "$byteStr" | grep -q '[0-9]\{4\}'); do
         line="$(printf '%s' "$line" | perl -pe 's/^(\d+?)(\d{3}(?:,|\s))(.*)/$1,$2$3/')"
         byteStr="$(printf '%s' "$line" | perl -pe 's/^([0-9,]+)\t.*/$1/')"
     done

@@ -1,32 +1,36 @@
 BasedOnStyle: LLVM
 
-AlignEscapedNewlinesLeft: true
-AllowAllParametersOfDeclarationOnNextLine: true
-AlwaysBreakTemplateDeclarations: true
-SpaceBeforeAssignmentOperators: true
-
-AllowShortBlocksOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
-AllowShortLoopsOnASingleLine: false
-
-#PPDirectiveIndentStyle: AfterHash
-MaxEmptyLinesToKeep: 2
-
+# Allman Style
 #BreakBeforeBraces: Allman
-#ColumnLimit: 0
 #IndentCaseLabels: true
 #IndentWidth: 4
-#Standard: Auto
 #TabWidth: 4
 
-# Linux Style
-IndentWidth: 8
-#UseTab: Always
-UseTab: Never
-BreakBeforeBraces: Linux
-AllowShortIfStatementsOnASingleLine: false
-IndentCaseLabels: false
-SpaceBeforeParens: ControlStatements
+AllowAllParametersOfDeclarationOnNextLine: true
+AlwaysBreakTemplateDeclarations: true
+BreakStringLiterals: true
+BinPackParameters: false
+BinPackArguments: false
 
 AlignTrailingComments: true
-ColumnLimit: 100
+AlignEscapedNewlines: Left
+PointerAlignment: Right
+
+AllowShortIfStatementsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+
+SpaceBeforeAssignmentOperators: true
+AlwaysBreakAfterReturnType: AllDefinitions
+IndentPPDirectives: AfterHash
+MaxEmptyLinesToKeep: 2
+
+# Linux Style
+BreakBeforeBraces: Linux
+SpaceBeforeParens: ControlStatements
+IndentCaseLabels: false
+IndentWidth: 8
+
+UseTab: Never
+ColumnLimit: 80

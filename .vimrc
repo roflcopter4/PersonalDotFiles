@@ -31,32 +31,32 @@ if WINDOWS()
 else
     if executable('/bin/dash')
         set shell=/bin/dash
-    elseif executable("/usr/bin/dash")
+    elseif executable('/usr/bin/dash')
         set shell=/usr/bin/dash
     else
         set shell=/bin/sh
     endif
 endif
 
-if &runtimepath =~ 'oni'
+if &runtimepath =~# 'oni'
     let g:ONI = 1
     let g:ONI_HideStatusBar = 1
 endif
 if WINDOWS()
-    let g:spf13_consolidated_directory="C:/Vim/Vim_Misc_Data/"
+    let g:spf13_consolidated_directory='C:/Vim/Vim_Misc_Data/'
     if exists('g:ONI')
         let g:spf13_consolidated_directory = g:spf13_consolidated_directory . 'ONI/'
     endif
 endif
 
 
-if !($TERM == 'linux' || $TERM == 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID == "FreeBSD")
+if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
     set encoding=utf-8
     setglobal fileencoding=utf-8
 endif
 
 
-let mapleader=' '
+let g:mapleader=' '
 
 let &runtimepath = '~/.vim/local' . ',' . &runtimepath
 
@@ -97,11 +97,11 @@ let g:use_ale = 1
 "let g:myMolokai_BG = 'darker'
 let g:myMolokai_BG = 'custom'
 " Monokai_Brown
-"let g:myMolokai_CustomBG = "#272822"
+"let g:myMolokai_CustomBG = '#272822'
 " BLACK_
-"let g:myMolokai_CustomBG = "#000000"
+"let g:myMolokai_CustomBG = '#000000'
 " NEAR_BLACK
-let g:myMolokai_CustomBG = "#080808"
+let g:myMolokai_CustomBG = '#080808'
 
 "let g:myMolokai_FG = 'other'
 "let g:myMolokai_FG = 'custom'
@@ -110,10 +110,10 @@ let g:myMolokai_CustomBG = "#080808"
 let g:myMolokaiComment = 'custom'
 "let g:myMolokaiComment = 'shiny'
 "let g:myMolokaiComment = 'comment_grey'
-"let g:myMolokaiComment_Custom = "#70F0F0"
-let g:myMolokaiComment_Custom ="#5F87AF"
+"let g:myMolokaiComment_Custom = '#70F0F0'
+let g:myMolokaiComment_Custom ='#5F87AF'
 
-let g:myNova_BG = "#1B1D1E"
+let g:myNova_BG = '#1B1D1E'
 
 
 " ======================================================================================================
@@ -124,16 +124,16 @@ let g:myNova_BG = "#1B1D1E"
 let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go']
 
 let g:ophigh_highlight_link_group = 'Operator'
-"let g:ophigh_color_gui = "#d33682"
-"let g:ophigh_color_gui = "#42A5F5"  " Lightish-blue
+"let g:ophigh_color_gui = '#d33682'
+"let g:ophigh_color_gui = '#42A5F5'  ' Lightish-blue
 
 "let g:negchar_highlight_link_group = 'NegationChar'
-"let g:negchar_color_gui = "#66BB6A"
-let g:negchar_color_gui = "#f92672"
-"let g:negchar_color_gui = "#d33682"
+"let g:negchar_color_gui = '#66BB6A'
+let g:negchar_color_gui = '#f92672'
+"let g:negchar_color_gui = '#d33682'
 
 "let g:structderef_highlight_link_group = 'Operator'
-let g:structderef_color_gui = "#42A5F5"
+let g:structderef_color_gui = '#42A5F5'
 
 
 
@@ -161,13 +161,13 @@ else
 endif
 
 function! AddPlugin(name,...)
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         if exists('a:1')
             call dein#add(a:name, a:1)
         else
             call dein#add(a:name)
         endif
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         if exists('a:1')
             Plugin a:name, a:1
         else
@@ -177,42 +177,42 @@ function! AddPlugin(name,...)
 endfunction
 
 function! IsSourced(name)
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         return dein#is_sourced(a:name)
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         return &runtimepath=~a:name
     endif
 endfunction
 
 function! CheckDeinLoadState()
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         return dein#load_state(expand(g:load_path))
     else
-        return g:plugin_manager == 'vundle'
+        return g:plugin_manager ==# 'vundle'
     endif
 endfunction
 
 filetype off
 if LINUX() || CYGWIN()
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         let g:load_path='~/.vim/dein'
         let g:dein_path='~/.vim/dein/repos/github.com/Shougo/dein.vim'
         let &runtimepath = &runtimepath . ',' . g:dein_path
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         set runtimepath+=~/.vim/Vundle/Vundle.vim
         let g:vundle_path = '~/.vim/Vundle'
         let g:load_path = ''
     endif
 
 elseif WINDOWS()
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         let g:load_path='C:/vim/dein'
         let g:dein_path='C:/Vim/dein/repos/github.com/Shougo/dein.vim'
         let &runtimepath = &runtimepath . ',' . g:dein_path
         if exists('g:ONI')
             let g:dein#cache_directory = g:load_path . '/ONI/'
         end
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         set runtimepath+=C:/Vim/Vundle/Vundle.vim
         let g:vundle_path = 'C:/Vim/Vundle'
         let g:load_path = ''
@@ -222,12 +222,12 @@ endif
 
 " PLUGINS
 if CheckDeinLoadState()
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         call dein#begin(expand(g:load_path))
         call AddPlugin(expand(g:dein_path))
         "let g:dein#install_max_processes = 12
         call AddPlugin('haya14busa/dein-command.vim')
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         call vundle#begin(expand(g:vundle_path))
     endif
 
@@ -343,7 +343,10 @@ if CheckDeinLoadState()
     "call AddPlugin('fatih/vim-go')
     call AddPlugin('carlosgaldino/elixir-snippets')
     call AddPlugin('junegunn/fzf.vim')
-    call AddPlugin('dzhou121/gonvim-fuzzy')
+    "call AddPlugin('dzhou121/gonvim-fuzzy')
+
+    " Moar Languages ------
+    call dein#add('rsmenon/vim-mathematica')
 
     " Markdown
     call AddPlugin('vim-pandoc/vim-pandoc')
@@ -425,12 +428,14 @@ if CheckDeinLoadState()
 
     call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
 
-    call AddPlugin("https://anongit.gentoo.org/git/proj/eselect-syntax.git")
+    call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
+
+    call dein#local(expand('~/.vim/bundles/findent'))
      
-    if g:plugin_manager == 'dein'
+    if g:plugin_manager ==# 'dein'
         call dein#end()
         call dein#save_state()
-    elseif g:plugin_manager == 'vundle'
+    elseif g:plugin_manager ==# 'vundle'
         call vundle#end()
     endif
 endif
@@ -441,7 +446,7 @@ endif
 
 
 if exists('s:UsePowerline')
-    let g:powerline_pycmd="py3"
+    let g:powerline_pycmd='py3'
     python from powerline.vim import setup as powerline_setup
     python powerline_setup()
     python del powerline_setup
@@ -480,7 +485,9 @@ endif
 " AutoCloseTag
 if IsSourced('HTML-AutoCloseTag')
     " Make it so AutoCloseTag works for xml and xhtml files as well
-    au FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
+    augroup HTML_CloseTag
+        autocmd FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
+    augroup END
     nmap <Leader>ac <Plug>ToggleAutoCloseMappings
 endif
 
@@ -490,7 +497,7 @@ if IsSourced('ack.vim')
     if executable('ag')
         let g:ackprg = 'ag --nogroup --nocolor --column --smart-case'
     elseif executable('ack-grep')
-        let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+        let g:ackprg='ack-grep -H --nocolor --nogroup --column'
         call AddPlugin('mileszs/ack.vim')
     elseif executable('ack')
         call AddPlugin('mileszs/ack.vim')
@@ -504,13 +511,13 @@ if IsSourced('nerdtree')
     "noremap <leader>e :NERDTreeFind<CR>
     noremap <leader>ef :NERDTreeFind<CR>
      
-    let NERDTreeShowBookmarks=1
-    let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
-    let NERDTreeChDirMode=0
-    let NERDTreeQuitOnOpen=1
-    let NERDTreeMouseMode=2
-    let NERDTreeShowHidden=1
-    let NERDTreeKeepTreeInNewTab=1
+    let g:NERDTreeShowBookmarks=1
+    let g:NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
+    let g:NERDTreeChDirMode=0
+    let g:NERDTreeQuitOnOpen=1
+    let g:NERDTreeMouseMode=2
+    let g:NERDTreeShowHidden=1
+    let g:NERDTreeKeepTreeInNewTab=1
     let g:NERDShutUp=1
     let g:nerdtree_tabs_open_on_gui_startup=0
 endif
@@ -558,6 +565,7 @@ if !has('python') && !has('python3')
 endif
 if IsSourced('python-mode')
     let g:pymode_options = 1
+    let g:pymode_lint = 0
     let g:pymode_lint_checkers = ['flake8', 'pep8', 'pyflakes']
     "let g:pymode_lint_checkers = ['flake8','pyflakes']
     "let g:pymode_lint_on_fly = 1
@@ -577,6 +585,11 @@ if IsSourced('python-mode')
 
     let g:pymode_trim_whitespaces = 0
     let g:pymode_rope = 0
+
+    let g:pymode_syntax = 1
+    let g:pymode_syntax_all = 1
+    let g:pymode_syntax_docstrings = g:pymode_syntax_all
+    let g:pymode_syntax_highlight_exceptions = g:pymode_syntax_all
 endif
 
 
@@ -601,7 +614,7 @@ if IsSourced('ctrlp.vim')
     else
         let s:ctrlp_fallback = 'find %s -type f'
     endif
-    if exists("g:ctrlp_user_command")
+    if exists('g:ctrlp_user_command')
         unlet g:ctrlp_user_command
     endif
     let g:ctrlp_user_command = {
@@ -652,7 +665,9 @@ if IsSourced('rainbow')
                                    \ 'start=/{/ end=/}/ fold containedin=vimFuncBody'],
         \        },
         \        'html': {
-        \            'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'."'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
+        \            'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem'.
+                                   \ '|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'.
+                                   \ "'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
         \        },
         \        'css': 0,
         \    }
@@ -684,13 +699,13 @@ if IsSourced('neocomplcache') || IsSourced('neocomplete')
     " Enable neosnippet snipmate compatibility mode
     let g:neosnippet#enable_snipmate_compatibility = 1
     " For snippet_complete marker.
-    if !exists("g:spf13_no_conceal")
+    if !exists('g:spf13_no_conceal')
         if has('conceal')
             set conceallevel=2 concealcursor=i
         endif
     endif
     " Enable neosnippets when using go
-    let g:go_snippet_engine = "neosnippet"
+    let g:go_snippet_engine = 'neosnippet'
     set completeopt-=preview
 endif
 
@@ -718,8 +733,8 @@ endif
 " Wildfire
 if IsSourced('wildfire.vim')
     let g:wildfire_objects = {
-                \ "*" : ["i'", 'i"', "i)", "i]", "i}", "ip"],
-                \ "html,xml" : ["at"],
+                \ '*' : ["i'", 'i"', 'i)', 'i]', 'i}', 'ip'],
+                \ 'html,xml' : ['at'],
                 \ }
 endif
 
@@ -740,14 +755,14 @@ if IsSourced('vim-airline')
     "let g:airline_section_z = "%p%% %{g:airline_symbols.linenr}%3l/%L :%v"
     "let g:airline_section_z = "%p%% %{g:airline_symbols.linenr}%3l/%L%{g:airline_right_alt_sep} %v"
 
-    let g:airline_section_z = "%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v"
+    let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tagbar#enabled = 1
     let g:airline#extensions#tabline#buffer_nr_show = 1
     let g:airline#extensions#whitespace#enabled = 0
     let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
     nnoremap <silent> <leader>al :AirlineRefresh<CR>
-    if IsSourced('vim-airline-themes') && $TERM != 'linux'
+    if IsSourced('vim-airline-themes') && $TERM !=# 'linux'
         "let g:airline_theme = 'molokai'
         let g:airline_theme = 'papercolor'
     endif
@@ -793,9 +808,9 @@ if IsSourced('neomake')
                 \ }
     "Disable inherited syntastic
     let g:syntastic_mode_map = {
-        \ "mode": "passive",
-        \ "active_filetypes": [],
-        \ "passive_filetypes": []
+        \ 'mode': 'passive',
+        \ 'active_filetypes': [],
+        \ 'passive_filetypes': []
         \ }
          
     let g:neomake_serialize = 1
@@ -849,6 +864,8 @@ if IsSourced('ale')
 
     let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
     let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
+    "let g:ale_python_flake8_executable = 'flake8_3'
+    "let g:ale_python_pyflakes_executable = 'pyflakes_3'
     let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
 
     "let g:ale_linters = {'perl': ['perl', 'perlcritic']}
@@ -882,7 +899,7 @@ if IsSourced('vim-easytags')
     nnoremap <leader>tag :UpdateTags<CR>
     if $IS_CYGWIN && !CYGWIN()
         "set tags=expand("$USERPROFILE/_vimtags"),expand("$USERPROFILE/_vimtags")
-        let s:vimtags_file = expand("$USERPROFILE/_vimtags")
+        let s:vimtags_file = expand('$USERPROFILE/_vimtags')
         let &tags = s:vimtags_file . ',' . &tags
     endif
 
@@ -919,15 +936,15 @@ if IsSourced('YouCompleteMe')
     let g:acp_enableAtStartup = 0
 
     if CYGWIN()
-        let g:ycm_server_python_interpreter="/c/bin/python3"
+        let g:ycm_server_python_interpreter='/c/bin/python3'
     else
         if has('nvim')
-            let g:ycm_server_python_interpreter="/usr/bin/env python3"
+            let g:ycm_server_python_interpreter='/usr/bin/env python3'
         endif
         if executable('/usr/bin/python2') && has('python')
-            let g:ycm_server_python_interpreter="/usr/bin/env python2"
+            let g:ycm_server_python_interpreter='/usr/bin/env python2'
         elseif executable('/usr/local/bin/python3') && has('python3')
-            let g:ycm_server_python_interpreter="/usr/bin/env python3"
+            let g:ycm_server_python_interpreter='/usr/bin/env python3'
         endif
     endif
     " enable completion from tags
@@ -938,22 +955,26 @@ if IsSourced('YouCompleteMe')
     let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
     " Enable omni completion.
-    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-    autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-    autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup YcmOmniVimrc
+        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup END
 
     " Haskell post write lint and check with ghcmod
     " $ `cabal install ghcmod` if missing and ensure ~/.cabal/bin is in your $PATH.
-    if !executable("ghcmod")
-        autocmd BufWritePost *.hs GhcModCheckAndLintAsync
+    if !executable('ghcmod')
+        augroup YcmGhcMod
+            autocmd BufWritePost *.hs GhcModCheckAndLintAsync
+        augroup END
     endif
 
     " For snippet_complete marker.
-    if !exists("g:spf13_no_conceal")
+    if !exists('g:spf13_no_conceal')
         if has('conceal')
             set conceallevel=2 concealcursor=i
         endif
@@ -989,61 +1010,82 @@ endif
 
 " ### Autoformat Config ###
 if IsSourced('vim-autoformat')
-
+    augroup c_formatting
+        autocmd FileType c,c++,cs setlocal cindent sw=8
+    augroup END
     let g:__c__shiftwidth = 8
-    autocmd FileType c setlocal sts=0 cindent sw=8
 
-    let g:_Astyle_c_ = ' --mode=c"'
-    let g:_Astyle_cpp_ = ' --mode=c --indent-namespaces"'
-    let g:_Astyle_cs_ = ' --mode=cs --indent-namespaces"'
+    let g:_Astyle_Main_ = ''
+        \ . ' --indent=spaces=' . g:__c__shiftwidth
+        \ . ' --pad-oper'
+        \ . ' --preserve-date'
+        \ . ' --pad-header'
+        \ . ' --max-code-length=180'
+        \ . ' --break-one-line-headers'
+
+    let g:_Astyle_KR_     = '"astyle --style=kr'     . g:_Astyle_Main_
+    let g:_Astyle_Allman_ = '"astyle --style=allman' . g:_Astyle_Main_
+
+    let g:_Astyle_c_      = ' --mode=c"'
+    let g:_Astyle_cpp_    = ' --mode=c --indent-namespaces"'
+    let g:_Astyle_cs_     = ' --mode=cs --indent-namespaces"'
     
-    let g:_Astyle_Main_ = '
-        \ --indent=spaces='. g:__c__shiftwidth . '
-        \ --pad-oper
-        \ --preserve-date
-        \ --pad-header
-        \ --max-code-length=180
-        \ --break-one-line-headers'
+    " let g:formatdef_clangformat 
 
-    let g:_Astyle_KR_ = ' --style=kr'
-    let g:_Astyle_Allman_ = ' --style=allman'
+    "### C {
+        let g:formatdef_astyle_c    = g:_Astyle_Allman_ . g:_Astyle_c_
+        let g:formatdef_astyle_c_KR = g:_Astyle_KR_     . g:_Astyle_c_
+        let g:formatters_c          = ['clangformat', 'astyle_c_KR', 'astyle_c']
+    "}
 
-    " ### C ###
-    let g:formatdef_astyle_c = '"astyle'
-        \ . g:_Astyle_Allman_ . g:_Astyle_Main_
-        \ . g:_Astyle_c_
+    "### C++ {
+        let g:formatdef_astyle_cpp    = g:_Astyle_Allman_ . g:_Astyle_cpp_
+        let g:formatdef_astyle_cpp_KR = g:_Astyle_KR_     . g:_Astyle_cpp_
+        let g:formatters_cpp          = ['clangformat', 'astyle_cpp_KR', 'astyle_cpp']
+    "}
 
-    let g:formatdef_astyle_c_KR = '"astyle'
-        \ . g:_Astyle_KR_ . g:_Astyle_Main_
-        \ . g:_Astyle_c_
-    let g:formatters_c = ['astyle_c_KR', 'astyle_c']
+    "### C-sharp {
+        let g:formatdef_astyle_cs    = g:_Astyle_Allman_ . g:_Astyle_cs_
+        let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
+        let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
+        "}
 
-    " ### C++ ###
-    let g:formatdef_astyle_cpp = '"astyle'
-        \ . g:_Astyle_Allman_ . g:_Astyle_Main_
-        \ . g:_Astyle_cpp_
+        if len(findfile('.clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('.clang-format', expand('%:p:h').';')
+        elseif len(findfile('_clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('_clang-format', expand('%:p:h').';')
+        elseif filereadable(expand('~/.clang-format'))
+            let s:ClangFile = expand('~/.clang-format')
+        endif
 
-    let g:formatdef_astyle_cpp_KR = '"astyle'
-        \ . g:_Astyle_KR_ . g:_Astyle_Main_
-        \ . g:_Astyle_cpp_
-    let g:formatters_cpp = ['astyle_cpp', 'astyle_cpp_KR']
+        " let g:formatdef_clangformat = exists('s:ClangFile') ? 
+        "             \("'clang-format -i'.&shiftwidth.' -l'.&textwidth'.' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'") :
+        "             \("'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
+        "                 \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
+        "                 \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'")
 
-    " ### C-sharp ###
-    let g:formatdef_astyle_cs = '"astyle'
-        \ . g:_Astyle_Allman_ . g:_Astyle_Main_
-        \ . g:_Astyle_cs_
+        function! g:ZeroIsOneThousand()
+            if &textwidth ==# 0
+                return 1000
+            else
+                return &textwidth
+            endif
+        endfunction
 
-    let g:formatdef_astyle_cs = '"astyle'
-        \ . g:_Astyle_KR_ . g:_Astyle_Main_
-        \ . g:_Astyle_cs_
-    let g:formatters_cs = ['astyle_cs, astyle_cs_KR']
+        if exists('s:ClangFile')
+            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
+        else
+            let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
+                                            \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
+                                            \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'"
+        endif
 
-    " ### Some generic options
-    let g:autoformat_autoindent = 0
-    let g:autoformat_retab = 0
-    let g:autoformat_remove_trailing_spaces = 0
-    let g:autoformat_verbosemode = 1
-endif
+        "### Some generic options
+        let g:autoformat_autoindent = 0
+        let g:autoformat_retab = 0
+        let g:autoformat_remove_trailing_spaces = 0
+        let g:autoformat_verbosemode = 1
+    endif
 
 
 " ### Line numbering ###
@@ -1109,38 +1151,38 @@ endif
 
 " Initialize directories
 function! InitializeDirectories()
-    let parent = $HOME
-    let prefix = 'vim'
-    let dir_list = {
+    let l:parent = $HOME
+    let l:prefix = 'vim'
+    let l:dir_list = {
                 \ 'backup': 'backupdir',
                 \ 'views': 'viewdir',
                 \ 'swap': 'directory' }
                  
     if has('persistent_undo')
-        let dir_list['undo'] = 'undodir'
+        let l:dir_list['undo'] = 'undodir'
     endif
      
     " Specify a different directory in which to place the vimbackup vimviews, vimundo, and vimswap
     " with:  let g:spf13_consolidated_directory = <full path to desired directory>
     if exists('g:spf13_consolidated_directory')
-        let common_dir = g:spf13_consolidated_directory . prefix
+        let l:common_dir = g:spf13_consolidated_directory . l:prefix
     else
-        let common_dir = parent . '/.' . prefix
+        let l:common_dir = l:parent . '/.' . l:prefix
     endif
      
-    for [dirname, settingname] in items(dir_list)
-        let directory = common_dir . dirname . '/'
-        if exists("*mkdir")
-            if !isdirectory(directory)
-                call mkdir(directory)
+    for [l:dirname, l:settingname] in items(l:dir_list)
+        let l:directory = l:common_dir . l:dirname . '/'
+        if exists('*mkdir')
+            if !isdirectory(l:directory)
+                call mkdir(l:directory)
             endif
         endif
-        if !isdirectory(directory)
-            echo "Warning: Unable to create backup directory: " . directory
-            echo "Try: mkdir -p " . directory
+        if !isdirectory(l:directory)
+            echo 'Warning: Unable to create backup directory: ' . l:directory
+            echo 'Try: mkdir -p ' . l:directory
         else
-            let directory = substitute(directory, " ", "\\\\ ", "g")
-            exec "set " . settingname . "=" . directory
+            let l:directory = substitute(l:directory, ' ', '\\\\ ', 'g')
+            exec 'set ' . l:settingname . '=' . l:directory
         endif
     endfor
 endfunction
@@ -1148,11 +1190,11 @@ call InitializeDirectories()
 
 " Initialize NERDTree as needed
 function! NERDTreeInitAsNeeded()
-    redir => bufoutput
+    redir => l:bufoutput
     buffers!
     redir END
-    let idx = stridx(bufoutput, "NERD_tree")
-    if idx > -1
+    let l:idx = stridx(l:bufoutput, 'NERD_tree')
+    if l:idx > -1
         NERDTreeMirror
         NERDTreeFind
         wincmd l
@@ -1162,14 +1204,14 @@ endfunction
 " Strip whitespace
 function! StripTrailingWhitespace()
     " Preparation: save last search, and cursor position.
-    let _s=@/
-    let l = line(".")
-    let c = col(".")
+    let l:_s=@/
+    let l:l = line('.')
+    let l:c = col('.')
     " do the business:
     %s/\s\+$//e
     " clean up: restore previous search history, and cursor position
-    let @/=_s
-    call cursor(l, c)
+    let @/=l:_s
+    call cursor(l:l, l:c)
 endfunction
 
 " Shell command
@@ -1223,7 +1265,7 @@ endif
 
 " OmniComplete
 if !exists('g:spf13_no_omni_complete')
-    if has("autocmd") && exists("+omnifunc")
+    if has('autocmd') && exists('+omnifunc')
         autocmd Filetype *
                     \if &omnifunc == "" |
                     \setlocal omnifunc=syntaxcomplete#Complete |
@@ -1250,28 +1292,34 @@ endif
 " Normal Vim omni-completion
 if !exists('g:spf13_no_omni_complete')
     " Enable omni-completion.
-    autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-    autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-    autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-    autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-    autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-    autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup spf13_omni_complete
+        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+    augroup END
 endif
 
 " Automatically switch to the current file directory when a new buffer is opened.
 if !exists('g:spf13_no_autochdir')
-    autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    augroup spf13_autchdir
+        autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    augroup END
 endif
 
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
-au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+augroup no_revertcursor_git
+    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+augroup END
 
 " Restore cursor to file position in previous editing session
 if !exists('g:spf13_no_restore_cursor')
     function! ResCur()
-        if line("'\"") <= line("$")
+        if line("'\"") <= line('$')
             silent! normal! g`"
             return 1
         endif
@@ -1300,18 +1348,22 @@ if !exists('g:spf13_no_views')
                 \ ]
 endif
 
-" Remove trailing whitespaces and ^M chars
-autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
+augroup misc_config
+    " Remove trailing whitespaces and ^M chars
+    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql 
+                \ autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') 
+                \ | call StripTrailingWhitespace() | endif
 
-"autocmd FileType go autocmd BufWritePre <buffer> Fmt
-autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
-autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
-" preceding line best in a plugin but here for now.
-autocmd BufNewFile,BufRead *.coffee set filetype=coffee
-" Workaround vim-commentary for Haskell
-autocmd FileType haskell setlocal commentstring=--\ %s
-" Workaround broken colour highlighting in Haskell
-autocmd FileType haskell,rust setlocal nospell
+    "autocmd FileType go autocmd BufWritePre <buffer> Fmt
+    autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
+    autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
+    " preceding line best in a plugin but here for now.
+    autocmd BufNewFile,BufRead *.coffee set filetype=coffee
+    " Workaround vim-commentary for Haskell
+    autocmd FileType haskell setlocal commentstring=--\ %s
+    " Workaround broken colour highlighting in Haskell
+    autocmd FileType haskell,rust setlocal nospell
+augroup END
 
 
 " ================================================================================================================
@@ -1455,14 +1507,14 @@ noremap k gk
 if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
     " Same for 0, home, end, etc
     function! WrapRelativeMotion(key, ...)
-        let vis_sel=""
+        let l:vis_sel=''
         if a:0
-            let vis_sel="gv"
+            let l:vis_sel='gv'
         endif
         if &wrap
-            execute "normal!" vis_sel . "g" . a:key
+            execute 'normal!' l:vis_sel . 'g' . a:key
         else
-            execute "normal!" vis_sel . a:key
+            execute 'normal!' l:vis_sel . a:key
         endif
     endfunction
      
@@ -1483,25 +1535,25 @@ if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
     vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
 endif
 
-" The following two lines conflict with moving to top and bottom of the screen.
-if !exists('g:spf13_no_fastTabs')
-    map <S-H> gT
-    map <S-L> gt
-endif
-
-" Stupid shift key fixes
-if !exists('g:spf13_no_keyfixes')
-    command! -bang -nargs=* -complete=file E e<bang> <args>
-    command! -bang -nargs=* -complete=file W w<bang> <args>
-    command! -bang -nargs=* -complete=file Wq wq<bang> <args>
-    command! -bang -nargs=* -complete=file WQ wq<bang> <args>
-    command! -bang Wa wa<bang>
-    command! -bang WA wa<bang>
-    command! -bang Q q<bang>
-    command! -bang QA qa<bang>
-    command! -bang Qa qa<bang>
-    cmap Tabe tabe
-endif
+" " The following two lines conflict with moving to top and bottom of the screen.
+" if !exists('g:spf13_no_fastTabs')
+"     map <S-H> gT
+"     map <S-L> gt
+" endif
+" 
+" " Stupid shift key fixes
+" if !exists('g:spf13_no_keyfixes')
+"     command! -bang -nargs=* -complete=file E e<bang> <args>
+"     command! -bang -nargs=* -complete=file W w<bang> <args>
+"     command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+"     command! -bang -nargs=* -complete=file WQ wq<bang> <args>
+"     command! -bang Wa wa<bang>
+"     command! -bang WA wa<bang>
+"     command! -bang Q q<bang>
+"     command! -bang QA qa<bang>
+"     command! -bang Qa qa<bang>
+"     cmap Tabe tabe
+" endif
 
 " Yank from the cursor to the end of the line, to be consistent with C and D.
 nnoremap Y y$
@@ -1571,7 +1623,7 @@ map zh zH
 
 
 " Catch all for shitty terminals.
-if $TERM == 'linux' || $TERM == 'screen' || ($CONEMUPID && !$NVIM_QT) || ($SYSID == "FreeBSD" && $TERM == 'xterm')
+if $TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || ($SYSID ==# 'FreeBSD' && $TERM ==# 'xterm')
     set notermguicolors
     colo default
     set background=dark
@@ -1582,7 +1634,7 @@ else
         colo myMolokai3
     else
         colo chroma
-        set bg=dark
+        set background=dark
     endif
 
     if has('gui_running')
@@ -1592,7 +1644,7 @@ endif
 
 " ================================================================================================================
 
-set ffs=unix,dos,mac
+set fileformats=unix,dos,mac
 
 augroup MyCrap
     autocmd!
@@ -1624,7 +1676,7 @@ endfunction
 function! ToggleBG()
     let s:tbg = &background
     " Inversion
-    if s:tbg == "dark"
+    if s:tbg ==# 'dark'
         set background=light
     else
         set background=dark
@@ -1663,26 +1715,26 @@ if has('nvim')
     " This is the dumbest possible way to set the colors for the terminal but I
     " can't actually think of any better way to do it.
     if !WIN_OR_CYG()
-        let s:colorlist = ["#000000", "#cd0000", "#00cd00", "#cdcd00", "#0075ff", "#cd00cd",
-                         \ "#00cdcd", "#e5e5e5", "#7f7f7f", "#ff0000", "#00ff00", "#ffff00",
-                         \ "#0075ff", "#ff00ff", "#00ffff", "#ffffff"]
+        let s:colorlist = ['#000000', '#cd0000', '#00cd00', '#cdcd00', '#0075ff', '#cd00cd',
+                         \ '#00cdcd', '#e5e5e5', '#7f7f7f', '#ff0000', '#00ff00', '#ffff00',
+                         \ '#0075ff', '#ff00ff', '#00ffff', '#ffffff']
 
-        let terminal_color_0  = s:colorlist[0]
-        let terminal_color_1  = s:colorlist[1]
-        let terminal_color_2  = s:colorlist[2]
-        let terminal_color_3  = s:colorlist[3]
-        let terminal_color_4  = s:colorlist[4]
-        let terminal_color_5  = s:colorlist[5]
-        let terminal_color_6  = s:colorlist[6]
-        let terminal_color_7  = s:colorlist[7]
-        let terminal_color_8  = s:colorlist[8]
-        let terminal_color_9  = s:colorlist[9]
-        let terminal_color_10 = s:colorlist[10]
-        let terminal_color_11 = s:colorlist[11]
-        let terminal_color_12 = s:colorlist[12]
-        let terminal_color_13 = s:colorlist[13]
-        let terminal_color_14 = s:colorlist[14]
-        let terminal_color_15 = s:colorlist[15]
+        let g:terminal_color_0  = s:colorlist[0]
+        let g:terminal_color_1  = s:colorlist[1]
+        let g:terminal_color_2  = s:colorlist[2]
+        let g:terminal_color_3  = s:colorlist[3]
+        let g:terminal_color_4  = s:colorlist[4]
+        let g:terminal_color_5  = s:colorlist[5]
+        let g:terminal_color_6  = s:colorlist[6]
+        let g:terminal_color_7  = s:colorlist[7]
+        let g:terminal_color_8  = s:colorlist[8]
+        let g:terminal_color_9  = s:colorlist[9]
+        let g:terminal_color_10 = s:colorlist[10]
+        let g:terminal_color_11 = s:colorlist[11]
+        let g:terminal_color_12 = s:colorlist[12]
+        let g:terminal_color_13 = s:colorlist[13]
+        let g:terminal_color_14 = s:colorlist[14]
+        let g:terminal_color_15 = s:colorlist[15]
     endif
 endif
 
@@ -1696,11 +1748,32 @@ let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
 let g:gonvim_draw_lint       = 1
 
+function! Test1()
+    execute 'i'."\r".'testingtesting'."\r".'.'."\r"
+endfunction
+
+function! DoIfZeroRange() range
+    let l:line1 = getline(a:firstline)
+    let l:line2 = getline(a:lastline)
+    "echo 'First:  '.a:firstline
+    "echo 'Second: '.a:lastline
+
+    if (l:line1 =~# '\v^[ ]*#[ ]*if 0$') && (l:line2 =~# '\v^[ ]*#[ ]*endif$')
+        :execute a:lastline.'d'
+        :execute a:firstline.'d'
+    else
+        call append(a:lastline, '#endif')
+        call append(a:firstline - 1, '#if 0')
+    endif
+endfunction
+
+command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
+noremap <silent> <leader>cf :IfZeroRange<CR>
 
 "if has('clipboard')
-    "if has('unnamedplus')  " When possible use + register for copy-paste
-        "set clipboard=unnamed,unnamedplus
-    "else         " On mac and Windows, use * register for copy-paste
-        "set clipboard=unnamed
-    "endif
+"if has('unnamedplus')  " When possible use + register for copy-paste
+"set clipboard=unnamed,unnamedplus
+"else         " On mac and Windows, use * register for copy-paste
+"set clipboard=unnamed
+"endif
 "endif

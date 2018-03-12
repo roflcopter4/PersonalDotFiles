@@ -169,6 +169,9 @@ mkalias -T ari='aria2c'
 mkalias -T par='par-format'
 
 
+if [ "$SYSID" = 'laptop-gentoo' ]; then
+    alias emerge='emerge -k'
+fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
         (command -v 'esearch' >/dev/null 2>&1) && alias ems='esearch' || alias ems='emerge --search'
@@ -184,6 +187,7 @@ case "$SYSID" in
         mkalias -TS euse='euse' 
         ;;
 esac
+
 
 # Linux Aliases
 if ! [ "$(uname)" = 'DragonFly' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then

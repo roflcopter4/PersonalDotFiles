@@ -45,7 +45,7 @@ if ! [[ -d "${HOME}/.local" ]]; then
     mkdir -p "${HOME}/.local/lib"
     mkdir -p "${HOME}/.local/etc"
 fi
-zplug 'wting/autojump', hook-build:"./install.py -d ${HOME}/.local"
+zplug 'wting/autojump', hook-build:"python install.py -d ${HOME}/.local"
 
 # Local plugins
 local PluginDir="${HOME}/personaldotfiles/zsh/plugins"

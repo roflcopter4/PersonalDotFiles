@@ -8,7 +8,7 @@ else
 endif
 
 
-GuiLinespace=0
+GuiLinespace 1
 
 "let g:nvim_qt = 1
 "let g:airline_left_sep='›'  " Slightly fancier than '>'

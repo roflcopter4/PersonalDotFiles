@@ -359,8 +359,97 @@ j7z() {
 }
 
 
+if Exists 'fzy'; then
+    ffzy() {
+        local _fzlen_ _cd_ _cmd_ _smartness_ _extra_ _statement_
+        _fzlen=30
+        _cd_=false
+        _cmd_='find'
+        OPTIND=1
+        while getopts 'cl:rgu:S:' ARG; do
+            case "$ARG" in
+                c)
+                    _cd_=true
+                    ;;
+                l)
+                    _fzlen="${OPTARG}"
+                    ;;
+                r)
+                    _cmd_='rg'
+                    _extra_='--files'
+                    ;;
+                g)
+                    _cmd_='ag'
+                    _extra_='-g ""'
+                    ;;
+                u)
+                    case "$_cmd_" in
+                        'find')
+                            ;;
+                        'rg')
+                            case "$OPTARG" in
+                                0) _smartness_=       ;;
+                                1) _smartness_='-u'   ;;
+                                2) _smartness_='-uu'  ;;
+                                3) _smartness_='-uuu' ;;
+                                *) echo 'rg "u" option must be between 0 and 3 (inclusive).' >&2
+                                    ;;
+                            esac ;;
+                        'ag')
+                            case "$OPTARG" in
+                                0) _smartness_=              ;;
+                                1) _smartness_='--hidden'    ;;
+                                2) _smartness_='--all-types' ;;
+                                3) _smartness_='-u'          ;;
+                                *) echo 'ag "u" option must be between 0 and 3 (inclusive).' >&2
+                                    ;;
+                            esac ;;
+                    esac
+                    ;;
+                S)
+                    _smartness_="$OPTARG"
+                    ;;
+                *)
+                    echo 'Fatal, exiting.' >&2
+                    ;;
+            esac
+        done
+        shift $((OPTIND - 1))
+
+        if [ -z "$_smartness_" ]; then
+            if [ ".${_cmd_}" = '.rg' ]; then
+                _smartness_='-uuu'
+            elif [ ".${_cmd_}" = '.ag' ]; then
+                _smartness_='-u'
+            fi
+        fi
+
+        _statement_="\"${_cmd_}\" ${_smartness_} ${_extra_} \"${1:-.}\" 2>/dev/null | fzy -l\"${_fzlen}\""
+        if ${_cd_}; then
+            local __file__
+            __file__="$( (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit
+                        eval "$_statement_")"
+
+            echo "$__file__"
+
+            if [ -d "$__file__" ]; then
+                cd "$__file__"
+            else
+                cd "$(dirname "$__file__")"
+            fi
+        else
+            eval "$_statement_"
+        fi
+    }
+
+    cdf() {
+        ffzy -c "$@"
+    }
+fi
+
+
 cppMacroOnly() { (
-    set -o shwordsplit >/dev/null 2>&1
+    (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit
     [ $# -eq 0 ] && exit 1;
     [ $# -eq 1 ] && __file="$1" && __CPP='clang' && __ARGS='-E -P -'
     [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS="$*"

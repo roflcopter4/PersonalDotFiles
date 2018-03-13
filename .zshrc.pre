@@ -18,7 +18,8 @@ fi
 # Use Oh-My-Zsh libs, with some options
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
-zplug "robbyrussell/oh-my-zsh", use:"lib/*.zsh"
+#zplug "robbyrussell/oh-my-zsh", use:"lib/*.zsh"
+zplug  "robbyrussell/oh-my-zsh", use:"lib/{completion,misc,key-binding}.zsh"
 
 # Github Plugins
 zplug "zsh-users/zsh-history-substring-search"
@@ -32,9 +33,9 @@ zplug "tarruda/zsh-autosuggestions"
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Oh-My-Zsh plugins
-zplug "plugins/compleat",             from:oh-my-zsh
-zplug "plugins/copydir",              from:oh-my-zsh 
-zplug "plugins/cp",                   from:oh-my-zsh
+#zplug "plugins/compleat",             from:oh-my-zsh
+#zplug "plugins/copydir",              from:oh-my-zsh 
+#zplug "plugins/cp",                   from:oh-my-zsh
 zplug "plugins/zsh-navigation-tools", from:oh-my-zsh
 
 ### ===================================================================
@@ -71,4 +72,5 @@ fi
 
 
 #export path=( $path $ZPLUG_BIN )
+zplug load
 

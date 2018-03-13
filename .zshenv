@@ -40,7 +40,7 @@ fi
 # set environment variables (important for autologin on tty)
 export HOSTNAME=${HOSTNAME:-$(hostname)}
 export PAGER='less'
-export EDITOR='vi'
+export EDITOR='nvim'
 
 # make sure /usr/bin/id is available
 if [[ -x /usr/bin/id ]] ; then

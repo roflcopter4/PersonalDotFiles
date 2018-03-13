@@ -21,7 +21,7 @@
 ###                                                                          ###
 ################################################################################
 
-zplug load
+#zplug load
 
 ################################################################################
 ###                                                                          ###
@@ -31,7 +31,7 @@ zplug load
 
 
 # Setup my theme
-local LoadTheme="myTheme_MK19"
+local LoadTheme="myTheme_MK18"
 local ThemeName="${HOME}/personaldotfiles/zsh/themes/${LoadTheme}.zsh-theme"
 if [[ -f "$ThemeName" ]]; then
     # Necessary to use my prompt apparently.
@@ -46,47 +46,47 @@ local SourceIfExist() {
 }
 
 
-if [[ $(uname) == 'DragonFly' ]]; then
-    export CC=/usr/local/llvm-devel/bin/cc
-    export CXX=/usr/local/llvm-devel/bin/c++
+#if [[ $(uname) == 'DragonFly' ]]; then
+#    export CC=/usr/local/llvm-devel/bin/cc
+#    export CXX=/usr/local/llvm-devel/bin/c++
 
-elif [[ $(uname -o) == 'Cygwin' ]]; then
-    export IS_CYGWIN=1
-    export IS_WINDOWS=1
-    export LAD=$(cygpath "$LOCALAPPDATA")
-    SourceIfExist "${PluginDir}/MountCygDrives/mountCygDrives.zsh"
+#elif [[ $(uname -o) == 'Cygwin' ]]; then
+#    export IS_CYGWIN=1
+#    export IS_WINDOWS=1
+#    export LAD=$(cygpath "$LOCALAPPDATA")
+#    SourceIfExist "${PluginDir}/MountCygDrives/mountCygDrives.zsh"
 
-elif [[ "$(uname -o)" =~ 'Msys' ]] || [[ "$(uname -o)" =~ 'Mingw' ]]; then
-    export IS_MSYS=1
+#elif [[ "$(uname -o)" =~ 'Msys' ]] || [[ "$(uname -o)" =~ 'Mingw' ]]; then
+#    export IS_MSYS=1
 
-elif [[ $(uname -o) =~ 'GNU/Linux' ]]; then
-    # Arch Linux Specific Config
-    if [[ "$(uname -r)" =~ 'ARCH' ]] || [[ "$(uname -r)" =~ 'ARTIX' ]]; then
-        export AURDEST="${HOME}/Downloads/AUR"
-    fi
-fi
+#elif [[ $(uname -o) =~ 'GNU/Linux' ]]; then
+#    # Arch Linux Specific Config
+#    if [[ "$(uname -r)" =~ 'ARCH' ]] || [[ "$(uname -r)" =~ 'ARTIX' ]]; then
+#        export AURDEST="${HOME}/Downloads/AUR"
+#    fi
+#fi
 
 
-local hackPath() {
-    local newPath=(  )
-    local found_evil=0
-    local proscribed_paths=( 'zplug' 'sbin' )
-    for elem in "${path[@]}"; do
-        found_evil=0
-        for evil in "${proscribed_paths[@]}"; do
-            if [[ "$elem" =~ "$evil" ]]; then
-                found_evil=1
-                break
-            fi
-        done
-        if [[ $found_evil -eq 0 ]]; then
-            newPath+=( "$elem" )
-        fi
-    done
-    newPath+=( "$ZPLUG_BIN" )
-    export path=( "${newPath[@]}" )
-}
-[[ "$(uname -r)" =~ 'ARCH' ]] && hackPath
+#local hackPath() {
+#    local newPath=(  )
+#    local found_evil=0
+#    local proscribed_paths=( 'zplug' 'sbin' )
+#    for elem in "${path[@]}"; do
+#        found_evil=0
+#        for evil in "${proscribed_paths[@]}"; do
+#            if [[ "$elem" =~ "$evil" ]]; then
+#                found_evil=1
+#                break
+#            fi
+#        done
+#        if [[ $found_evil -eq 0 ]]; then
+#            newPath+=( "$elem" )
+#        fi
+#    done
+#    newPath+=( "$ZPLUG_BIN" )
+#    export path=( "${newPath[@]}" )
+#}
+#[[ "$(uname -r)" =~ 'ARCH' ]] && hackPath
 
 # SOME SPECIFIC CONFIG I CAN'T PRESENTLY BE BOTHERED TO PUT SOMEWHERE ELSE
 zstyle ':completion:*'               menu select=2
@@ -100,8 +100,19 @@ setopt multios
 # KEY BINDINGS
 
 #bindkey -v
-#bindkey -M vicmd 'k' up-line-or-beginning-search
-#bindkey -M vicmd 'j' down-line-or-beginning-search
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+autoload -U edit-command-line
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zle -N edit-command-line
+
+bindkey -M vicmd 'k' up-line-or-beginning-search
+bindkey -M vicmd 'j' down-line-or-beginning-search
+
+bind2maps emacs viins vicmd -- Up        up-line-or-beginning-search
+bind2maps emacs viins vicmd -- Down      down-line-or-beginning-search
+bind2maps emacs viins vicmd -- -s '^x^e' edit-command-line
 
 bind2maps       viins       -- -s '^a'   beginning-of-somewhere
 bind2maps       viins       -- -s '^e'   end-of-somewhere
@@ -119,7 +130,7 @@ SourceIfExist "${HOME}/.aliases"
 #[[ "$(command -v ag)" ]] && export FZF_DEFAULT_COMMAND='ag --hidden -u --ignore .git --ignore .vimbackup --ignore .vimviews --ignore .vimundo -g ""'
 [[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"
 export LESS='-R -M --shift 5 -i'
-export DISTCC_HOSTS="+zeroconf"
+export DISTCC_HOSTS="${DISTCC_HOSTS}${DISTCC_HOSTS:+:}+zeroconf"
 export MANWIDTH=120
 export HISTSIZE=1000000000
 
@@ -321,10 +332,10 @@ fi
 ## ZLE tweaks ##
 
 ## use the vi navigation keys (hjkl) besides cursor keys in menu completion
-#bindkey -M menuselect 'h' vi-backward-char        # left
-#bindkey -M menuselect 'k' vi-up-line-or-history   # up
-#bindkey -M menuselect 'l' vi-forward-char         # right
-#bindkey -M menuselect 'j' vi-down-line-or-history # bottom
+bindkey -M menuselect 'h' vi-backward-char        # left
+bindkey -M menuselect 'k' vi-up-line-or-history   # up
+bindkey -M menuselect 'l' vi-forward-char         # right
+bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 
 ## set command prediction from history, see 'man 1 zshcontrib'
 #is4 && zrcautoload predict-on && \

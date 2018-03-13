@@ -58,7 +58,10 @@ endif
 
 let g:mapleader=' '
 
-let &runtimepath = '~/.vim/local' . ',' . &runtimepath
+if ! has('nvim')
+    let &runtimepath = expand('~/.local/share/nvim/site').','.expand('~/.local/share/nvim/site/after').','.&runtimepath
+endif
+"let &runtimepath = expand('~/.vim/local').','.&runtimepath
 
 
 " ======================================================================================================
@@ -860,7 +863,7 @@ if IsSourced('ale')
     "let b:ale_linters_c = {'c': ['clangtidy', 'cppcheck']}
     "let b:ale_linters_c = {'c': ['cppcheck', 'clangtidy']}
     
-    let g:ale_c_clangtidy_checks = ['*', '-*readability-braces-around-statements', '-android*']
+    let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*']
 
     let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
     let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
@@ -1701,6 +1704,8 @@ nnoremap <leader>QQ :qa!<CR>
 
 nnoremap <leader>buf :buffers<CR>
 command Config e $MYVIMRC
+
+nnoremap <leader>nl :set nolist<CR>
 
 " ================================================================================================================
 " Neovim Terminal Config

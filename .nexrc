@@ -1,8 +1,11 @@
 set magic
-set flash
-set autoindent
+set noflash
 set nonumber
+set autoindent
 set shiftwidth=4
 set tabstop=8
 set showmode
 set ruler
+set redraw
+set beautify
+set extended

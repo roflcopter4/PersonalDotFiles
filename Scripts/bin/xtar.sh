@@ -5,7 +5,7 @@
 # Only shows long usage info if either called with no paramaters or with 0.
 # Exits after showing info with either the number or with 0.
 ShowUsage() {
-    THIS="$(basename "$0")"
+    THIS=$(basename "$0")
     [ "$1" ] && [ "$1" -ne 0 ] && out=2 || out=1
     echo "Usage: ${THIS} [options] archive(s)..." >&$out
     [ "$out" -eq 2 ] && exit "$1"
@@ -48,6 +48,17 @@ EOF
 }
 
 
+ComplainAboutLousyGetoptImplementation() {
+    cat <<'EOF' >&2
+WARNING: GNU/BSD enhanced `getopt(1)' not found; reverting to shell builtin
+         `getopts(1)'. Long options will not be understood!
+
+Only non GNU/Linux systems ship without the GNU Version: FreeBSD users can
+install a fully compatible, non GPL clone from the standard ports tree.
+EOF
+}
+
+
 # =================================================================================================
 # Subroutines
 
@@ -77,8 +88,8 @@ cmd_exists() {
 # NOTE: 'is_tar' is also true for cpio files - tar can deal with both.
 # EXPORTS: bpath fname bname ext bext is_tar
 get_ext() {
-    bpath="$(realpath "$(dirname "${Archive}")")"
-    ext="$(echo "${fname}" | grep -o '\.tar\..*')"
+    bpath=$(realpath "$(dirname "${Archive}")")
+    ext=$(echo "${fname}" | grep -o '\.tar\..*')
     [ "${ext}" ] || ext="$(echo "${fname}" | grep -o '\.cpio\..*')"
     if [ "${ext}" ]; then
         ext="${ext#.}"
@@ -142,7 +153,7 @@ get_odir() {
         odir="${modpath}/${bname}"
         oname="${bname}"
     fi
-    [ -e "$odir" ] && odir="$(handle_conflict "$modpath" "$oname")"
+    [ -e "$odir" ] && odir=$(handle_conflict "$modpath" "$oname")
 }
 
 
@@ -173,7 +184,7 @@ do_extract() {
     # ${B}: The path of the source file relative to the extraction directory.
     #       Only used when echoing the command. Full paths are just safer.
     A="${bpath}/${fname}"
-    B="$(rel_path "${odir}" "${A}")"
+    B=$(rel_path "${odir}" "${A}")
     echo "mkdir && cd -> $(basename "$odir")"
 
     # No lazy shortcuts, only an if...else statement is safe here.
@@ -197,13 +208,13 @@ do_extract() {
         fi
 
         if [ "$lonefile" = "$bname" ]; then
-            tmp="$(handle_conflict "$bpath" "$bname")"
+            tmp=$(handle_conflict "$bpath" "$bname")
             mv "${odir}/${lonefile}" "$tmp"
             cd "$bpath" && rmdir "$odir"
             mv "$tmp" "$odir"
 
         else
-            if [ -z "$SetUsUpTheBomb" ] && [ -d "${odir}/${lonefile}" ]; then
+            if [ "$SetUsUpTheBomb" ] && [ -d "${odir}/${lonefile}" ]; then
                 for d in 'usr' 'bin' 'share' 'lib' 'lib64' 'lib32'; do
                     [ "${d}" = "$lonefile" ] && BOMB='YES' && break
                 done
@@ -213,11 +224,11 @@ do_extract() {
                 if [ "$num_archives" -eq 1 ]; then
                     oname="${odir_param:-${lonefile}}"
                     odir2="${bpath}/${oname}"
-                    [ -e "$odir2" ] && odir2="$(handle_conflict "$bpath" "$oname")"
+                    [ -e "$odir2" ] && odir2=$(handle_conflict "$bpath" "$oname")
                 else
                     modpath="${bpath}${odir_param:+/}${odir_param}"
                     odir2="${modpath}/${lonefile}"
-                    [ -e "$odir2" ] && odir2="$(handle_conflict "$modpath" "$lonefile")"
+                    [ -e "$odir2" ] && odir2=$(handle_conflict "$modpath" "$lonefile")
                 fi
                 mv "${odir}/${lonefile}" "$odir2"
                 cd "$odir2" && rmdir "$odir"
@@ -472,8 +483,8 @@ handle_failure() {
 # most people don't it's easy enough to include it here.
 rel_path() {
     local this target rpath
-    this="$(realpath "$1")"
-    target="$(realpath "$2")"
+    this=$(realpath "$1")
+    target=$(realpath "$2")
 
     [ "${this}" = "${target}" ] && echo '.' && return
 
@@ -505,7 +516,7 @@ VER='xtar version 2.0'
 OPTSTRING='hVvo:cbgt7TAf'
 LONGOPTS='help,version,verbose,top:,combine,tar:,use7zip,usetar,force'
 
-TimeStamp="$(date +%s)"
+TimeStamp=$(date +%s)
 first=true
 GnuGetopt=false
 
@@ -521,46 +532,44 @@ YELLOW='\033[33m'
 
 [ $# -eq 0 ] && ShowUsage 1  # Exit if no paramaters
 
-# I've never heard of GNU Getopt being named ggetopt, but in the tiny chance
-# that some UN*X somewhere has done that we should test for it.
-for TST in 'getopt' '/usr/bin/getopt' '/usr/local/bin/getopt' 'ggetopt'; do
+
+for TST in 'getopt' '/usr/bin/getopt' '/usr/local/bin/getopt'; do
     ${TST} -T >/dev/null 2>&1
     if [ $? -eq 4 ]; then
-        GnuGetopt=true
-        GnuGetoptCMD="$TST"
+        egetopt=true
+        egetopt_cmd="$TST"
         break
     fi
 done
 
-if $GnuGetopt; then
-    TEMP="$(${GnuGetoptCMD} -n "${0##*/}" -o "${OPTSTRING}N" \
-            --longoptions "${LONGOPTS}" -- "$@")" || ShowUsage 2
+if $egetopt; then
+    TEMP=$(${egetopt_cmd} -n "${THIS}" -o "${OPTSTRING}" \
+            --longoptions "${LONGOPTS}" -- "$@") || ShowUsage 5
     eval set -- "$TEMP"
-
 else
-    # For portability we're stuck with the POSIX builtin getopts rather than the
-    # superior GNU getopt command. It's still much better than BSD's getopt.
-    # Nonetheless, we should handle at least a few attempts at GNU style options.
-    case "$1" in
-        --help)
-            ShowUsage 0  # Exits
-            ;;
+    ComplainAboutLousyGetoptImplementation
+    case "$1" in  # At least support these two semi-obligatory options.
+        --help) ShowUsage ;;
         --version)
-            echo "${VER}" && exit 0
-            ;;
+            echo "${VER}"
+            exit 0 ;;
     esac
 fi
 
+# This is a bit hacky but it works. When using gnu getopt, the infinate loop is
+# broken at '--', whereas getopts will break when the options end.
 while
-    if $GnuGetopt; then
-        ARG="$1"
-        OPTARG="$2"
-        true
+    if $egetopt; then
+        ARG="$1"; OPTARG="$2"; true  # Make the loop infinite.
     else
-        getopts "${OPTSTRING}N" ARG
+        getopts "${OPTSTRING}" ARG
     fi
-do
+do 
     case "$ARG" in
+        --)
+            $egetopt && shift
+            break
+            ;;
         h|-h|--help)
             ShowUsage 0  # Exits
             ;;
@@ -618,9 +627,6 @@ do
             no7z='YES'
             $GnuGetopt && shift
             ;;
-        --)
-            shift; break
-            ;;
         *)
             echo 'bast'
             ShowUsage 2  # Exits
@@ -648,7 +654,7 @@ esac
 
 
 for Archive in "$@"; do
-    fname="$(basename "$Archive")"
+    fname=$(basename "$Archive")
     $first && first=false || echo
     printf -- "${YELLOW}===============================================================================${NORMAL}\n"
     printf -- "${YELLOW}-----  Processing ${fname}  -----${NORMAL}\n"

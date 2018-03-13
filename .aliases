@@ -185,6 +185,9 @@ mkalias -T par='par-format'
 mkalias -T wolf='wolframscript'
 
 
+if [ "$SYSID" = 'laptop-gentoo' ]; then
+    alias emerge='emerge -k'
+fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
         #(Exists 'esearch') && alias ems='esearch' || alias ems='emerge --search'
@@ -201,6 +204,7 @@ case "$SYSID" in
         mkalias -TS euse='euse' 
         ;;
 esac
+
 
 # Linux Aliases
 if ! [ "$(uname)" = 'DragonFly' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then

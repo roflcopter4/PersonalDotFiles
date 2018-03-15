@@ -72,5 +72,5 @@ fi
 
 
 #export path=( $path $ZPLUG_BIN )
-zplug load
+#zplug load
 

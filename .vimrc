@@ -31,8 +31,6 @@ if WINDOWS()
 else
     if executable('/bin/dash')
         set shell=/bin/dash
-    elseif executable('/usr/bin/dash')
-        set shell=/usr/bin/dash
     else
         set shell=/bin/sh
     endif
@@ -262,14 +260,12 @@ if CheckDeinLoadState()
     call AddPlugin('gcmt/wildfire.vim')
     call AddPlugin('tpope/vim-repeat')
     call AddPlugin('huawenyu/neogdb.vim')
-     
       
     " Writing -----
     call AddPlugin('reedes/vim-litecorrect')
     call AddPlugin('reedes/vim-textobj-sentence')
     call AddPlugin('reedes/vim-textobj-quote')
     call AddPlugin('reedes/vim-wordy')
-     
       
     " General Programming -----
     call AddPlugin('tpope/vim-fugitive')
@@ -281,20 +277,17 @@ if CheckDeinLoadState()
     if executable('ctags')
         call AddPlugin('majutsushi/tagbar')
     endif
-     
-      
+          
     " PHP --------
     call AddPlugin('spf13/PIV')
     call AddPlugin('arnaud-lb/vim-php-namespace')
     call AddPlugin('beyondwords/vim-twig')
      
-      
     " Python ---------
     call AddPlugin('klen/python-mode')
     call AddPlugin('yssource/python.vim')
     call AddPlugin('vim-scripts/python_match.vim')
     call AddPlugin('vim-scripts/pythoncomplete')
-     
       
     " Javascript ----------
     call AddPlugin('elzr/vim-json')
@@ -303,12 +296,10 @@ if CheckDeinLoadState()
     call AddPlugin('briancollins/vim-jst')
     call AddPlugin('kchmck/vim-coffee-script')
     
-    
     " Scala ---------
     call AddPlugin('derekwyatt/vim-scala')
     call AddPlugin('derekwyatt/vim-sbt')
     call AddPlugin('vim-scripts/xptemplate')
-    
     
     " Haskell ----------
     call AddPlugin('travitch/hasksyn')
@@ -321,14 +312,12 @@ if CheckDeinLoadState()
     call AddPlugin('adinapoli/cumino')
     call AddPlugin('bitc/vim-hdevtools')
     
-    
     " HTML ---------
     call AddPlugin('hail2u/vim-css3-syntax')
     call AddPlugin('gorodinskiy/vim-coloresque')
     call AddPlugin('tpope/vim-haml')
     "call AddPlugin('amirh/HTML-AutoCloseTag')
     
-
     " Misc ----------
     call AddPlugin('rodjek/vim-puppet')
     call AddPlugin('rust-lang/rust.vim')
@@ -340,12 +329,12 @@ if CheckDeinLoadState()
     call AddPlugin('fsharp/vim-fsharp')
     call AddPlugin('elixir-lang/vim-elixir')
     call AddPlugin('mattreduce/vim-mix')
-    call AddPlugin('vim-perl/vim-perl')
-    call AddPlugin('PProvost/vim-ps1')
-    "call AddPlugin('Blackrush/vim-gocode')
-    "call AddPlugin('fatih/vim-go')
     call AddPlugin('carlosgaldino/elixir-snippets')
     call AddPlugin('junegunn/fzf.vim')
+    call AddPlugin('PProvost/vim-ps1')
+    call AddPlugin('vim-perl/vim-perl')
+    "call AddPlugin('Blackrush/vim-gocode')
+    "call AddPlugin('fatih/vim-go')
     "call AddPlugin('dzhou121/gonvim-fuzzy')
 
     " Moar Languages ------
@@ -648,8 +637,9 @@ endif
 if IsSourced('rainbow')
     let g:rainbow_active = 1
     " God, what a horrific mess.
+        "\    'guifgs': ['DodgerBlue1', 'darkorange1', 'green2', 'firebrick1'],
     let g:rainbow_conf = {
-        \    'guifgs': ['DodgerBlue1', 'darkorange1', 'green2', 'firebrick1'],
+        \    'guifgs': ['DodgerBlue1', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2'],
         \    'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
         \    'operators': '_,_',
         \    'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
@@ -659,7 +649,7 @@ if IsSourced('rainbow')
         \            'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/'],
         \        },
         \        'lisp': {
-        \            'guifgs': ['DodgerBlue1', 'darkorange1', 'green2', 'firebrick1', 'darkorchid1'],
+        \            'guifgs': ['DeepSkyBlue2', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2', 'gold1', 'cyan1'],
         \        },
         \        'vim': {
         \            'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/', 'start=/{/ end=/}/ fold',
@@ -671,6 +661,9 @@ if IsSourced('rainbow')
         \            'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem'.
                                    \ '|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'.
                                    \ "'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
+        \        },
+        \        'perl': {
+        \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2'],
         \        },
         \        'css': 0,
         \    }
@@ -849,35 +842,37 @@ if IsSourced('ale')
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 0
     let g:ale_linters_explicit = 0
+    let g:ale_sh_shell_default_shell = 'sh'
 
-    let g:ale_c_gcc_options = '-Wall -Iinc -Wpedantic -Wextra'
-    let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc'
+    " C, C++, C# {
+        let g:ale_c_gcc_options = '-Wall -Iinc -Wpedantic -Wextra'
+        let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc'
 
-    "let b:ale_linters_c = {'c': ['gcc', 'clang']}
-    "let b:ale_linters_c = {'c': ['gcc']}
-    "let b:ale_linters_c = {'c': ['clang']}
-    "let b:ale_linters_c = {'c': ['cppcheck']}
-    "let b:ale_linters_c = {'c': ['gcc', 'clangtidy']}
-    let b:ale_linters_c = {'c': ['gcc', 'clangtidy', 'cppcheck']}
-    "let b:ale_linters_c = {'c': ['gcc', 'clangtidy', 'cppcheck']}
-    "let b:ale_linters_c = {'c': ['clangtidy', 'cppcheck']}
-    "let b:ale_linters_c = {'c': ['cppcheck', 'clangtidy']}
-    
-    let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*']
+        "let b:ale_linters_c = {'c': ['clang']}
+        let b:ale_linters_c = {'c': ['gcc', 'clangtidy', 'cppcheck']}
+        
+        let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*']
+    "}
 
-    let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
-    let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
-    "let g:ale_python_flake8_executable = 'flake8_3'
-    "let g:ale_python_pyflakes_executable = 'pyflakes_3'
-    let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
+    " Python {
+        let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
+        let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
+        "let g:ale_python_flake8_executable = 'flake8_3'
+        "let g:ale_python_pyflakes_executable = 'pyflakes_3'
+        let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
+    "}
 
-    "let g:ale_linters = {'perl': ['perl', 'perlcritic']}
+    " Perl {
+        "let b:ale_linters_perl = {'perl': ['perl', 'perlcritic']}
+        let b:ale_linters_perl = {'perl': ['perl']}
+        let g:ale_perl_perlcritic_options = '-4'
+    "}
 
     let g:ale_linters =  {}
     call extend(g:ale_linters, b:ale_linters_c)
     call extend(g:ale_linters, b:ale_linters_py)
+    call extend(g:ale_linters, b:ale_linters_perl)
 
-    "let g:ale_sh_shell_default_shell = 'dash'
 
     "let g:ale_linter_aliases = { 'zsh': 'sh',
     "                           \ 'csh': 'sh'
@@ -1018,22 +1013,50 @@ if IsSourced('vim-autoformat')
     augroup END
     let g:__c__shiftwidth = 8
 
-    let g:_Astyle_Main_ = ''
-        \ . ' --indent=spaces=' . g:__c__shiftwidth
-        \ . ' --pad-oper'
-        \ . ' --preserve-date'
-        \ . ' --pad-header'
-        \ . ' --max-code-length=180'
-        \ . ' --break-one-line-headers'
+    " ### astyle {
+        let g:_Astyle_Main_ = ''
+            \ . ' --indent=spaces=' . g:__c__shiftwidth
+            \ . ' --pad-oper'
+            \ . ' --preserve-date'
+            \ . ' --pad-header'
+            \ . ' --max-code-length=180'
+            \ . ' --break-one-line-headers'
 
-    let g:_Astyle_KR_     = '"astyle --style=kr'     . g:_Astyle_Main_
-    let g:_Astyle_Allman_ = '"astyle --style=allman' . g:_Astyle_Main_
+        let g:_Astyle_KR_     = '"astyle --style=kr'     . g:_Astyle_Main_
+        let g:_Astyle_Allman_ = '"astyle --style=allman' . g:_Astyle_Main_
 
-    let g:_Astyle_c_      = ' --mode=c"'
-    let g:_Astyle_cpp_    = ' --mode=c --indent-namespaces"'
-    let g:_Astyle_cs_     = ' --mode=cs --indent-namespaces"'
+        let g:_Astyle_c_      = ' --mode=c"'
+        let g:_Astyle_cpp_    = ' --mode=c --indent-namespaces"'
+        let g:_Astyle_cs_     = ' --mode=cs --indent-namespaces"'
+    "}
+
+    "### clang-format {
+        if len(findfile('.clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('.clang-format', expand('%:p:h').';')
+        elseif len(findfile('_clang-format', expand('%:p:h').';'))
+            let s:ClangFile = findfile('_clang-format', expand('%:p:h').';')
+        elseif filereadable(expand('~/.clang-format'))
+            let s:ClangFile = expand('~/.clang-format')
+        endif
+
+        function! g:ZeroIsOneThousand()
+            if &textwidth ==# 0
+                return 1000
+            else
+                return &textwidth
+            endif
+        endfunction
+
+        if exists('s:ClangFile')
+            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
+        else
+            let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
+                                            \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
+                                            \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'"
+        endif
+    "}
     
-    " let g:formatdef_clangformat 
+    "--------------------------------------------------------------------------------------
 
     "### C {
         let g:formatdef_astyle_c    = g:_Astyle_Allman_ . g:_Astyle_c_
@@ -1051,44 +1074,15 @@ if IsSourced('vim-autoformat')
         let g:formatdef_astyle_cs    = g:_Astyle_Allman_ . g:_Astyle_cs_
         let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
         let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
-        "}
+    "}
 
-        if len(findfile('.clang-format', expand('%:p:h').';'))
-            let s:ClangFile = findfile('.clang-format', expand('%:p:h').';')
-        elseif len(findfile('_clang-format', expand('%:p:h').';'))
-            let s:ClangFile = findfile('_clang-format', expand('%:p:h').';')
-        elseif filereadable(expand('~/.clang-format'))
-            let s:ClangFile = expand('~/.clang-format')
-        endif
 
-        " let g:formatdef_clangformat = exists('s:ClangFile') ? 
-        "             \("'clang-format -i'.&shiftwidth.' -l'.&textwidth'.' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'") :
-        "             \("'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
-        "                 \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
-        "                 \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'")
-
-        function! g:ZeroIsOneThousand()
-            if &textwidth ==# 0
-                return 1000
-            else
-                return &textwidth
-            endif
-        endfunction
-
-        if exists('s:ClangFile')
-            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
-        else
-            let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
-                                            \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
-                                            \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'"
-        endif
-
-        "### Some generic options
-        let g:autoformat_autoindent = 0
-        let g:autoformat_retab = 0
-        let g:autoformat_remove_trailing_spaces = 0
-        let g:autoformat_verbosemode = 1
-    endif
+    "### Some generic options
+    let g:autoformat_autoindent = 0
+    let g:autoformat_retab = 0
+    let g:autoformat_remove_trailing_spaces = 0
+    let g:autoformat_verbosemode = 1
+endif
 
 
 " ### Line numbering ###
@@ -1358,7 +1352,7 @@ augroup misc_config
                 \ | call StripTrailingWhitespace() | endif
 
     "autocmd FileType go autocmd BufWritePre <buffer> Fmt
-    autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
+    "autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
     autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
     " preceding line best in a plugin but here for now.
     autocmd BufNewFile,BufRead *.coffee set filetype=coffee
@@ -1748,6 +1742,7 @@ endif
 " This makes sure vim knows that /bin/sh is not bash.
 let g:is_posix = 1
 let g:is_kornshell = 1
+let g:perl_sub_signatures = 1
 
 let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
@@ -1774,6 +1769,12 @@ endfunction
 
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
+
+if exists('$NVIM_QT')
+    augroup NvimQt
+        autocmd Bufenter,BufAdd,BufCreate,BufRead * GuiLinespace 1
+    augroup END
+endif
 
 "if has('clipboard')
 "if has('unnamedplus')  " When possible use + register for copy-paste

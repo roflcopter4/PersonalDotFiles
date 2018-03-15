@@ -9,6 +9,9 @@ endif
 
 
 GuiLinespace 1
+"augroup GuiSettings
+    "autocmd BufEnter GuiLinespace 1
+"augroup END
 
 "let g:nvim_qt = 1
 "let g:airline_left_sep='›'  " Slightly fancier than '>'

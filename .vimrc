@@ -59,8 +59,6 @@ let g:mapleader=' '
 if ! has('nvim')
     let &runtimepath = expand('~/.local/share/nvim/site').','.expand('~/.local/share/nvim/site/after').','.&runtimepath
 endif
-"let &runtimepath = expand('~/.vim/local').','.&runtimepath
-
 
 " ======================================================================================================
 " Set some general configuration options for what little remains of spf13
@@ -141,125 +139,75 @@ let g:structderef_color_gui = '#42A5F5'
 " ######################################################################################################
 " ######################################################################################################
 " ######################################################################################################
-
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
 " Plugin Setup
 
-
-let s:tryCygwinDein = 1
-
-" Identify whether to use dein or vundle, and then setup functions.
-" NOTE:  Turns out that Vim can use dein, it's just Cygwin that sucks.
-" NOTE:  It seems that dein has been updated to work in Cygwin too. So now all
-"        this vundle crap is useless.
-" FIXME: I should probably remove all the Vundle garbage at some point.
-if CYGWIN() && !exists('s:tryCygwinDein')
-    let g:plugin_manager = 'vundle'
-else
-    let g:plugin_manager = 'dein'
-endif
+let g:plugin_manager = 'dein'
+"let g:dein#install_max_processes = 12
+filetype off
 
 function! AddPlugin(name,...)
-    if g:plugin_manager ==# 'dein'
-        if exists('a:1')
-            call dein#add(a:name, a:1)
-        else
-            call dein#add(a:name)
-        endif
-    elseif g:plugin_manager ==# 'vundle'
-        if exists('a:1')
-            Plugin a:name, a:1
-        else
-            Plugin a:name
-        endif
+    if exists('a:1')
+        call dein#add(a:name, a:1)
+    else
+        call dein#add(a:name)
     endif
 endfunction
 
 function! IsSourced(name)
-    if g:plugin_manager ==# 'dein'
-        return dein#is_sourced(a:name)
-    elseif g:plugin_manager ==# 'vundle'
-        return &runtimepath=~a:name
-    endif
+    return dein#is_sourced(a:name)
 endfunction
 
-function! CheckDeinLoadState()
-    if g:plugin_manager ==# 'dein'
-        return dein#load_state(expand(g:load_path))
-    else
-        return g:plugin_manager ==# 'vundle'
-    endif
-endfunction
-
-filetype off
 if LINUX() || CYGWIN()
-    if g:plugin_manager ==# 'dein'
-        let g:load_path='~/.vim/dein'
-        let g:dein_path='~/.vim/dein/repos/github.com/Shougo/dein.vim'
-        let &runtimepath = &runtimepath . ',' . g:dein_path
-    elseif g:plugin_manager ==# 'vundle'
-        set runtimepath+=~/.vim/Vundle/Vundle.vim
-        let g:vundle_path = '~/.vim/Vundle'
-        let g:load_path = ''
-    endif
-
+    let g:load_path=expand('~/.vim/dein')
+    let g:dein_path=expand('~/.vim/dein/repos/github.com/Shougo/dein.vim')
+    let &runtimepath = &runtimepath.','. g:dein_path
 elseif WINDOWS()
-    if g:plugin_manager ==# 'dein'
-        let g:load_path='C:/vim/dein'
-        let g:dein_path='C:/Vim/dein/repos/github.com/Shougo/dein.vim'
-        let &runtimepath = &runtimepath . ',' . g:dein_path
-        if exists('g:ONI')
-            let g:dein#cache_directory = g:load_path . '/ONI/'
-        end
-    elseif g:plugin_manager ==# 'vundle'
-        set runtimepath+=C:/Vim/Vundle/Vundle.vim
-        let g:vundle_path = 'C:/Vim/Vundle'
-        let g:load_path = ''
-    endif
+    let g:load_path='C:/vim/dein'
+    let g:dein_path='C:/Vim/dein/repos/github.com/Shougo/dein.vim'
+    let &runtimepath = &runtimepath.','. g:dein_path
+    if exists('g:ONI')
+        let g:dein#cache_directory = g:load_path .'/ONI/'
+    end
 endif
 
 
 " PLUGINS
-if CheckDeinLoadState()
-    if g:plugin_manager ==# 'dein'
-        call dein#begin(expand(g:load_path))
-        call AddPlugin(expand(g:dein_path))
-        "let g:dein#install_max_processes = 12
-        call AddPlugin('haya14busa/dein-command.vim')
-    elseif g:plugin_manager ==# 'vundle'
-        call vundle#begin(expand(g:vundle_path))
-    endif
+if dein#load_state(expand(g:load_path))
+    call dein#begin(expand(g:load_path))
+    call AddPlugin(expand(g:dein_path))
+    call AddPlugin('haya14busa/dein-command.vim')
 
     if executable('ag') || executable('ack-grep') || executable('ack')
         call AddPlugin('mileszs/ack.vim')
     endif
      
     " General ---------
-    call AddPlugin('rhysd/conflict-marker.vim')
     call AddPlugin('MarcWeber/vim-addon-mw-utils')
-    call AddPlugin('tomtom/tlib_vim')
-    call AddPlugin('scrooloose/nerdtree')
-    call AddPlugin('tpope/vim-surround')
-    call AddPlugin('jiangmiao/auto-pairs')
     call AddPlugin('ctrlpvim/ctrlp.vim')
+    call AddPlugin('easymotion/vim-easymotion')
+    call AddPlugin('gcmt/wildfire.vim')
+    call AddPlugin('huawenyu/neogdb.vim')
+    call AddPlugin('jiangmiao/auto-pairs')
+    call AddPlugin('jistr/vim-nerdtree-tabs')
+    call AddPlugin('kana/vim-textobj-indent')
+    call AddPlugin('kana/vim-textobj-user')
+    call AddPlugin('mbbill/undotree')
+    call AddPlugin('osyo-manga/vim-over')
+    call AddPlugin('powerline/fonts')
+    call AddPlugin('rhysd/conflict-marker.vim')
+    call AddPlugin('scrooloose/nerdtree')
     call AddPlugin('tacahiroy/ctrlp-funky')
     call AddPlugin('terryma/vim-multiple-cursors')
-    call AddPlugin('vim-scripts/sessionman.vim')
-    call AddPlugin('vim-scripts/matchit.zip')
-    call AddPlugin('powerline/fonts')
-    call AddPlugin('easymotion/vim-easymotion')
-    call AddPlugin('jistr/vim-nerdtree-tabs')
-    call AddPlugin('mbbill/undotree')
-    call AddPlugin('vim-scripts/restore_view.vim')
+    call AddPlugin('tomtom/tlib_vim')
     call AddPlugin('tpope/vim-abolish.git')
-    call AddPlugin('osyo-manga/vim-over')
-    call AddPlugin('kana/vim-textobj-user')
-    call AddPlugin('kana/vim-textobj-indent')
-    call AddPlugin('gcmt/wildfire.vim')
     call AddPlugin('tpope/vim-repeat')
-    call AddPlugin('huawenyu/neogdb.vim')
+    call AddPlugin('tpope/vim-surround')
+    call AddPlugin('vim-scripts/matchit.zip')
+    call AddPlugin('vim-scripts/restore_view.vim')
+    call AddPlugin('vim-scripts/sessionman.vim')
       
     " Writing -----
     call AddPlugin('reedes/vim-litecorrect')
@@ -274,6 +222,7 @@ if CheckDeinLoadState()
     call AddPlugin('scrooloose/nerdcommenter')
     call AddPlugin('godlygeek/tabular')
     call AddPlugin('luochen1990/rainbow')
+    call AddPlugin('junegunn/vim-easy-align')
     if executable('ctags')
         call AddPlugin('majutsushi/tagbar')
     endif
@@ -302,67 +251,63 @@ if CheckDeinLoadState()
     call AddPlugin('vim-scripts/xptemplate')
     
     " Haskell ----------
-    call AddPlugin('travitch/hasksyn')
-    call AddPlugin('dag/vim2hs')
     call AddPlugin('Twinside/vim-haskellConceal')
     call AddPlugin('Twinside/vim-haskellFold')
-    call AddPlugin('lukerandall/haskellmode-vim')
-    call AddPlugin('eagletmt/neco-ghc')
-    call AddPlugin('eagletmt/ghcmod-vim')
     call AddPlugin('adinapoli/cumino')
     call AddPlugin('bitc/vim-hdevtools')
+    call AddPlugin('dag/vim2hs')
+    call AddPlugin('eagletmt/ghcmod-vim')
+    call AddPlugin('eagletmt/neco-ghc')
+    call AddPlugin('lukerandall/haskellmode-vim')
+    call AddPlugin('travitch/hasksyn')
     
     " HTML ---------
     call AddPlugin('hail2u/vim-css3-syntax')
     call AddPlugin('gorodinskiy/vim-coloresque')
     call AddPlugin('tpope/vim-haml')
     "call AddPlugin('amirh/HTML-AutoCloseTag')
-    
-    " Misc ----------
-    call AddPlugin('rodjek/vim-puppet')
-    call AddPlugin('rust-lang/rust.vim')
-    call AddPlugin('tpope/vim-markdown')
-    call AddPlugin('tpope/vim-cucumber')
-    call AddPlugin('cespare/vim-toml')
-    call AddPlugin('quentindecock/vim-cucumber-align-pipes')
-    call AddPlugin('saltstack/salt-vim')
-    call AddPlugin('fsharp/vim-fsharp')
-    call AddPlugin('elixir-lang/vim-elixir')
-    call AddPlugin('mattreduce/vim-mix')
-    call AddPlugin('carlosgaldino/elixir-snippets')
-    call AddPlugin('junegunn/fzf.vim')
-    call AddPlugin('PProvost/vim-ps1')
-    call AddPlugin('vim-perl/vim-perl')
-    "call AddPlugin('Blackrush/vim-gocode')
-    "call AddPlugin('fatih/vim-go')
-    "call AddPlugin('dzhou121/gonvim-fuzzy')
-
-    " Moar Languages ------
-    call dein#add('rsmenon/vim-mathematica')
 
     " Markdown
     call AddPlugin('vim-pandoc/vim-pandoc')
     call AddPlugin('vim-pandoc/vim-pandoc-syntax')
 
-      
-    " --------------------------------------------------------------------------------------
-    " Local Config
-     
+    " Moar Languages ------
+    call AddPlugin('rsmenon/vim-mathematica')
     call AddPlugin('dag/vim-fish')
+    call AddPlugin('fsharp/vim-fsharp')
+    call AddPlugin('chaimleib/vim-renpy')
+    call AddPlugin('gentoo/gentoo-syntax')
+    call AddPlugin('rust-lang/rust.vim')
+
+    " Misc ----------
     call AddPlugin('Chiel92/vim-autoformat')
-    call AddPlugin('xolox/vim-misc')
-    call AddPlugin('xolox/vim-shell')
+    call AddPlugin('PProvost/vim-ps1')
+    call AddPlugin('carlosgaldino/elixir-snippets')
+    call AddPlugin('cespare/vim-toml')
+    call AddPlugin('chrisbra/Colorizer')
+    call AddPlugin('elixir-lang/vim-elixir')
+    call AddPlugin('equalsraf/neovim-gui-shim')
+    call AddPlugin('idanarye/vim-vebugger')
+    call AddPlugin('junegunn/fzf.vim')
+    call AddPlugin('mattreduce/vim-mix')
+    call AddPlugin('quentindecock/vim-cucumber-align-pipes')
+    call AddPlugin('rodjek/vim-puppet')
+    call AddPlugin('saltstack/salt-vim')
+    call AddPlugin('tpope/vim-cucumber')
+    call AddPlugin('tpope/vim-markdown')
     call AddPlugin('vim-scripts/Vimball')
     call AddPlugin('xolox/vim-easytags')
-    call AddPlugin('Shougo/vimproc.vim', {'build': 'make'})
-    call AddPlugin('idanarye/vim-vebugger')
-    call AddPlugin('chrisbra/Colorizer')
-    call AddPlugin('chaimleib/vim-renpy')
-    call AddPlugin('equalsraf/neovim-gui-shim')
+    call AddPlugin('xolox/vim-misc')
+    call AddPlugin('xolox/vim-shell')
 
-    call dein#add('app-vim/searchcomplete')
-    call dein#add('gentoo/gentoo-syntax')
+    call AddPlugin('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
+    call AddPlugin('vim-perl/vim-perl', {'merged': 0, 'build': 'make -k tarball contrib_syntax carp dancer heredoc-sql try-tiny '
+                                                \.'heredoc-sql-mason js-css-in-mason method-signatures moose test-more'})
 
+    "call AddPlugin('Blackrush/vim-gocode')
+    "call AddPlugin('fatih/vim-go')
+    "call AddPlugin('dzhou121/gonvim-fuzzy')
+    "call dein#add('app-vim/searchcomplete')
     "call AddPlugin('nathanaelkane/vim-indent-guides')
     "call AddPlugin('maralla/validator.vim')
     "call AddPlugin('neomake/neomake')
@@ -380,10 +325,10 @@ if CheckDeinLoadState()
         call AddPlugin('artur-shaik/vim-javacomplete2')
     else
         if has('python3') || has('nvim')
-            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
+            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
             call AddPlugin('rdnetto/YCM-Generator')
         elseif has('python')
-            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
+            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
             call AddPlugin('rdnetto/YCM-Generator')
         endif
     endif
@@ -392,6 +337,7 @@ if CheckDeinLoadState()
         call AddPlugin('vim-airline/vim-airline')
         call AddPlugin('vim-airline/vim-airline-themes')
     endif
+    call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
      
       
     " Colour Schemes ----------------
@@ -420,21 +366,11 @@ if CheckDeinLoadState()
 
     call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
 
-    call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
-
     call dein#local(expand('~/.vim/bundles/findent'))
      
-    if g:plugin_manager ==# 'dein'
-        call dein#end()
-        call dein#save_state()
-    elseif g:plugin_manager ==# 'vundle'
-        call vundle#end()
-    endif
+    call dein#end()
+    call dein#save_state()
 endif
-
-"if has('nvim')
-"    let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . &runtimepath
-"endif
 
 
 if exists('s:UsePowerline')
@@ -454,7 +390,6 @@ syntax enable
 " ######################################################################################################
 " ######################################################################################################
 " ######################################################################################################
-
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
@@ -1139,7 +1074,6 @@ endif
 " ######################################################################################################
 " ######################################################################################################
 " ######################################################################################################
-
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
@@ -1612,7 +1546,6 @@ map zh zH
 " ######################################################################################################
 " ######################################################################################################
 " ######################################################################################################
-
 " ================================================================================================================
 " ================================================================================================================
 " ================================================================================================================
@@ -1748,16 +1681,9 @@ let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
 let g:gonvim_draw_lint       = 1
 
-function! Test1()
-    execute 'i'."\r".'testingtesting'."\r".'.'."\r"
-endfunction
-
 function! DoIfZeroRange() range
     let l:line1 = getline(a:firstline)
     let l:line2 = getline(a:lastline)
-    "echo 'First:  '.a:firstline
-    "echo 'Second: '.a:lastline
-
     if (l:line1 =~# '\v^[ ]*#[ ]*if 0$') && (l:line2 =~# '\v^[ ]*#[ ]*endif$')
         :execute a:lastline.'d'
         :execute a:firstline.'d'
@@ -1768,7 +1694,7 @@ function! DoIfZeroRange() range
 endfunction
 
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
-noremap <silent> <leader>cf :IfZeroRange<CR>
+noremap <silent> <leader>cf IfZeroRange
 
 if exists('$NVIM_QT')
     augroup NvimQt

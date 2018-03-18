@@ -27,15 +27,15 @@ zplug "zsh-users/zsh-completions"
 zplug 'srijanshetty/zsh-pandoc-completion'
 
 #zplug "tarruda/zsh-autosuggestions"
-#zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
+zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
 # Set the priority (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Oh-My-Zsh plugins
-#zplug "plugins/compleat",             from:oh-my-zsh
-#zplug "plugins/copydir",              from:oh-my-zsh 
-#zplug "plugins/cp",                   from:oh-my-zsh
+zplug "plugins/compleat",             from:oh-my-zsh
+zplug "plugins/copydir",              from:oh-my-zsh 
+zplug "plugins/cp",                   from:oh-my-zsh
 zplug "plugins/zsh-navigation-tools", from:oh-my-zsh
 
 ### ===================================================================

@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 use warnings; use strict; use 5.26.1;
 use diagnostics;
-use Getopt::Long qw(:config gnu_getopt no_ignore_case require_order pass_through);
+use Getopt::Long qw(:config gnu_getopt no_ignore_case require_order);
+use File::Which;
 
 
 my $file = $ENV{"HOME"} . "/.clang-format";
@@ -59,4 +60,5 @@ if (defined $indent) {
     }
 }
 
-system('/opt/clang-bin/clang-format', "-style=$data", @ARGV)
+my @clformat = which('clang-format');
+system($clformat[1], "-style=$data", @ARGV)

@@ -48,7 +48,7 @@ if WINDOWS()
 endif
 
 
-if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
+if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD') && !has('nvim')
     set encoding=utf-8
     setglobal fileencoding=utf-8
 endif
@@ -183,6 +183,9 @@ if dein#load_state(expand(g:load_path))
     if executable('ag') || executable('ack-grep') || executable('ack')
         call AddPlugin('mileszs/ack.vim')
     endif
+
+    " My own stuff should be first!
+    call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
      
     " General ---------
     call AddPlugin('MarcWeber/vim-addon-mw-utils')
@@ -301,8 +304,8 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('xolox/vim-shell')
 
     call AddPlugin('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
-    call AddPlugin('vim-perl/vim-perl', {'merged': 0, 'build': 'make -k tarball contrib_syntax carp dancer heredoc-sql try-tiny '
-                                                \.'heredoc-sql-mason js-css-in-mason method-signatures moose test-more'})
+    call AddPlugin('vim-perl/vim-perl',  {'merged': 0, 'build': 'make -k contrib_syntax carp heredoc-sql try-tiny heredoc-sql-mason'
+                                                              \.' dancer js-css-in-mason method-signatures moose test-more'})
 
     "call AddPlugin('Blackrush/vim-gocode')
     "call AddPlugin('fatih/vim-go')
@@ -364,10 +367,9 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('mhartington/oceanic-next')
     call AddPlugin('xolox/vim-colorscheme-switcher')
 
-    call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
-
     call dein#local(expand('~/.vim/bundles/findent'))
      
+
     call dein#end()
     call dein#save_state()
 endif
@@ -678,14 +680,6 @@ if IsSourced('vim-airline')
         let g:airline_powerline_fonts = 1
     endif
 
-    "if !exists('g:airline_symbols')
-        "let g:airline_symbols = {}
-    "endif
-    "let g:airline_symbols.linenr = '␤'
-    "let g:airline_symbols.linenr = '☰'
-    "let g:airline_section_z = "%p%% %{g:airline_symbols.linenr}%3l/%L :%v"
-    "let g:airline_section_z = "%p%% %{g:airline_symbols.linenr}%3l/%L%{g:airline_right_alt_sep} %v"
-
     let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tagbar#enabled = 1
@@ -780,20 +774,21 @@ if IsSourced('ale')
     let g:ale_sh_shell_default_shell = 'sh'
 
     " C, C++, C# {
-        let g:ale_c_gcc_options = '-Wall -Iinc -Wpedantic -Wextra'
+        let g:ale_c_gcc_options   = '-Wall -Iinc -Wpedantic -Wextra'
         let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc'
 
-        "let b:ale_linters_c = {'c': ['clang']}
-        let b:ale_linters_c = {'c': ['gcc', 'clangtidy', 'cppcheck']}
-        
-        let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*']
+        let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*',
+                                      \ '-llvm-header-guard']
+
+        let b:ale_linters_c_group = ['gcc', 'clangtidy', 'cppcheck']
+        let b:ale_linters_c = {'c':      b:ale_linters_c_group,
+                             \ 'cpp':    b:ale_linters_c_group,
+                             \ 'csharp': b:ale_linters_c_group}
     "}
 
     " Python {
         let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
         let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
-        "let g:ale_python_flake8_executable = 'flake8_3'
-        "let g:ale_python_pyflakes_executable = 'pyflakes_3'
         let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
     "}
 
@@ -825,10 +820,10 @@ endif
 " ### EASYTAGS ###
 if IsSourced('vim-easytags')
     let g:easytags_python_enabled = 1
-    let g:easytags_dynamic_files = 1
-    if LINUX() || ( IsSourced('vim-shell') && IsSourced('vim-misc') )
-        let g:easytags_async = 1
-    endif
+    "let g:easytags_dynamic_files = 1
+    "if LINUX() || ( IsSourced('vim-shell') && IsSourced('vim-misc') )
+    "    let g:easytags_async = 1
+    "endif
     nnoremap <leader>tag :UpdateTags<CR>
     if $IS_CYGWIN && !CYGWIN()
         "set tags=expand("$USERPROFILE/_vimtags"),expand("$USERPROFILE/_vimtags")
@@ -836,12 +831,19 @@ if IsSourced('vim-easytags')
         let &tags = s:vimtags_file . ',' . &tags
     endif
 
+    "let g:easytags_autorecurse = 1
+    let g:easytags_include_members = 1
+    let g:easytags_async = 1
+    let g:easytags_always_enabled = 1
+
+
     let g:easytags_languages = {
     \   'c': {
-    \       'args': ['--fields=+l', '--c-kinds=+lp']
+    \       'args': ['--fields=+l', '--c-kinds=*']
     \   }
     \}
 
+    "highlight link cMember 
     highlight def link shFunctionTag Type
 endif
 
@@ -1694,7 +1696,7 @@ function! DoIfZeroRange() range
 endfunction
 
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
-noremap <silent> <leader>cf IfZeroRange
+noremap <silent> <leader>cf :IfZeroRange<CR>
 
 if exists('$NVIM_QT')
     augroup NvimQt

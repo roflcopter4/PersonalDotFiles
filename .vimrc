@@ -88,6 +88,7 @@ if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowe
 endif
 
 let g:use_ale = 1
+let s:vim_ale = 1
 
 
 " ======================================================================================================
@@ -327,6 +328,12 @@ if dein#load_state(expand(g:load_path))
         call AddPlugin('Shougo/neco-vim')
         call AddPlugin('artur-shaik/vim-javacomplete2')
     else
+        if s:vim_ale == 1
+            call AddPlugin('w0rp/ale')
+            call AddPlugin('Shougo/neco-vim')
+            call AddPlugin('artur-shaik/vim-javacomplete2')
+        endif
+
         if has('python3') || has('nvim')
             call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
             call AddPlugin('rdnetto/YCM-Generator')
@@ -1339,7 +1346,7 @@ set mouse=a                 " Automatically enable mouse usage
 set mousehide               " Hide the mouse cursor while typing
 set tabpagemax=30
 set winminheight=0          " Windows can be 0 line high
-set linespace=0             " No extra spaces between rows
+set linespace=1
 
 set shortmess+=filmnrxoOtT  " Abbrev. of messages (avoids 'hit enter')
 set history=10000           " Store a ton of history (default is 20)
@@ -1350,7 +1357,7 @@ set iskeyword-=#            " '#' is an end of word designator
 
 set showmode                " Display the current mode
 set number                  " Line numbers on
-set nospell                 " Spell checking on
+set nospell
 set showmatch               " Show matching brackets/parenthesis
 set incsearch               " Find as you type search
 set hlsearch                " Highlight search terms
@@ -1358,7 +1365,7 @@ set smartcase               " Case sensitive when uc present
 
 set autoindent              " Indent at the same level of the previous line
 set cindent
-"set smartindent             " Better autoindent
+set smartindent             " Better autoindent
 set breakindent
 
 set tabstop=8               " An indentation every four columns
@@ -1376,7 +1383,7 @@ set nofoldenable            " Do not Auto fold code
 set nocursorline            " Don't paint cursor line
 
 set magic
-set ttyfast
+"set ttyfast
 set wildmenu                    " Show list instead of just completing
 set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
 
@@ -1560,8 +1567,14 @@ if $TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || ($SYS
     colo default
     set background=dark
 else
-    scriptencoding utf-8
+    if has('nvim')
+        set linespace=1
+    else
+        scriptencoding utf-8
+    endif
+
     set termguicolors
+
     if IsSourced('PersonalVimStuff')
         colo myMolokai3
     else
@@ -1571,6 +1584,9 @@ else
 
     if has('gui_running')
         set guifont=DinaPowerline\ 10
+        set linespace=1
+        set guioptions=agimrLt
+        set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
     endif
 endif
 
@@ -1700,7 +1716,7 @@ noremap <silent> <leader>cf :IfZeroRange<CR>
 
 if exists('$NVIM_QT')
     augroup NvimQt
-        autocmd Bufenter,BufAdd,BufCreate,BufRead * GuiLinespace 1
+        autocmd BufAdd,BufCreate,BufRead,BufNew,BufEnter * GuiLinespace 1
     augroup END
 endif
 

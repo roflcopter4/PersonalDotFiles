@@ -9,6 +9,7 @@ use File::Temp qw( tempfile cleanup );
 ###############################################################################
 
 sub usage {
+    my $status = shift or confess 'Invalid usage of usage!';
     my $THIS = $0;
     $THIS =~ s|.*/(.*)|$1|;
     print << "EOF";
@@ -17,7 +18,7 @@ Usage: $THIS -[extension] PROG <prog params> -\n
 temporary file should appear. If not given, the file is placed at the end.
 Likewise if no extension is given then the temporary file will have none.
 EOF
-    exit 0;
+    exit $status;
 }
 
 sub get_cmd($program) {
@@ -37,7 +38,10 @@ sub get_tmp($type) {
 
 ###############################################################################
 
-croak 'No arguments!' if @ARGV == 0;
+if ( @ARGV == 0 ) {
+    carp "No arguments!";
+    usage(1);
+}
 my ( $type, $program, $position, @args );
 
 my $iter = 0;
@@ -45,7 +49,7 @@ while (@ARGV) {
     my $param = shift;
 
     if ( $iter == 0 ) {
-        if    ( $param =~ /^-(?:-help|h)/ ) { usage; }
+        if    ( $param =~ /^-(?:-help|h)/ ) { usage(0); }
         elsif ( $param =~ /^-(.*)/ )        { $type = $1; }
         else                                { $program = $param; }
     }

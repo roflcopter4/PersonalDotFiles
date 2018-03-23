@@ -1,8 +1,9 @@
 #!/bin/sh
 
 mkdir -p "${HOME}/.local/bin"
-"${HOME}/personaldotfiles/Scripts/misc/ln_sh_scripts.sh" "${HOME}/personaldotfiles/Scripts/bin"  "${HOME}/.local/bin"
-"${HOME}/personaldotfiles/Scripts/misc/ln_sh_scripts.sh" "${HOME}/personaldotfiles/Scripts/perl" "${HOME}/.local/bin"
+"${HOME}/personaldotfiles/Scripts/misc/link_scripts.sh" "${HOME}/personaldotfiles/Scripts/shell"  "${HOME}/.local/bin"
+"${HOME}/personaldotfiles/Scripts/misc/link_scripts.sh" "${HOME}/personaldotfiles/Scripts/perl"   "${HOME}/.local/bin"
+"${HOME}/personaldotfiles/Scripts/misc/link_scripts.sh" "${HOME}/personaldotfiles/Scripts/python" "${HOME}/.local/bin"
 
 # Neovim-QT
 if [ "$(uname)" = 'Cygwin' ] || [ "$(uname)" = 'Msys' ]; then

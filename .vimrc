@@ -612,6 +612,9 @@ if IsSourced('rainbow')
         \        'css': 0,
         \    }
     \}
+
+    nnoremap <leader>rnt :RainbowToggle<CR>
+    nnoremap <leader>rnr :RainbowToggle<CR> :RainbowToggle<CR>
 endif
 
 

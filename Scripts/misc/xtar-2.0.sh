@@ -131,7 +131,6 @@ __EOF__
 # EXPORTS: bpath fname bname ext bext is_tar
 get_ext() {
     ext=$(echo "${fname}" | grep -o '\.tar\..*')
-    #[ "${ext}" ] || ext="$(echo "${fname}" | grep -o '\.cpio\..*')"
     if [ "${ext}" ]; then
         ext="${ext#.}"
         bext="${ext#*.}"
@@ -143,25 +142,6 @@ get_ext() {
         check_short_tar "$ext"  # assigns is_tar
     fi
 }
-
-
-## NOTE: 'is_tar' is also true for cpio files - tar can deal with both.
-## EXPORTS: bpath fname bname ext bext is_tar
-#get_ext() {
-#    bpath="`realpath \`dirname "${Archive}"\``"
-#    ext="`echo "${fname}" | grep -o '\.tar\..*'`"
-#    [ "${ext}" ] || ext="`echo "${fname}" | grep -o '\.cpio\..*'`"
-#    if [ "${ext}" ]; then
-#        ext="`echo "${ext}" | sed 's/^\.\(.*\)/\1/'`"
-#        bext="`echo "${ext}" | sed 's/.*\.\(.*\)$/\1/'`"
-#        bname="`basename "$fname" ".$ext"`"
-#        is_tar=true
-#    else
-#        ext="`echo "${fname}" | sed 's/.*\.\(.*\)$/\1/'`"
-#        bname="`basename "${fname}" ".${ext}"`"
-#        check_short_tar "$ext"  # assigns is_tar
-#    fi
-#}
 
 
 # Simple check whether the extension is a stupid DOS style short form.
@@ -724,7 +704,7 @@ for Archive in "$@"; do
     }
 
     get_ext
-    if ([ -n "$combine" ] && [ -z "$odir" ]) || [ -z "$combine" ]; then
+    if ([ "$combine" ] && [ -z "$odir" ]) || [ -z "$combine" ]; then
         get_odir
     fi
     do_extract

@@ -1,17 +1,17 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use warnings; use strict; use v5.26;
-use feature 'signatures';
-no warnings qw( experimental );
+no warnings 'experimental';
 use Cwd qw( getcwd realpath );
 use Carp;
+use boolean;
 use File::Basename;
-use File::Copy;
-use File::Find;
 use File::Which;
 use File::Temp qw( tempfile tempdir cleanup );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 
-our ( $TopDir, $BaseDir );
+###############################################################################
+
+our ( $TopDir, $BaseDir, $Verbose );
 our $TimeStamp = time;
 our $CWD       = getcwd;
 our $TmpDir    = tempdir CLEANUP => 1;
@@ -69,6 +69,7 @@ my ( $help, $version, $output, $level, $TAR, $gtar, $bsdtar );
 GetOptions(
     'h|help'     => \$help,
     'V|version'  => \$version,
+    'v|verbose'  => \$Verbose,
     't|type=s',  => \$type,
     'T|tar=s'    => \$TAR,
     'l|level=i'  => \$level,
@@ -82,13 +83,18 @@ if ( defined($level) ) {
     if ( $level <= 5 ) { $lev5 = $level }
 }
 
-if ($version) { say "mktar.pl version 0.0.1" and exit 0 }
+if ($version) { say "mktar version 3.0 (perl)" and exit 0 }
 if ($help)    { show_usage(0) }
 
 if    ($bsdtar) { $TAR = 'bsdtar' }
 elsif ($gtar)   { $TAR = 'gtar' }
 
-unless (@ARGV) { die "FATAL ERROR: No input files!\n" }
+unless (@ARGV) { die "Error: No input files\n" }
+
+if ( not defined $output && not -e $ARGV[0] ) {
+    $output = shift;
+    unless (@ARGV) { die "Error: No input files\n" }
+}
 
 ###############################################################################
 # Check validity of archive type
@@ -123,8 +129,8 @@ given ($type) {
             "-mmt=${UseCores}", "-mx=${lev9}", -'si'
         );
     }
-    when (/^(?:zpaq|zq|zp)$/)   { $basetype = 'zpaq'; }
-    when (/^(?:tzpaq|tzq|tzp)$/) { $basetype = 'tzpaq'; }
+    when (/^(?:zpaq|zq|zp)$/)    { $basetype = 'zpaq' }
+    when (/^(?:tzpaq|tzq|tzp)$/) { $basetype = 'tzpaq' }
     default { warn "Filetype '$type' not recognized.\n" and show_usage(2); }
 }
 
@@ -149,60 +155,78 @@ else {
 }
 
 unless ( defined($TAR) and which($TAR) ) {
-    if   ( which('bsdtar') ) { $TAR = 'bsdtar'; }
-    else                     { $TAR = 'tar'; }
+    #if   ( which('bsdtar') ) { $TAR = 'bsdtar' }
+    #else                     { $TAR = 'tar' }
+    $TAR = 'tar';
 }
 
 my $CP;
 system('cp  --help >/dev/null 2>&1');
-if ( $? == 0 ) { 
-    $CP = 'cp';
-}
+if ( $? == 0 ) { $CP = 'cp' }
 else {
     system('gcp --help >/dev/null 2>&1');
-    if ( $? == 0 ) {
-        $CP = 'gcp';
-    }
-    else {
-        die "ERROR: This script requires GNU cp.\n";
-    }
+    if ( $? == 0 ) { $CP = 'gcp' }
+    else           { die "ERROR: This script requires GNU cp.\n" }
 }
 
 ###############################################################################
 # Set everything up
 
-if ( @ARGV == 1 and -d $ARGV[0] ) {
-    $TopDir = basename $ARGV[0];
-    $OutName = $TopDir;
+my $single;
+if ( @ARGV == 1 ) {
+    $TopDir = basename( $ARGV[0] );
+    $single = true;
+    if ( not defined($output) && -d $ARGV[0] ) {
+        $OutName = $TopDir;
+    }
 }
 else {
     $TopDir = $OutName;
+    $single = false;
 }
 
-if    ( $basetype eq 'zpaq' )  { $OutName .= '.zpaq'; }
-elsif ( $basetype eq 'tzpaq' ) { $OutName .= '.tar.zpaq'; }
+if    ( $basetype eq 'zpaq' )  { $OutName .= '.zpaq' }
+elsif ( $basetype eq 'tzpaq' ) { $OutName .= '.tar.zpaq' }
 else                           { $OutName .= ".tar.${basetype}" }
 
 my $TDirFull  = "${TmpDir}/${TopDir}";
 my $ONameFull = "${OutDir}/${OutName}";
 
+say "mkdir '$TDirFull'" if $Verbose;;
 mkdir $TDirFull or croak 'Failed to make temporary directory.';
 
 while (@ARGV) {
     my $arg = shift;
-    system "$CP -rla $arg $TDirFull 2>/dev/null";
-    system "$CP -rna $arg $TDirFull 2>/dev/null";
+    if ( $single ) {
+        print <<~ "EOF" if $Verbose;
+            $CP -rla $arg $TmpDir 2>/dev/null
+            $CP -rna $arg $TmpDir 2>/dev/null
+            EOF
+        system "$CP -rla $arg $TmpDir 2>/dev/null";
+        system "$CP -rna $arg $TmpDir 2>/dev/null";
+    }
+    else {
+        print <<~ "EOF" if $Verbose;
+            $CP -rla $arg $TDirFull 2>/dev/null
+            $CP -rna $arg $TDirFull 2>/dev/null
+            EOF
+        system "$CP -rla $arg $TDirFull 2>/dev/null";
+        system "$CP -rna $arg $TDirFull 2>/dev/null";
+    }
 }
 
-chdir $TmpDir or confess 'Failed to cd to the temporary directory!';
+say "cd '$TmpDir'" if $Verbose;
+chdir $TmpDir or croak 'Failed to cd to the temporary directory!';
 
 ###############################################################################
 # Now for the command. What a mess.
 
+print "\033[1m\033[32m";
+
 # zpaq is "special".
 if ( $basetype eq 'zpaq' ) {
-    say    "zpaq a $ONameFull $TopDir -m$lev5 -t$UseCores";
-    system "zpaq a '$ONameFull' '$TopDir' -m$lev5 -t$UseCores >/dev/null";
+    say    "zpaq a $ONameFull $TopDir -m$lev5 -t$UseCores >/dev/null 2>&1";
+    system "zpaq a '$ONameFull' '$TopDir' -m$lev5 -t$UseCores >/dev/null 2>&1";
 }
 elsif ( $basetype eq 'tzpaq' ) {
     my ( $FH, $tmpnam ) = tempfile(SUFFIX => ".tar", TMPDIR => 1);
@@ -211,7 +235,7 @@ elsif ( $basetype eq 'tzpaq' ) {
     system "$TAR -cf '$tmpnam' '$TopDir' 2>/dev/null";
 
     say    "zpaq a $ONameFull $tmpnam -m$lev5 -t$UseCores";
-    system "zpaq a '$ONameFull' '$tmpnam' -m$lev5 -t$UseCores >/dev/null";
+    system "zpaq a '$ONameFull' '$tmpnam' -m$lev5 -t$UseCores >/dev/null 2>&1";
 
     unlink $tmpnam or cluck("ERROR: Failed to unlink file '$tmpnam'.");
 }
@@ -220,6 +244,8 @@ else {
     say    "$TAR -cf - $TopDir | @CMD $ONameFull";
     system "$TAR -cf - '$TopDir' 2>/dev/null | @CMD '$ONameFull'";
 }
+
+print "\033[0m";
 
 # Get rid of the temporary directory.
 chdir $CWD;

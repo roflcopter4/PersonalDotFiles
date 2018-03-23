@@ -8,6 +8,7 @@ use File::Basename;
 use File::Which;
 use File::Temp qw( tempfile tempdir cleanup );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
+use Unix::Processors;
 
 ###############################################################################
 
@@ -55,8 +56,12 @@ sub get_odir {
 ###############################################################################
 # Setup and option handing
 
-my $UseCores = `nproc --all` or confess 'Failed to set UseCores!';
-$UseCores =~ s/\n//;
+my $UseCores;
+{
+    my $procs = new Unix::Processors;
+    $UseCores = $procs->max_online;
+}
+
 my $v7z  = '-bso0 -bsp0';
 
 # Some sensible defaults

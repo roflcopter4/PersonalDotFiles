@@ -64,7 +64,7 @@ sub handle_conflict ( $path, $name ) {
     my $i        = 1;
     my $new_name = "${path}/${name}-${TimeStamp}";
 
-    unless ( defined $Out{'dir'} && $new_name eq $Out{'dir'} ) {
+    unless ( defined $Out{'dir'} and $new_name eq $Out{'dir'} ) {
         while ( -e $new_name ) {
             $new_name = "${path}/${name}-${TimeStamp}-${i}";
             ++$i;
@@ -79,7 +79,7 @@ sub betterglob {
     my @filter;
 
     foreach my $cur (@files) {
-        next if ( $cur eq '.' || $cur eq '..' );
+        next if ( $cur eq '.' or $cur eq '..' );
         push @filter, $cur;
     }
 
@@ -171,7 +171,7 @@ sub do_extract {
     while ( @files == 1 ) {
         my $lonefile = $files[0];
 
-        if (   ( defined $odir_given && $Num == 1 )
+        if (   ( defined $odir_given and $Num == 1 )
             or ( $lonefile eq $Out{'orig_name'} ) )
         {
             $Out{'old_dir'} = $Out{'dir'};
@@ -192,19 +192,19 @@ sub do_extract {
         # Shuffle things around
         my $TmpDir = tempdir(cleanup => 1);
         say qq(mv $Out{'old_dir'}/$lonefile, $TmpDir/$lonefile) if $Verbose;
-        mv "$Out{'old_dir'}/$lonefile", "$TmpDir/$lonefile" || croak("$!\n");
+        mv "$Out{'old_dir'}/$lonefile", "$TmpDir/$lonefile" or croak("$!\n");
 
         # Clean up
         say qq(rmdir $Out{'old_dir'}) if $Verbose;
-        chdir $Out{'path'}    || croak("$!\n");
-        rmdir $Out{'old_dir'} || croak("$!\n");
+        chdir $Out{'path'}    or croak("$!\n");
+        rmdir $Out{'old_dir'} or croak("$!\n");
 
         # Put them back again
         say qq(mv $TmpDir/$lonefile $Out{'dir'}) if $Verbose;
-        mv "$TmpDir/$lonefile", $Out{'dir'} || croak("$!\n");
+        mv "$TmpDir/$lonefile", $Out{'dir'} or croak("$!\n");
         cleanup();
 
-        chdir $Out{'dir'} or analyze_mess() || croak;
+        chdir $Out{'dir'} or analyze_mess() or croak;
         @files = betterglob();
     }
 
@@ -469,7 +469,7 @@ $RunNo = 1;
 
 while (@ARGV) {
     my $filename = shift;
-    if ( not -e $filename || -d $filename ) {
+    if ( not -e $filename or -d $filename ) {
         say STDERR \
             "File $filename does not exist or is a directory. Skipping...";
         next;

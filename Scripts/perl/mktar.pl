@@ -96,7 +96,7 @@ elsif ($gtar)   { $TAR = 'gtar' }
 
 unless (@ARGV) { die "Error: No input files\n" }
 
-if ( not defined $output && not -e $ARGV[0] ) {
+if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
     $output = shift;
     unless (@ARGV) { die "Error: No input files\n" }
 }
@@ -181,7 +181,7 @@ my $single;
 if ( @ARGV == 1 ) {
     $TopDir = basename( $ARGV[0] );
     $single = true;
-    if ( not defined($output) && -d $ARGV[0] ) {
+    if ( not defined($output) and -d $ARGV[0] ) {
         $OutName = $TopDir;
     }
 }

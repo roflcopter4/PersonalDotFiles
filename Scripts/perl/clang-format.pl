@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use warnings; use strict; use 5.26.1;
+use warnings; use strict; use v5.22;
 use diagnostics;
 use Getopt::Long qw(:config gnu_getopt no_ignore_case require_order);
 use File::Which;

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use strict; use warnings; use v5.26;
+use strict; use warnings; use v5.22;
 use feature qw( signatures );
 no warnings qw( experimental::signatures );
 use Carp;

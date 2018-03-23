@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.26;
+use warnings; use strict; use v5.22;
 use feature 'signatures';
 no warnings 'experimental';
 use Cwd qw( getcwd realpath );

@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.26;
+use warnings; use strict; use v5.22;
 no warnings 'experimental';
 use Cwd qw( getcwd realpath );
 use Carp;
@@ -202,19 +202,31 @@ mkdir $TDirFull or croak 'Failed to make temporary directory.';
 
 while (@ARGV) {
     my $arg = shift;
+    # if ( $single ) {
+    #     print <<~ "EOF" if $Verbose;
+    #         $CP -rla $arg $TmpDir 2>/dev/null
+    #         $CP -rna $arg $TmpDir 2>/dev/null
+    #         EOF
+    #     system "$CP -rla $arg $TmpDir 2>/dev/null";
+    #     system "$CP -rna $arg $TmpDir 2>/dev/null";
+    # }
+    # else {
+    #     print <<~ "EOF" if $Verbose;
+    #         $CP -rla $arg $TDirFull 2>/dev/null
+    #         $CP -rna $arg $TDirFull 2>/dev/null
+    #         EOF
+    #     system "$CP -rla $arg $TDirFull 2>/dev/null";
+    #     system "$CP -rna $arg $TDirFull 2>/dev/null";
+    # }
     if ( $single ) {
-        print <<~ "EOF" if $Verbose;
-            $CP -rla $arg $TmpDir 2>/dev/null
-            $CP -rna $arg $TmpDir 2>/dev/null
-            EOF
+        say "$CP -rla $arg $TmpDir 2>/dev/null" if $Verbose;
+        say "$CP -rna $arg $TmpDir 2>/dev/null" if $Verbose;
         system "$CP -rla $arg $TmpDir 2>/dev/null";
         system "$CP -rna $arg $TmpDir 2>/dev/null";
     }
     else {
-        print <<~ "EOF" if $Verbose;
-            $CP -rla $arg $TDirFull 2>/dev/null
-            $CP -rna $arg $TDirFull 2>/dev/null
-            EOF
+        say "$CP -rla $arg $TDirFull 2>/dev/null" if $Verbose;
+        say "$CP -rna $arg $TDirFull 2>/dev/null" if $Verbose;
         system "$CP -rla $arg $TDirFull 2>/dev/null";
         system "$CP -rna $arg $TDirFull 2>/dev/null";
     }

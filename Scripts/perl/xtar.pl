@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.22;
+use warnings; use strict; use v5.26;
 use feature 'signatures';
 no warnings 'experimental';
 use Cwd qw( getcwd realpath );
@@ -86,7 +86,39 @@ sub betterglob {
     return @filter;
 }
 
+sub get_tempdir {
+    my @CWD_info  = stat $CWD;
+    my @dest_info = stat '/tmp';
+
+    # Try to put the tmpdir in /tmp, but only if it's on the same filesystem.
+    if ( $CWD_info[0] == $dest_info[0] ) {
+        return tempdir( CLEANUP => 1 );
+    }
+
+    # If /tmp is on a different filesystem try to put the tmpdir in the current
+    # if it's writeable. We're extracting a file here, it ought to be.
+    if ( -w $CWD ) {
+        return tempdir( CLEANUP => 1, DIR => $CWD );
+    }
+
+    # If the current directory isn't writable, try putting the tmpdir in the
+    # user's home directory, but again only if it's on the same filesystem.
+    @dest_info = stat( $ENV{'HOME'} );
+    if ( $CWD_info[0] == $dest_info[0] ) {
+        return tempdir( CLEANUP => 1, DIR => $ENV{'HOME'} );
+    }
+
+    # If all else fails there's little recourse but to put the thing in /tmp.
+    # Or crash the program. I prefer that choice, honestly.
+    die << 'EOF';
+/tmp is on a different filesystem and the current directory is not writeable.
+Cannot continue without making a temporary directory on the same filesystem as
+the archive. Aborting command.
+EOF
+}
+
 ###############################################################################
+# Analysis
 
 sub analyze_file($filename) {
     $File{'ext'}      = $filename =~ s/.*\.(.*)/$1/r;
@@ -190,7 +222,7 @@ sub do_extract {
         }
 
         # Shuffle things around
-        my $TmpDir = tempdir(cleanup => 1);
+        my $TmpDir = get_tempdir();
         say qq(mv $Out{'old_dir'}/$lonefile, $TmpDir/$lonefile) if $Verbose;
         mv "$Out{'old_dir'}/$lonefile", "$TmpDir/$lonefile" or croak("$!\n");
 
@@ -214,6 +246,7 @@ sub do_extract {
 }
 
 ###############################################################################
+# Normal extraction
 
 sub extract_tar($CMD, $Flags, $Stdout) {
     if ( $Flags eq 'SPECIAL' ) {
@@ -286,10 +319,11 @@ sub force_extract($archive) {
 }
 
 ###############################################################################
+# Special cases
 
 sub extract_zpaq {
     my $bak = getcwd;
-    my $tmp = tempdir(cleanup => 1);
+    my $tmp = get_tempdir();
     chdir $tmp;
 
     print qq(zpaq x "$File{'fullpath'}" >/dev/null 2>&1\n);
@@ -305,7 +339,6 @@ sub extract_zpaq {
     foreach (@files) { mv($_, $Out{'dir'}) }
 
     chdir $bak;
-    cleanup();
 }
 
 sub extract_double_tar {
@@ -318,7 +351,7 @@ sub analyze_mess {
 
     say STDERR \
         "The output directory is not a directory. It may be another archive.";
-    my $tmp = tempdir(cleanup => 1);
+    my $tmp = get_tempdir();
     my $bak = getcwd;
     chdir $tmp;
 
@@ -332,7 +365,6 @@ sub analyze_mess {
         }
         
         chdir $bak;
-        cleanup();
         return true;
     }
     else {

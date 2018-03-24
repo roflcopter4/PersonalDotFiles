@@ -87,24 +87,25 @@ sub betterglob {
 }
 
 sub get_tempdir {
-    my @CWD_info  = stat $CWD;
-    my @dest_info = stat '/tmp';
+    my @archive_info  = stat $File{'fullpath'};
+    my @dest_info     = stat '/tmp';
 
     # Try to put the tmpdir in /tmp, but only if it's on the same filesystem.
-    if ( $CWD_info[0] == $dest_info[0] ) {
+    if ( $archive_info[0] == $dest_info[0] ) {
         return tempdir( CLEANUP => 1 );
     }
 
+    @dest_info = stat $CWD;
     # If /tmp is on a different filesystem try to put the tmpdir in the current
     # if it's writeable. We're extracting a file here, it ought to be.
-    if ( -w $CWD ) {
+    if ( $archive_info[0] == $dest_info[0] and -w $CWD ) {
         return tempdir( CLEANUP => 1, DIR => $CWD );
     }
 
     # If the current directory isn't writable, try putting the tmpdir in the
     # user's home directory, but again only if it's on the same filesystem.
     @dest_info = stat( $ENV{'HOME'} );
-    if ( $CWD_info[0] == $dest_info[0] ) {
+    if ( $archive_info[0] == $dest_info[0] ) {
         return tempdir( CLEANUP => 1, DIR => $ENV{'HOME'} );
     }
 

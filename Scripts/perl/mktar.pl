@@ -15,7 +15,7 @@ use Unix::Processors;
 our ( $TopDir, $BaseDir, $Verbose );
 our $TimeStamp = time;
 our $CWD       = getcwd;
-our $TmpDir    = tempdir CLEANUP => 1;
+our $TmpDir    = get_tempdir();
 
 ###############################################################################
 
@@ -51,6 +51,26 @@ sub get_odir {
            . "directory.\n";
         return ENV {'HOME'};
     }
+}
+
+sub get_tempdir {
+    my @CWD_info  = stat $CWD;
+    my @dest_info = stat '/tmp';
+
+    if ( $CWD_info[0] == $dest_info[0] ) {
+        return tempdir( CLEANUP => 1 );
+    }
+
+    if ( -w $CWD ) {
+        return tempdir( CLEANUP => 1, DIR => $CWD );
+    }
+
+    @dest_info = stat( $ENV{'HOME'} );
+    if ( $CWD_info[0] == $dest_info[0] ) {
+        return tempdir( CLEANUP => 1, DIR => $ENV{'HOME'} );
+    }
+
+    return tempdir( CLEANUP => 1 );
 }
 
 ###############################################################################

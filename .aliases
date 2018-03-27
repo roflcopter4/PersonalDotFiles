@@ -1,7 +1,8 @@
+#!/bin/dash
 
 ID_SHELL() {                                                     
-    if ! ( [ $(uname) = 'DragonFly' ]  || \
-           [ $(uname -o) = 'Cygwin' ]  || [ $(uname -o) = 'Msys' ] )
+    if ! ( [ "$(uname)" = 'DragonFly' ]  || \
+           [ "$(uname -o)" = 'Cygwin' ]  || [ "$(uname -o)" = 'Msys' ] )
     then
         printf "%s" "$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
@@ -26,9 +27,9 @@ Exists() {
 # -T  -> Better test       - only make alias if its base command exists.
 mkalias() {
     OPTIND=1  # For some incomprehensible reason bash doesn't reset OPTIND by default.
+    local alias_cmd alias_cmd_tmp do_sudo do_test do_alt do_global
     do_sudo=false do_test=false do_alt=false do_global=false
-    alias_cmd= alias_cmd_tmp=
-
+    
     while getopts 'gGsSt:TA' ARG "$@"; do
         case "$ARG" in
             g)
@@ -53,7 +54,7 @@ mkalias() {
             A)
                 do_alt=true
                 ;;
-            \?)
+            *)
                 echo 'Invalid arg -> '"'$ARG'" >&2 ; return 1
                 ;;
         esac
@@ -61,27 +62,28 @@ mkalias() {
     shift $((OPTIND - 1))
 
     if $do_alt; then
-        TEMP="$(echo "$2" | sed "s/\([[:alnum:][:punct:]]*\).*/\\1/")"
-        if command -v "$TEMP" >/dev/null 2>&1; then
+        TEMP=$(echo "$2" | sed 's/\([[:alnum:][:punct:]]*\).*/\1/')
+        if Exists "$TEMP"; then
             alias_cmd_tmp="${1}=${2}"
         else
             alias_cmd_tmp="${1}=${3}"
         fi
 
     elif $do_test; then
-        TEMP="$(echo "$1" | sed "s/[^=]*=['\"]\{0,1\}\([[:alnum:][:punct:]]*\).*['\"]\{0,1\}/\\1/")"
-        command -v "$TEMP" >/dev/null 2>&1 || return 1
-        alias_cmd_tmp="$1"
+        TEMP=$(echo "$1" | sed "s/[^=]*=['\"]\\{0,1\\}\\([[:alnum:][:punct:]/]*\\).*['\"]\\{0,1\\}/\\1/")
+        #TEMP=$(echo "$1" | sed "s/[^=]*=['\"]\\{0,1\\}\\([0-9A-Za-z/._-]*\\).*['\"]\\{0,1\\}/\\1/")
+        Exists "$TEMP" || return 1
+        alias_cmd_tmp=$1
 
     else
-        alias_cmd_tmp="$1"
+        alias_cmd_tmp=$1
     fi
 
 
-    if $do_sudo && (command -v sudo >/dev/null 2>&1); then
-        alias_cmd="$(echo "$alias_cmd_tmp" | sed 's/\([^=]*=\)\(.*\)/\1sudo \2/')"
+    if $do_sudo && Exists 'sudo'; then
+        alias_cmd=$(echo "$alias_cmd_tmp" | sed 's/\([^=]*=\)\(.*\)/\1sudo \2/')
     else
-        alias_cmd="$alias_cmd_tmp"
+        alias_cmd=$alias_cmd_tmp
     fi
 
 
@@ -140,9 +142,9 @@ alias Ls='ls -L'
 # ---------------------------------------------------------
 
 # Grep with color, from default bashrc.
-mkalias -g grep='grep --colour=auto'
-mkalias -g fgrep='fgrep --color=auto'
-mkalias -g egrep='egrep --color=auto'
+alias grep='grep --colour=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
 
 # Pretty basic.
 mkalias -A 'cd' 'smartcd -P' 'cd -P'
@@ -160,8 +162,8 @@ alias dmesgl='dmesg | \less -r'
 alias suvi='sudoedit'
 
 # God I am lazy
-alias CO="./configure"
-alias CH="./configure --help"
+mkalias -A 'CO' '/usr/libexec/cw/configure' './configure'
+alias CH='./configure --help'
 alias CMK='mkdir build && cd build'
 
 # Yet more git aliases.
@@ -181,6 +183,7 @@ mkalias -T pylint3='pylint3 -f colorized'
 mkalias -T sage='sage -q' 
 mkalias -T ari='aria2c' 
 mkalias -T par='par-format'
+mkalias -TS zef='/usr/share/perl6/site/bin/zef'
 
 mkalias -T wolf='wolframscript'
 
@@ -190,7 +193,6 @@ if [ "$SYSID" = 'laptop-gentoo' ]; then
 fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
-        #(Exists 'esearch') && alias ems='esearch' || alias ems='emerge --search'
         mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
         mkalias -s emr='emerge'
@@ -274,8 +276,8 @@ las() {
 
 
 gitc() {
-    [ "$1" ] && ONE="$1" && shift || return 1
-    [ "$1" ] && TWO="$1" && shift
+    [ "$1" ] && ONE=$1 && shift || return 1
+    [ "$1" ] && TWO=$1 && shift
     case "$ONE" in
         '-gs')
             git clone --recursive 'https://github.com/'"$TWO" "$@" --depth 1
@@ -293,7 +295,7 @@ gitc() {
 }
 
 
-if [ $(uname) = 'DragonFly' ] || [ $(uname) = 'FreeBSD' ]; then
+if [ "$(uname)" = 'DragonFly' ] || [ "$(uname)" = 'FreeBSD' ]; then
     Exists 'gfind' && FIND='gfind'
 else
     FIND='find'
@@ -331,7 +333,7 @@ Exists 'emacs' && {
 Exists 'eovim' && \
 eov() {
     (
-        NoExtChars='True' && export NoExtChars
+        NoExtChars='True'; export NoExtChars
         eovim -g '125x55' "$@" > /dev/null 2>&1 &
     )
 }
@@ -347,7 +349,7 @@ gvi() {
 
 Exists 'fzf' && \
 cdfzf() {
-    cd $(dirname $(fzf "$@"))
+    cd "$(dirname "$(fzf "$@")")"
 }
 
 
@@ -376,7 +378,7 @@ if Exists 'fzy'; then
                     _cd_=true
                     ;;
                 l)
-                    _fzlen="${OPTARG}"
+                    _fzlen=$OPTARG
                     ;;
                 r)
                     _cmd_='rg'
@@ -396,8 +398,7 @@ if Exists 'fzy'; then
                                 1) _smartness_='-u'   ;;
                                 2) _smartness_='-uu'  ;;
                                 3) _smartness_='-uuu' ;;
-                                *) echo 'rg "u" option must be between 0 and 3 (inclusive).' >&2
-                                    ;;
+                                *) echo 'rg "u" option must be between 0 and 3 (inclusive).' >&2 ;;
                             esac ;;
                         'ag')
                             case "$OPTARG" in
@@ -405,8 +406,7 @@ if Exists 'fzy'; then
                                 1) _smartness_='--hidden'    ;;
                                 2) _smartness_='--all-types' ;;
                                 3) _smartness_='-u'          ;;
-                                *) echo 'ag "u" option must be between 0 and 3 (inclusive).' >&2
-                                    ;;
+                                *) echo 'ag "u" option must be between 0 and 3 (inclusive).' >&2 ;;
                             esac ;;
                     esac
                     ;;
@@ -431,8 +431,8 @@ if Exists 'fzy'; then
         _statement_="\"${_cmd_}\" ${_smartness_} ${_extra_} \"${1:-.}\" 2>/dev/null | fzy -l\"${_fzlen}\""
         if ${_cd_}; then
             local __file__
-            __file__="$( (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit
-                        eval "$_statement_")"
+            __file__=$( (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit
+                       eval "$_statement_")
 
             echo "$__file__"
 
@@ -456,7 +456,7 @@ cppMacroOnly() { (
     (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit
     [ $# -eq 0 ] && exit 1;
     [ $# -eq 1 ] && __file="$1" && __CPP='clang' && __ARGS='-E -P -'
-    [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS="$*"
+    [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS=$*
     perl -pe 's/^#include.*\n//g' "$__file" | $__CPP $__ARGS
 ) }
 

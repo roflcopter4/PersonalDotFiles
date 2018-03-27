@@ -225,7 +225,7 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('mattn/gist-vim')
     call AddPlugin('scrooloose/nerdcommenter')
     call AddPlugin('godlygeek/tabular')
-    call AddPlugin('luochen1990/rainbow')
+    "call AddPlugin('luochen1990/rainbow')
     call AddPlugin('junegunn/vim-easy-align')
     if executable('ctags')
         call AddPlugin('majutsushi/tagbar')
@@ -578,14 +578,20 @@ endif
 
 
 "Rainbow
-if IsSourced('rainbow')
+if IsSourced('rainbow') || 1
     let g:rainbow_active = 1
     " God, what a horrific mess.
+
+        "\    'guifgs': ['DodgerBlue1', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2'],
         "\    'guifgs': ['DodgerBlue1', 'darkorange1', 'green2', 'firebrick1'],
+        "\    'operators': '_,_',
+        "\        'c': {
+        "\            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2', 'gold1'],
+        "\        },
     let g:rainbow_conf = {
-        \    'guifgs': ['DodgerBlue1', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2'],
+        \    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'firebrick1', 'orchid2'],
         \    'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
-        \    'operators': '_,_',
+        \    'operators': '',
         \    'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
         \    'separately': {
         \        '*': {},
@@ -609,7 +615,10 @@ if IsSourced('rainbow')
         \        'perl': {
         \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2'],
         \        },
-        \        'css': 0,
+        \        'c': {
+        \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
+        \        },
+        \        'css': 0
         \    }
     \}
 

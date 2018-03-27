@@ -68,6 +68,7 @@ case "$SYSID" in
     'gentoo'|'laptop-gentoo')
         local adtl_path=( )
         [[ -d '/usr/mnt/bin' ]] && adtl_path+='/usr/mnt/bin'
+        [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
         #[[ -d "${HOME}/.local/lib/node_modules/.bin" ]] && adtl_path+="${HOME}/.local/lib/node_modules/.bin"
 
         export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /usr/sbin /usr/bin /sbin /bin )

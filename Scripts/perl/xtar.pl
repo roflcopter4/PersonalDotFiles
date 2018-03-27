@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.26;
+use warnings; use strict; use v5.22;
 use feature 'signatures';
 no warnings 'experimental';
 use Cwd qw( getcwd realpath );
@@ -7,11 +7,11 @@ use Carp;
 use boolean;
 use File::Basename;
 use File::Which;
+use File::LibMagic;
 use File::Copy qw( mv );
 use File::Path qw( make_path );
 use File::Temp qw( tempdir cleanup );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
-use Data::Dumper 'Dumper';
 
 ###############################################################################
 # A few globals.
@@ -19,6 +19,7 @@ use Data::Dumper 'Dumper';
 our $CWD       = getcwd();
 our $TimeStamp = time;
 our $v7z       = '-bso0 -bsp0';
+our $magic     = File::LibMagic->new();
 our ( $TAR, $IsTar, $Force, $Num, $odir_given, $Verbose );
 our ( %File, %Out, $RunNo );
 
@@ -60,6 +61,12 @@ sub find_tar($test) {
     else                  { return 'tar' }
 }
 
+
+sub sayG($str) {
+    say "\033[1m\033[32m" . $str . "\033[0m";
+}
+
+
 sub handle_conflict ( $path, $name ) {
     my $i        = 1;
     my $new_name = "${path}/${name}-${TimeStamp}";
@@ -74,6 +81,7 @@ sub handle_conflict ( $path, $name ) {
     return $new_name;
 }
 
+
 sub betterglob {
     my @files = glob('* .*');
     my @filter;
@@ -85,6 +93,7 @@ sub betterglob {
 
     return @filter;
 }
+
 
 sub get_tempdir {
     my @archive_info  = stat $File{'fullpath'};
@@ -132,22 +141,24 @@ sub analyze_file($filename) {
         $File{'bname'} = $File{'name'} =~ s/(.*)\.tar\..*/$1/r;
     }
     else {
-        $IsTar = check_short_tar($filename);
+        $IsTar = check_short_tar( $File{'ext'} );
         $File{'bname'} = $File{'name'} =~ s/(.*)\..*/$1/r;
     }
 }
 
-sub check_short_tar($filename) {
-    given ($filename) {
-        when (/^(tgz)$/n)          { $File{'ext'} = 'gz' }
-        when (/^(tbz|tb2|tbz2)$/n) { $File{'ext'} = 'bz2' }
-        when (/^(txz)$/n)          { $File{'ext'} = 'xz' }
-        when (/^(tZ|taz|taZ)$/n)   { $File{'ext'} = 'Z' }
-        when (/^(tlz)$/n)          { $File{'ext'} = 'lzma' }
-        default                    { return false }
+
+sub check_short_tar($ext) {
+    for ($ext) {
+        if    (/^(tgz)$/n)          { $File{'ext'} = 'gz' }
+        elsif (/^(tbz|tb2|tbz2)$/n) { $File{'ext'} = 'bz2' }
+        elsif (/^(txz)$/n)          { $File{'ext'} = 'xz' }
+        elsif (/^(tZ|taz|taZ)$/n)   { $File{'ext'} = 'Z' }
+        elsif (/^(tlz)$/n)          { $File{'ext'} = 'lzma' }
+        else                        { return false }
     }
     return true;
 }
+
 
 sub get_odir {
     if ( defined $odir_given ) {
@@ -181,6 +192,7 @@ sub get_odir {
 }
 
 ###############################################################################
+# Run the show. Extract, analyze, move things around, and clean up.
 
 sub do_extract {
     make_path( $Out{'dir'} );
@@ -193,88 +205,132 @@ sub do_extract {
         return false unless ( $Force and force_extract($File{'fullpath'}) )
     }
     else {
-        print "\033[32m";
-        if   ($IsTar) { extract_tar($CMD, $TFlags, $Stdout) }
-        else          { extract_else($CMD, $EFlags, $Stdout) }
-        print "\033[0m\n";
-    }
+        while ( true ) {
+            my $x;
 
-    my @files = betterglob();
+            if   ($IsTar) { $x = extract_tar($CMD, $TFlags, $Stdout) }
+            else          { $x = extract_else($CMD, $EFlags, $Stdout) }
 
-    while ( @files == 1 ) {
-        my $lonefile = $files[0];
-
-        if (   ( defined $odir_given and $Num == 1 )
-            or ( $lonefile eq $Out{'orig_name'} ) )
-        {
-            $Out{'old_dir'} = $Out{'dir'};
-        }
-        else {
-            if ( -e "$Out{'path'}/$lonefile" ) {
-                $Out{'name'} = handle_conflict( $Out{'path'}, $lonefile );
-                $Out{'name'} = basename( $Out{'name'} );
+            if ( $x ) {
+                last;
             }
             else {
-                $Out{'name'} = $lonefile;
+                say STDERR 'Extraction failed.';
+                if ( not defined $File{'mime'} ) {
+                    check_mime( $File{'fullname'} );
+                }
+                else {
+                    force_extract($File{'fullpath'}) or die;
+                }
             }
-
-            $Out{'old_dir'} = $Out{'dir'};
-            $Out{'dir'}     = "$Out{'path'}/$Out{'name'}";
         }
+    }
 
-        # Shuffle things around
-        my $TmpDir = get_tempdir();
-        say qq(mv $Out{'old_dir'}/$lonefile, $TmpDir/$lonefile) if $Verbose;
-        mv "$Out{'old_dir'}/$lonefile", "$TmpDir/$lonefile" or croak("$!\n");
-
-        # Clean up
-        say qq(rmdir $Out{'old_dir'}) if $Verbose;
-        chdir $Out{'path'}    or croak("$!\n");
-        rmdir $Out{'old_dir'} or croak("$!\n");
-
-        # Put them back again
-        say qq(mv $TmpDir/$lonefile $Out{'dir'}) if $Verbose;
-        mv "$TmpDir/$lonefile", $Out{'dir'} or croak("$!\n");
-        cleanup();
-
-        chdir $Out{'dir'} or analyze_mess() or croak;
+    # While only one directory is within the current output directory, shuffle
+    # it to replace the latter, and adopt its name if appropriate.
+    my @files = betterglob();
+    while ( @files == 1 ) {
+        if ( -d $files[0] ) { handle_lonefile( $files[0] ) }
+        else                { last }
         @files = betterglob();
     }
 
     my $reldir = $Out{'dir'} =~ s|$CWD/(.*)|$1|r;
-    say "\033[0m\033[33m" . "Extracted to '$reldir'" . "\033[0m";
+    say "\033[33m" . "Extracted to '$reldir'" . "\033[0m";
     return true;
+}
+
+
+sub handle_lonefile($lonefile) {
+    # This subroutine was created to try to keep things a little shorter and
+    # neater. do_extract() was getting unmanagably big.
+
+    if (   ( defined $odir_given and $Num == 1 )
+        or ( $lonefile eq $Out{'orig_name'} ) )
+    {
+        $Out{'old_dir'} = $Out{'dir'};
+    }
+    else {
+        if ( -e "$Out{'path'}/$lonefile" ) {
+            $Out{'name'} = basename( handle_conflict($Out{'path'}, $lonefile) );
+        }
+        else {
+            $Out{'name'} = $lonefile;
+        }
+
+        $Out{'old_dir'} = $Out{'dir'};
+        $Out{'dir'}     = "$Out{'path'}/$Out{'name'}";
+    }
+
+    # Shuffle things around
+    my $TmpDir = get_tempdir();
+    say qq(mv $Out{'old_dir'}/$lonefile, $TmpDir/$lonefile) if $Verbose;
+    mv "$Out{'old_dir'}/$lonefile", "$TmpDir/$lonefile" or croak("$!\n");
+
+    # Clean up
+    say qq(rmdir $Out{'old_dir'}) if $Verbose;
+    chdir $Out{'path'}    or croak("$!\n");
+    rmdir $Out{'old_dir'} or croak("$!\n");
+
+    # Put them back again
+    say qq(mv $TmpDir/$lonefile $Out{'dir'}) if $Verbose;
+    mv "$TmpDir/$lonefile", $Out{'dir'} or croak("$!\n");
+    cleanup();
+
+    # We've been assuming the output is a directory. If it actually isn't,
+    # panic and try to extract it - it may be a tar file or somesuch. If it's
+    # not then we're done here anyway.
+    chdir $Out{'dir'} or analyze_mess() or croak;
 }
 
 ###############################################################################
 # Normal extraction
 
 sub extract_tar($CMD, $Flags, $Stdout) {
+    my $x = true;
     if ( $Flags eq 'SPECIAL' ) {
         if    ( $File{'ext'} eq 'tar' )  { extract_double_tar() }
         elsif ( $File{'ext'} eq 'zpaq' ) { extract_zpaq() }
     }
     else {
-        print  qq($CMD $Flags "$File{'name'}" | $TAR -xf -);
-        system qq($CMD $Flags "$File{'fullpath'}" | $TAR -xf -);
+        sayG qq($CMD $Flags "$File{'name'}" | $TAR -xf -);
+        #system qq($CMD $Flags "$File{'fullpath'}" | $TAR -xf -);
+        my ( $CmdP, $TarP );
+        open $CmdP, '-|', qq($CMD $Flags "$File{'fullpath'}");
+        open $TarP, '|-', qq($TAR -xf -);
+        while ( <$CmdP> ) { print $TarP $_ }
+        close $CmdP or $x = false;
+        close $TarP or $x = false;
     }
+    return $x;
 }
+
 
 sub extract_else($CMD, $Flags, $Stdout) {
     if ( $Flags eq 'SPECIAL' ) { croak }
     else {
         if ($Stdout) {
-            print  qq($CMD $Flags "$File{'bname'}" > "$Out{'dir'}");
-            system qq($CMD $Flags "$File{'fullpath'}" > "$Out{'dir'}");
+            sayG   qq($CMD $Flags "$File{'name'}" > "$Out{'dir'}/");
+            system qq($CMD $Flags "$File{'fullpath'}" > "$Out{'dir'}/$File{'bname'}");
         }
         else {
-            print  qq($CMD $Flags "$File{'bname'}");
+            sayG   qq($CMD $Flags "$File{'name'}");
             system qq($CMD $Flags "$File{'fullpath'}");
         }
     }
+    return ( $? == 0 ) ? true : false;
 }
 
 ###############################################################################
+# Deal with evil files with incorrect extentions.
+
+
+sub check_mime($archive) {
+    my $info = $magic->info_from_filename($archive);
+    my $desc = lc $info->{'filename'};
+    say $desc;
+}
+
 
 sub force_extract($archive) {
     print STDERR "Attempting to force extract.\n\n";
@@ -282,7 +338,7 @@ sub force_extract($archive) {
     my $color = "\033[01m\033[35m";
 
     while (true) {
-        if ( $index == 0 ) {
+        if ( $index == 1 ) {
             say STDERR $color . "Trying tar" . "\033[0m";
             system qq($TAR -xf "$archive");
             last if ( $? == 0 );
@@ -342,10 +398,12 @@ sub extract_zpaq {
     chdir $bak;
 }
 
+
 sub extract_double_tar {
     say    qq($TAR -xf '$File{'bname'}' - | $TAR -xf -);
     system qq($TAR -xf "$File{'fullpath'}" - | $TAR -xf -);
 }
+
 
 sub analyze_mess {
     if ( -d $Out{'dir'} ) { croak "$! - No clue what is happening." }
@@ -508,7 +566,7 @@ while (@ARGV) {
         next;
     }
 
-    if ( $RunNo > 1 ) { print "\n\n"; }
+    if ( $RunNo++ > 1 ) { print "\n\n"; }
     print "\033[1m\033[33m----- Processing $filename -----\033[0m\n";
 
     analyze_file($filename);
@@ -516,5 +574,5 @@ while (@ARGV) {
     do_extract();
 
     chdir $CWD;
-    ++$RunNo;
+    #++$RunNo;
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 use warnings; use strict; use v5.22;
-no warnings 'experimental';
+#no warnings 'experimental';
 use Cwd qw( getcwd realpath );
 use Carp;
 use boolean;
@@ -33,6 +33,7 @@ sub show_usage {
  -o, --output     Specify the basename of the output file (without extension)
  -b, --bsdtar     Shorthand for --tar=bsdtar
  -g, --gtar       Shorthand for --tar=gtar
+ -N, --notar      Don't tar the files first. SUITABLE FOR ZIP OR 7ZIP ONLY.
 
 Types recognized: xz, bzip2, gzip, Z, 7zip, zpaq, tzpaq, zip.
 Most types have a few alternate spellings that are acceptable.
@@ -89,7 +90,7 @@ my $type = 'xz';
 my $lev9 = 9;
 my $lev5 = 5;
 
-my ( $help, $version, $output, $level, $TAR, $gtar, $bsdtar );
+my ( $help, $version, $output, $level, $TAR, $gtar, $bsdtar, $notar );
 
 GetOptions(
     'h|help'     => \$help,
@@ -100,7 +101,8 @@ GetOptions(
     'l|level=i'  => \$level,
     'o|output=s' => \$output,
     'b|bsdtar'   => \$bsdtar,
-    'g|gtar'     => \$gtar
+    'g|gtar'     => \$gtar,
+    'N|notar'    => \$notar
 ) or show_usage(1);
 
 if ( defined($level) ) {
@@ -124,40 +126,52 @@ if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
 ###############################################################################
 # Check validity of archive type
 
-my ( $basetype, @CMD );
+my ( $basetype, @CMD, $tmp );
 
-given ($type) {
-    when (/^(?:xz)$/) {
+for ($type) {
+    if (/^(xz)$/n) {
         $basetype = 'xz';
         @CMD = ( 'xz', "-T${UseCores}", "-${lev9}", '>' );
     }
-    when (/^(?:gz|gzip)$/) {
+    elsif (/^(gz|gzip)$/n) {
         $basetype = 'gz';
         @CMD = ( 'gzip', "-${lev9}", '-c', '>' );
     }
-    when (/^(?:bz|bz2|bzip|bzip2)$/) {
+    elsif (/^(bz|bz2|bzip|bzip2)$/n) {
         $basetype = 'bz2';
         @CMD = ( 'bzip2', "-${lev9}", '-c', '>' );
     }
-    when (/^(?:z|Z)$/) {
+    elsif (/^(z|Z)$/n) {
         $basetype = 'Z';
         @CMD      = qw( compress -c > );
     }
-    when (/^(?:zip)$/) {
+    elsif (/^(zip)$/n) {
         $basetype = 'zip';
-        @CMD = ( 'zip', "-${lev9}", '>' );
+        $tmp = ( $notar ) ? '-r' : '>';
+        @CMD = ( "zip -${lev9}", $tmp );
+        #$notar = 1;
     }
-    when (/^(?:7z|7zip)$/) {
+    elsif (/^(7z|7zip)$/n) {
         $basetype = '7z';
-        @CMD      = (
-            '7z', 'a', $v7z, qw( -ms=on -md=512m -mfb=256 -m0=lzma2 ),
-            "-mmt=${UseCores}", "-mx=${lev9}", -'si'
-        );
+        $tmp      = ( $notar ) ? '' : '-si';
+        @CMD      = ( '7z', 'a', $v7z, qw( -ms=on -md=512m -mfb=256 -m0=lzma2 ),
+                      "-mmt=${UseCores}", "-mx=${lev9}", $tmp );
     }
-    when (/^(?:zpaq|zq|zp)$/)    { $basetype = 'zpaq' }
-    when (/^(?:tzpaq|tzq|tzp)$/) { $basetype = 'tzpaq' }
-    default { warn "Filetype '$type' not recognized.\n" and show_usage(2); }
+    elsif (/^(zpaq|zq|zp)$/n)    { $basetype = 'zpaq' }
+    elsif (/^(tzpaq|tzq|tzp)$/n) { $basetype = 'tzpaq' }
+
+    else {
+        warn "Filetype '$type' not recognized.\n";
+        show_usage(2);
+    }
 }
+
+if ( $notar and not $type =~ /^(zip|7z)$/ ) {
+    die "Error: Only zip, 7zip, and zpaq can make archives without tar.";
+}
+
+###############################################################################
+# Get our names and check whether we have GNU cp(1).
 
 my ( $OutDir, $OutName );
 if ( defined($output) ) {
@@ -212,10 +226,12 @@ else {
 
 if    ( $basetype eq 'zpaq' )  { $OutName .= '.zpaq' }
 elsif ( $basetype eq 'tzpaq' ) { $OutName .= '.tar.zpaq' }
+elsif ( $notar )               { $OutName .= ".${basetype}" }
 else                           { $OutName .= ".tar.${basetype}" }
 
 my $TDirFull  = "${TmpDir}/${TopDir}";
 my $ONameFull = "${OutDir}/${OutName}";
+my $RelName = $ONameFull =~ s|$CWD/(.*)|$1|r;
 
 say "mkdir '$TDirFull'" if $Verbose;;
 mkdir $TDirFull or croak 'Failed to make temporary directory.';
@@ -256,33 +272,41 @@ say "cd '$TmpDir'" if $Verbose;
 chdir $TmpDir or croak 'Failed to cd to the temporary directory!';
 
 ###############################################################################
-# Now for the command. What a mess.
 
-print "\033[1m\033[32m";
+sub sayG {
+    my $str = shift or croak();
+    say "\033[1m\033[32m" . $str . "\033[0m";
+}
+
+###############################################################################
+# Now for the command. What a mess.
 
 # zpaq is "special".
 if ( $basetype eq 'zpaq' ) {
-    say    "zpaq a $ONameFull $TopDir -m$lev5 -t$UseCores >/dev/null 2>&1";
+    sayG   "zpaq a $RelName $TopDir -m$lev5 -t$UseCores >/dev/null 2>&1";
     system "zpaq a '$ONameFull' '$TopDir' -m$lev5 -t$UseCores >/dev/null 2>&1";
 }
 elsif ( $basetype eq 'tzpaq' ) {
     my ( $FH, $tmpnam ) = tempfile(SUFFIX => ".tar", TMPDIR => 1);
 
-    say    "$TAR -cf $tmpnam $TopDir";
+    sayG   "$TAR -cf $tmpnam $TopDir";
     system "$TAR -cf '$tmpnam' '$TopDir' 2>/dev/null";
 
-    say    "zpaq a $ONameFull $tmpnam -m$lev5 -t$UseCores";
+    sayG   "zpaq a $RelName $tmpnam -m$lev5 -t$UseCores";
     system "zpaq a '$ONameFull' '$tmpnam' -m$lev5 -t$UseCores >/dev/null 2>&1";
 
     unlink $tmpnam or cluck("ERROR: Failed to unlink file '$tmpnam'.");
 }
-# Normal programs
+# Any other commands that can make an archive without tar.
+elsif ( $notar ) {
+    sayG   "@CMD $RelName $TopDir";
+    system "@CMD '$ONameFull' '$TopDir' >/dev/null";
+}
+# Normal programs.
 else {
-    say    "$TAR -cf - $TopDir | @CMD $ONameFull";
+    sayG   "$TAR -cf - $TopDir | @CMD $RelName";
     system "$TAR -cf - '$TopDir' 2>/dev/null | @CMD '$ONameFull'";
 }
-
-print "\033[0m";
 
 # Get rid of the temporary directory.
 chdir $CWD;

@@ -295,6 +295,13 @@ gitc() {
 }
 
 
+perlman () {  
+    [ $# -eq 1 ] || return 1
+    perldoc -T "$1" >/dev/null || return 2
+    perldoc -T -onroff "$1" | man -l -
+}
+
+
 if [ "$(uname)" = 'DragonFly' ] || [ "$(uname)" = 'FreeBSD' ]; then
     Exists 'gfind' && FIND='gfind'
 else

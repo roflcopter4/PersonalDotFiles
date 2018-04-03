@@ -14,9 +14,15 @@ simple commands. Links will be full paths, not relative."
 make_link() {
     extension=$1
     script_type=$2
-    target="${destDir}/$(basename "${file}" ".${extension}")"
-    echo "Linking ${script_type} script $(basename "${file}") as $(basename "$target")"
-    ln -sf "$file" "$target"
+    #target=${destDir}/$(basename "${file}" ".${extension}")
+    target_name=$(basename "${file}" ".${extension}")
+    echo "Linking ${script_type} script '$(basename "${file}")' as '${target_name}'"
+    (
+        cd "$destDir" || exit 1
+        ln -sf "$("$RELPATH" "$destDir" "$file")" "${target_name}"
+        #echo "ln -sf $("$RELPATH" "$destDir" "$file") ${target_name}"
+    )
+    #ln -sf "$file" "$target"
 }
 
 
@@ -35,6 +41,7 @@ fi
 
 srcDir=$(realpath "$1")
 destDir=$(realpath "$2")
+RELPATH="${HOME}/personaldotfiles/Scripts/shell/relpath.sh"
 
 # Some more basic error checking
 if ! [ -d "$srcDir" ]; then

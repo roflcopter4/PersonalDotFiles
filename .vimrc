@@ -48,27 +48,22 @@ if WINDOWS()
 endif
 
 
-if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD') && !has('nvim')
+if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
+        \ && !has('nvim')
     set encoding=utf-8
     setglobal fileencoding=utf-8
 endif
 
 
-let g:mapleader=' '
-
-if ! has('nvim')
-    let &runtimepath = expand('~/.local/share/nvim/site').','.expand('~/.local/share/nvim/site/after').','.&runtimepath
-endif
-
 " ======================================================================================================
 " Set some general configuration options for what little remains of spf13
 
-let g:spf13_bundle_groups=['general', 'programming', 'misc', 'writing']
+let g:spf13_writing = 1
 let g:spf13_keep_trailing_whitespace = 1
-"let g:spf13_no_omni_complete = 1
-"let g:spf13_no_easyWindows = 0
+let g:spf13_no_omni_complete = 1
 let g:spf13_no_fastTabs = 1
 let g:spf13_no_restore_cursor = 1
+"let g:spf13_no_easyWindows = 0
 
 
 " ======================================================================================================
@@ -88,7 +83,10 @@ if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowe
 endif
 
 let g:use_ale = 1
+let g:use_deoplete = 1
 let s:vim_ale = 1
+
+let g:mapleader = ' '
 
 
 " ======================================================================================================
@@ -120,10 +118,10 @@ let g:myNova_BG = '#1B1D1E'
 " Whitelisted filetypes for operator highlighting.
 
 " Set the following to avoid loading the plugin
-"let g:loaded_operator_highlight = 1
-let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go']
+let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go' ]
 
-let g:ophigh_highlight_link_group = 'Operator'
+"let g:ophigh_highlight_link_group = 'Operator'
+let g:ophigh_highlight_link_group = 'OperatorChars'
 "let g:ophigh_color_gui = '#d33682'
 "let g:ophigh_color_gui = '#42A5F5'  ' Lightish-blue
 
@@ -137,13 +135,22 @@ let g:structderef_color_gui = '#42A5F5'
 
 
 
-" ######################################################################################################
-" ######################################################################################################
-" ######################################################################################################
+" ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
 " Plugin Setup
+
+
+"if has('nvim')
+    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . &runtimepath
+    "    \ . ',' . expand('/usr/share/vim/vimfiles/after')
+    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . expand('/usr/share/vim/vimfiles/after') . ',' . &runtimepath
+"else
+    "let &runtimepath = expand('~/.local/share/nvim/site') . ',' . &runtimepath
+    "    \ . ',' . expand('~/.local/share/nvim/site/after')
+"endif
+
 
 let g:plugin_manager = 'dein'
 "let g:dein#install_max_processes = 12
@@ -300,7 +307,13 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('tpope/vim-cucumber')
     call AddPlugin('tpope/vim-markdown')
     call AddPlugin('vim-scripts/Vimball')
-    call AddPlugin('xolox/vim-easytags')
+
+    "call AddPlugin('xolox/vim-easytags')
+    "call AddPlugin('ludovicchabant/vim-gutentags')
+    "call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+    "call AddPlugin('cquery-project/cquery')
+    call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
+
     call AddPlugin('xolox/vim-misc')
     call AddPlugin('xolox/vim-shell')
 
@@ -315,18 +328,24 @@ if dein#load_state(expand(g:load_path))
     "call AddPlugin('nathanaelkane/vim-indent-guides')
     "call AddPlugin('maralla/validator.vim')
     "call AddPlugin('neomake/neomake')
-    "call AddPlugin('c0r73x/neotags.nvim')
 
     if !exists('g:ONI')
         call AddPlugin('Yggdroot/indentLine')
     endif
 
-    if has('nvim') && g:use_ale == 1
-        call AddPlugin('w0rp/ale')
-        call AddPlugin('Shougo/deoplete.nvim')
-        call AddPlugin('zchee/deoplete-jedi')
-        call AddPlugin('Shougo/neco-vim')
-        call AddPlugin('artur-shaik/vim-javacomplete2')
+    if has('nvim')
+        if g:use_ale == 1
+            call AddPlugin('w0rp/ale')
+        endif
+        if g:use_deoplete == 1
+            call AddPlugin('Shougo/deoplete.nvim')
+            call AddPlugin('zchee/deoplete-jedi')
+            call AddPlugin('Shougo/neco-vim')
+            call AddPlugin('artur-shaik/vim-javacomplete2')
+        else
+            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
+            call AddPlugin('rdnetto/YCM-Generator')
+        endif
     else
         if s:vim_ale == 1
             call AddPlugin('w0rp/ale')
@@ -375,6 +394,10 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('xolox/vim-colorscheme-switcher')
 
     call dein#local(expand('~/.vim/bundles/findent'))
+
+    "if has('nvim')
+    "    call dein#local(expand('/usr/share/vim/vimfiles'))
+    "endif
      
 
     call dein#end()
@@ -396,9 +419,7 @@ filetype plugin indent on
 syntax enable
 
 
-" ######################################################################################################
-" ######################################################################################################
-" ######################################################################################################
+" ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
@@ -799,10 +820,13 @@ if IsSourced('ale')
         let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*',
                                       \ '-llvm-header-guard']
 
-        let b:ale_linters_c_group = ['gcc', 'clangtidy', 'cppcheck']
-        let b:ale_linters_c = {'c':      b:ale_linters_c_group,
-                             \ 'cpp':    b:ale_linters_c_group,
-                             \ 'csharp': b:ale_linters_c_group}
+        let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
+        call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*'])
+                                        
+
+        let b:ale_linters_c = {'c':   ['gcc', 'clangtidy', 'cppcheck'],
+                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck']
+                             \ }
     "}
 
     " Python {
@@ -838,22 +862,24 @@ endif
 
 " ### EASYTAGS ###
 if IsSourced('vim-easytags')
-    let g:easytags_python_enabled = 1
-    "let g:easytags_dynamic_files = 1
+    let g:easytags_python_enabled = 0
+    let g:easytags_dynamic_files = 2
+    set tags=./tags;
     "if LINUX() || ( IsSourced('vim-shell') && IsSourced('vim-misc') )
     "    let g:easytags_async = 1
     "endif
     nnoremap <leader>tag :UpdateTags<CR>
-    if $IS_CYGWIN && !CYGWIN()
+    nnoremap <leader>tah :HighlightTags<CR>
+    "if $IS_CYGWIN && !CYGWIN()
         "set tags=expand("$USERPROFILE/_vimtags"),expand("$USERPROFILE/_vimtags")
-        let s:vimtags_file = expand('$USERPROFILE/_vimtags')
-        let &tags = s:vimtags_file . ',' . &tags
-    endif
+        "let s:vimtags_file = expand('$USERPROFILE/_vimtags')
+        "let &tags = s:vimtags_file . ',' . &tags
+    "endif
 
     "let g:easytags_autorecurse = 1
-    let g:easytags_include_members = 1
+    "let g:easytags_include_members = 1
     let g:easytags_async = 1
-    let g:easytags_always_enabled = 1
+    "let g:easytags_always_enabled = 1
 
 
     let g:easytags_languages = {
@@ -862,7 +888,7 @@ if IsSourced('vim-easytags')
     \   }
     \}
 
-    "highlight link cMember 
+    highlight def link cMember perlSpecialChar2
     highlight def link shFunctionTag Type
 endif
 
@@ -873,10 +899,17 @@ if IsSourced('deoplete.nvim')
     if !exists('g:deoplete#omni#input_patterns')
         let g:deoplete#omni#input_patterns = {}
     endif
+
     " let g:deoplete#disable_auto_complete = 1
+
     " deoplete tab-complete
     inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-    "inoremap <expr><CR> pumvisible() ? "\<c-y>" : "\<CR>"
+    inoremap <expr> <CR> pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
+    "imap <expr><CR> pumvisible() ? "<c-y><CR>" : <CR>
+    "inoremap <buffer> <silent> <CR> <C-R>=AutoPairsReturn()<CR>
+    "inoremap <expr><CR> pumvisible() ? deoplete#smart_close_popup() : "\<CR>"
+    "inoremap <expr><CR> pumvisible() ? deoplete#smart_close_popup()  "\<CR>" : "\<CR>"
+
     augroup DeocompleteSetup
         autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
         " tern
@@ -965,7 +998,7 @@ endif
 " ### Autoformat Config ###
 if IsSourced('vim-autoformat')
     augroup c_formatting
-        autocmd FileType c,c++,cs setlocal cindent sw=8
+        autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
     augroup END
     let g:__c__shiftwidth = 8
 
@@ -1004,7 +1037,8 @@ if IsSourced('vim-autoformat')
         endfunction
 
         if exists('s:ClangFile')
-            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
+            let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- "
+                                      \ . "-lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
         else
             let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
                                             \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
@@ -1056,16 +1090,23 @@ if IsSourced('neotags.nvim')
     let g:neotags_run_ctags = 1
     let g:neotags_verbose = 1
 
-    let g:neotags#cpp#order = 'ced'
-    let g:neotags#c#order = 'ced'
-    highlight link cTypeTag Special
-    highlight link cppTypeTag Special
-    highlight link cEnumTag Identifier
-    highlight link cppEnumTag Identifier
-    highlight link cPreProcTag PreProc
-    highlight link cppPreProcTag PreProc
-    let g:neotags#cpp#order = 'cedfm'
-    let g:neotags#c#order = 'cedfm'
+    let g:neotags#c#order = 'cgstuedfpm'
+    let g:neotags#cpp#order = 'cgstuedfpm'
+
+    highlight def link cEnumTag Enum
+    highlight def link cMemberTag CMember
+    "highlight def link cPreProcTag PreProcB
+    highlight def link cPreProcTag PreProc
+    "highlight def link cFunctionTag LightPinkR
+    highlight def link cFunctionTag CFuncTag
+
+    highlight def link cppEnumTag Enum
+    highlight def link cppMemberTag CMember
+    highlight def link cppPreProcTag PreProc
+    highlight def link cppFunctionTag CFuncTag
+
+    "let g:neotags#cpp#order = 'cedfm'
+    "let g:neotags#c#order = 'cedfm'
 endif
 
 
@@ -1091,10 +1132,29 @@ if IsSourced('vim-pandoc')
 endif
 
 
+if IsSourced('LanguageClient-neovim')
+    let g:LanguageClient_serverCommands = {
+        \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
+        \ 'c': ['cquery', '--log-file=/tmp/cq.log'],
+        \ } 
 
-" ######################################################################################################
-" ######################################################################################################
-" ######################################################################################################
+    let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings 
+    let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
+    set completefunc=LanguageClient#complete
+    set formatexpr=LanguageClient_textDocument_rangeFormatting()
+
+    nnoremap <silent> <leader>gh :call LanguageClient_textDocument_hover()<CR>
+    nnoremap <silent> <leader>gd :call LanguageClient_textDocument_definition()<CR>
+    nnoremap <silent> <leader>gr :call LanguageClient_textDocument_references()<CR>
+    nnoremap <silent> <leader>gs :call LanguageClient_textDocument_documentSymbol()<CR>
+    nnoremap <silent> <leader><F2> :call LanguageClient_textDocument_rename()<CR>
+
+    let g:LanguageClient_serverCommands.rust = ['rustup', 'run', 'nightly', 'rls']
+endif
+
+
+
+" ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
@@ -1191,14 +1251,11 @@ command! -complete=file -nargs=+ Shell call s:RunShellCommand(<q-args>)
 " ================================================================================================================
 " ================================================================================================================
 " ================================================================================================================
+" ================================================================================================================
 " General
 
 
-"if !has('gui')
-    "set term=$TERM          " Make arrow and other keys work
-"endif
-
-if count(g:spf13_bundle_groups, 'writing')
+if exists('g:spf13_writing')
     " TextObj Sentence
     augroup textobj_sentence
         autocmd!
@@ -1223,12 +1280,8 @@ if !exists('g:spf13_no_omni_complete')
                     \setlocal omnifunc=syntaxcomplete#Complete |
                     \endif
     endif
-    " 
-    "hi Pmenu  guifg=#000000 guibg=#F8F8F8 ctermfg=black ctermbg=Lightgray
-    "hi PmenuSbar  guifg=#8A95A7 guibg=#F8F8F8 gui=NONE ctermfg=darkcyan ctermbg=lightgray cterm=NONE
-    "hi PmenuThumb  guifg=#F8F8F8 guibg=#8A95A7 gui=NONE ctermfg=lightgray ctermbg=darkcyan cterm=NONE
      
-    " Some convenient mappings
+    " # Some convenient mappings
     "inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
     "inoremap <expr> <CR>     pumvisible() ? "\<C-y>" : "\<CR>"
     inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
@@ -1373,11 +1426,12 @@ set nospell
 set showmatch               " Show matching brackets/parenthesis
 set incsearch               " Find as you type search
 set hlsearch                " Highlight search terms
+set ignorecase
 set smartcase               " Case sensitive when uc present
 
 set autoindent              " Indent at the same level of the previous line
-set cindent
 set smartindent             " Better autoindent
+set cindent
 set breakindent
 
 set tabstop=8               " An indentation every four columns
@@ -1398,8 +1452,6 @@ set magic
 "set ttyfast
 set wildmenu                    " Show list instead of just completing
 set wildmode=list:longest,full  " Command <Tab> completion, list matches, then longest common part, then all.
-
-
 
 "set virtualedit=onemore        " Allow for cursor beyond last character
 "set showbreak=>>>
@@ -1564,9 +1616,7 @@ map zl zL
 map zh zH
 
 
-" ######################################################################################################
-" ######################################################################################################
-" ######################################################################################################
+" ================================================================================================================
 " ================================================================================================================
 " ================================================================================================================
 " ================================================================================================================
@@ -1574,7 +1624,8 @@ map zh zH
 
 
 " Catch all for shitty terminals.
-if $TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || ($SYSID ==# 'FreeBSD' && $TERM ==# 'xterm')
+if $TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT)
+        \ || ($SYSID ==# 'FreeBSD' && $TERM ==# 'xterm')
     set notermguicolors
     colo default
     set background=dark
@@ -1647,22 +1698,29 @@ noremap <leader>bg :call ToggleBG()<CR>
 " Save changes to a buffer as a diff file, leaving the original file untouched.
 command -nargs=1 Sdiff execute 'w !diff -au "%" - > ' . "<args>"
 
+function! ToggleList()
+    if &list
+        set nolist
+    else
+        set list
+    endif
+endfunction
+
 
 " ================================================================================================================
 " ### MY MAPPINGS ###
 
 nnoremap <leader>p "+p
 nnoremap <leader>yy "+yy"*yy
-vnoremap <leader>y "+y
+vnoremap <leader>y "*y
 
 nnoremap <leader>ww :w<CR>
-nnoremap <leader>qq :q!<CR>
-nnoremap <leader>QQ :qa!<CR>
+nnoremap <leader>QA :qa!<CR>
 
 nnoremap <leader>buf :buffers<CR>
 command Config e $MYVIMRC
 
-nnoremap <leader>nl :set nolist<CR>
+nnoremap <leader>nl ToggleList()
 
 " ================================================================================================================
 " Neovim Terminal Config
@@ -1726,11 +1784,11 @@ endfunction
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 
-if exists('$NVIM_QT')
-    augroup NvimQt
-        autocmd BufAdd,BufCreate,BufRead,BufNew,BufEnter * GuiLinespace 1
-    augroup END
-endif
+"if exists('$NVIM_QT')
+"    augroup NvimQt
+"        autocmd BufEnter * GuiLinespace 1
+"    augroup END
+"endif
 
 "if has('clipboard')
 "if has('unnamedplus')  " When possible use + register for copy-paste

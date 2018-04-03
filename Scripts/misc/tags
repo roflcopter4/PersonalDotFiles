@@ -1,0 +1,38 @@
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+BeautifyBash	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^class BeautifyBash:$/;"	c	language:Python
+beautify_file	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def beautify_file(self, path):$/;"	m	language:Python	class:BeautifyBash
+beautify_string	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def beautify_string(self, data, path=''):$/;"	m	language:Python	class:BeautifyBash
+check_short_tar	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^check_short_tar() {$/;"	f	language:Sh
+cmd_bsdtar	/home/bml/personaldotfiles/Scripts/misc/xtar-1.0.sh	/^cmd_bsdtar() {$/;"	f	language:Sh
+cmd_exists	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^cmd_exists() {$/;"	f	language:Sh
+cmd_tar	/home/bml/personaldotfiles/Scripts/misc/xtar-1.0.sh	/^cmd_tar() {$/;"	f	language:Sh
+ComplainAboutLousyGetoptImplementation	/home/bml/personaldotfiles/Scripts/misc/mktar-2.0.sh	/^ComplainAboutLousyGetoptImplementation() {$/;"	f	language:Sh
+ComplainAboutLousyGetoptImplementation	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^ComplainAboutLousyGetoptImplementation() {$/;"	f	language:Sh
+determine_decompressor	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^determine_decompressor() {$/;"	f	language:Sh
+DoEverything	/home/bml/personaldotfiles/Scripts/misc/xtar-1.0.sh	/^DoEverything() {$/;"	f	language:Sh
+do_extract	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^do_extract() {$/;"	f	language:Sh
+extract_else	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^extract_else() {$/;"	f	language:Sh
+extract_tar	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^extract_tar() {$/;"	f	language:Sh
+FindExistChecker	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^FindExistChecker() {$/;"	f	language:Sh
+get_ext	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^get_ext() {$/;"	f	language:Sh
+get_odir	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^get_odir() {$/;"	f	language:Sh
+handle_conflict	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^handle_conflict() {$/;"	f	language:Sh
+handle_failure	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^handle_failure() {$/;"	f	language:Sh
+handle_special_cases	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^handle_special_cases() {$/;"	f	language:Sh
+main	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def main(self):$/;"	m	language:Python	class:BeautifyBash
+make_link	/home/bml/personaldotfiles/Scripts/misc/link_scripts.sh	/^make_link() {$/;"	f	language:Sh
+Make_Top_Dir	/home/bml/personaldotfiles/Scripts/misc/mktar-2.0.sh	/^Make_Top_Dir() {$/;"	f	language:Sh
+POSIXHAX_CheckArray	/home/bml/personaldotfiles/Scripts/misc/xtar-1.0.sh	/^POSIXHAX_CheckArray() {$/;"	f	language:Sh
+PVERSION	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^PVERSION = '1.0'$/;"	v	language:Python
+read_file	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def read_file(self, fp):$/;"	m	language:Python	class:BeautifyBash
+relative_path	/home/bml/personaldotfiles/Scripts/misc/mktar-2.0.sh	/^relative_path() {$/;"	f	language:Sh
+rel_path	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^rel_path() {$/;"	f	language:Sh
+showUsage	/home/bml/personaldotfiles/Scripts/misc/comprat.sh	/^showUsage() {$/;"	f	language:Sh
+ShowUsage	/home/bml/personaldotfiles/Scripts/misc/link_scripts.sh	/^ShowUsage() {$/;"	f	language:Sh
+ShowUsage	/home/bml/personaldotfiles/Scripts/misc/mktar-1.0.sh	/^ShowUsage() {$/;"	f	language:Sh
+ShowUsage	/home/bml/personaldotfiles/Scripts/misc/mktar-2.0.sh	/^ShowUsage() {$/;"	f	language:Sh
+showUsage	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/pickCC.sh	/^showUsage(){$/;"	f	language:Sh
+ShowUsage	/home/bml/personaldotfiles/Scripts/misc/xtar-1.0.sh	/^ShowUsage() {$/;"	f	language:Sh
+ShowUsage	/home/bml/personaldotfiles/Scripts/misc/xtar-2.0.sh	/^ShowUsage() {$/;"	f	language:Sh
+write_file	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def write_file(self, fp, data):$/;"	m	language:Python	class:BeautifyBash
+__init__	/home/bml/personaldotfiles/Scripts/misc/OldOrTerrible/beautifysh.py	/^    def __init__(self):$/;"	m	language:Python	class:BeautifyBash

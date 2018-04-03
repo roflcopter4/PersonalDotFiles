@@ -1,20 +1,29 @@
 BasedOnStyle: LLVM
 
-# Allman Style
+# ##Allman##
 #BreakBeforeBraces: Allman
+#SpaceBeforeParens: ControlStatements
 #IndentCaseLabels: true
 #IndentWidth: 4
-#TabWidth: 4
+# ##END##
+
+# ##GNU##
+#BreakBeforeBraces: GNU
+#SpaceBeforeParens: ControlStatements
+#IndentCaseLabels: false
+#IndentWidth: 8
+# ##END##
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakTemplateDeclarations: true
-BreakStringLiterals: true
 BinPackParameters: false
 BinPackArguments: false
 
-AlignTrailingComments: true
+AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
-PointerAlignment: Right
+AlignConsecutiveAssignments: true
+AlignTrailingComments: true
+AlignOperands: true
 
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
@@ -26,11 +35,19 @@ AlwaysBreakAfterReturnType: AllDefinitions
 IndentPPDirectives: AfterHash
 MaxEmptyLinesToKeep: 2
 
-# Linux Style
+BreakStringLiterals: true
+PointerAlignment: Right
+ReflowComments: true
+SortIncludes: true
+
+# ##Linux##
 BreakBeforeBraces: Linux
 SpaceBeforeParens: ControlStatements
 IndentCaseLabels: false
 IndentWidth: 8
+# ##END##
 
 UseTab: Never
 ColumnLimit: 80
+
+ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F', 'foreach_FC', 'foreach_DL', 'foreach_DLC']

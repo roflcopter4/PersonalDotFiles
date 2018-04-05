@@ -150,7 +150,7 @@ export IS_ZSH='true'
 SourceIfExist "${HOME}/.aliases"
 
 #[[ "$(command -v ag)" ]] && export FZF_DEFAULT_COMMAND='ag --hidden -u --ignore .git --ignore .vimbackup --ignore .vimviews --ignore .vimundo -g ""'
-[[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"
+#[[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"
 export LESS='-R -M --shift 5 -i'
 export DISTCC_HOSTS="${DISTCC_HOSTS}${DISTCC_HOSTS:+:}+zeroconf"
 export MANWIDTH=120
@@ -182,42 +182,6 @@ xcd() {
     xtar "$Archive" "$OutDir" && cd "$OutDir"
 }
 
-
-# xcd() {
-#     if [[ "$#" -eq 0 ]] || [[ "$1" == '-h' ]] || [[ "$1" == '--help' ]]; then
-#         printf "%s\n\n%s%s\n" "USAGE: $0 [ ARCHIVE ]" "Extracts an archive " \
-#                "with xtar or 7z and cd's to the extracted directory."
-#         return 1
-#     elif [[ -z "$(command -v xtar)" ]]; then
-#         echo "ERROR: xtar not found in path."
-#         return 2
-#     elif [[ -z "$(command -v 7z)" ]]; then
-#         echo "ERROR: 7z not found in path."
-#         return 2
-#     fi
-# 
-#     Timestamp=$(date +%s)
-#     Archive="$1"
-#     base=$(echo "$Archive" | perl -pe 's/(.*?)\.(tar.*|tgz|txz|tbz)/$1/')
-#     if [[ "$base" == "$Archive" ]]; then
-#         base=$(echo "$Archive" | perl -pe 's/(.*?)\.(zip|rar|7z|gz|bz2|xz)/$1/')
-#         if [[ "$base" == "$Archive" ]]; then
-#             #echo "ERROR: Unknown filetype, refusing to extract."
-#             #return 3
-#         #else
-#             #if [[ -d "$base" ]]; then OutDir="$base-$Timestamp"; else OutDir="$base"; fi
-#             #echo "Extracting ${Archive} with 7z"
-#             #7z x "$Archive" -o"$OutDir"
-#             #cd "$OutDir"
-#         fi
-#     fi
-#     #else
-#     if [[ -d "$base" ]]; then OutDir="$base-$Timestamp"; else OutDir="$base"; fi
-#     echo "Extracting ${Archive} with xtar"
-#     xtar -q "$Archive" "$OutDir"
-#     cd "$OutDir"
-#     #fi
-# }
 
 dwx() {
     if [[ "$#" -eq 0 ]] || [[ "$1" == '-h' ]] || [[ "$1" == '--help' ]]; then
@@ -281,28 +245,12 @@ wutall() {
 }
 
 
-# cd () {
-    #(( ${#argv} == 0 )) && builtin cd && return
-
-    #local CD_CMD
-    #if [[ "$(command -v cdd)" ]]; then
-        #CD_CMD="__enhancd::cd"
-    #else
-        #CD_CMD='builtin cd'
-    #fi
-
-    #if (( ${#argv} == 1 )); then
-        #if [[ -f ${1} ]]; then
-            #[[ ! -e ${1:h} ]] && return 1
-            #print "Correcting ${1} to ${1:h}"
-            #$CD_CMD ${1:h}
-        #elif [[ "${1}" == '..' ]]; then
-            #builtin cd '..'
-        #fi
-    #else
-        #$CD_CMD $@
-    #fi
-#}
+COL() {(
+    local PROGTYPE
+    setopt shwordsplit
+    [[ $# -gt 0 ]] && ! [[ "$1" =~ '^-' ]] && PROGTYPE=" --syntax=$1" && shift
+    ${LESSCOLORIZER}${PROGTYPE} "$@"
+)}
 
 
 
@@ -414,9 +362,6 @@ bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 ## don't warn me about bg processes when exiting
 #setopt nocheckjobs
 
-## alert me if something failed
-#setopt printexitvalue
-
 ## Allow comments even in interactive shells
 #setopt interactivecomments
 
@@ -472,19 +417,7 @@ bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 ## get top 10 shell commands:
 alias top10='print -l ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
 
-## Execute \kbd{./configure}
-#alias CO="./configure"
-
-## Execute \kbd{./configure --help}
-#alias CH="./configure --help"
-
 ## miscellaneous code ##
-
-## Use a default width of 80 for manpages for more convenient reading
-#export MANWIDTH=${MANWIDTH:-80}
-
-## Set a search path for the cd builtin
-#cdpath=(.. ~)
 
 ## variation of our manzsh() function; pick you poison:
 #manzsh()  { /usr/bin/man zshall |  most +/"$1" ; }

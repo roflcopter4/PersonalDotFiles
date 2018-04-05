@@ -2,3 +2,5 @@ core
 *.o
 *.so
 *.ps
+tags
+.tags

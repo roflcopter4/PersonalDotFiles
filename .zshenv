@@ -20,11 +20,13 @@
 # Global Order: zshenv, zprofile, zshrc, zlogin
 ################################################################################
 
-[[ -f /etc/profile ]] && source /etc/profile
-[[ -r /etc/environment ]] && source /etc/environment
+if [[ -o interactive ]]; then
+    [[ -f /etc/profile ]] && source /etc/profile
+    [[ -r /etc/environment ]] && source /etc/environment
 
-# NO FUCKING MANPATHS
-[[ -n "$MANPATH" ]] && unset MANPATH
+    # NO FUCKING MANPATHS
+    [[ -n "$MANPATH" ]] && unset MANPATH
+fi
 
 # Get global operating system ID file. If you didn't make one, then MAKE ONE.
 if [[ -f /etc/SYSID ]]; then
@@ -33,7 +35,7 @@ elif [[ -f /usr/local/etc/SYSID ]]; then
     export SYSID=$(cat /usr/local/etc/SYSID)
 elif [[ -f "${HOME}/.SYSID" ]]; then
     export SYSID=$(cat "${HOME}/.SYSID")
-else
+elif [[ -o interactive ]]; then
     echo "DEFINE SYSID YOU LAZY PRICK"
 fi
 
@@ -48,17 +50,19 @@ if [[ -x /usr/bin/id ]] ; then
     [[ $LOGNAME == LOGIN ]] && LOGNAME=$(/usr/bin/id -un)
 fi
 
-typeset -a lp; lp=( ${^path}/lesspipe(N) )
-if (( $#lp > 0 )) && [[ -x $lp[1] ]] ; then
-    export LESSOPEN="|lesspipe %s"
-elif [[ -x /usr/bin/lesspipe.sh ]] ; then
-    export LESSOPEN="|lesspipe.sh %s"
+if [[ -o interactive ]]; then
+    typeset -a lp; lp=( ${^path}/lesspipe(N) )
+    if (( $#lp > 0 )) && [[ -x $lp[1] ]] ; then
+        export LESSOPEN="|lesspipe %s"
+    elif [[ -x /usr/bin/lesspipe.sh ]] ; then
+        export LESSOPEN="|lesspipe.sh %s"
+    fi
+    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=molokai"
+    unset lp
+    export READNULLCMD=${PAGER:-/usr/bin/pager}
+    # MAKEDEV should be usable on udev as well by default:
+    export WRITE_ON_UDEV=yes
 fi
-command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=molokai"
-unset lp
-export READNULLCMD=${PAGER:-/usr/bin/pager}
-# MAKEDEV should be usable on udev as well by default:
-export WRITE_ON_UDEV=yes
 
 
 case "$SYSID" in
@@ -76,15 +80,24 @@ case "$SYSID" in
         export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
         alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
         ;;
+    'FreeBSD')
+        export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
+        ;;
+    'DragonFly')
+        export path=( /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /usr/games /sbin /bin "${HOME}/bin" )
+        ;;
+    'ArchLinux'|'Artix')
+        export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
+        ;;
 esac
 
-if [[ "$(uname)" == 'FreeBSD' ]]; then
-    export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
-elif [[ "$(uname)" == 'DragonFly' ]]; then
-    export path=( /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /usr/games /sbin /bin "${HOME}/bin" )
-elif [[ "$(uname -r)" =~ 'ARCH' ]]; then
-    export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
-fi
+#if [[ "$(uname)" == 'FreeBSD' ]]; then
+#    export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
+#elif [[ "$(uname)" == 'DragonFly' ]]; then
+#    export path=( /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /usr/games /sbin /bin "${HOME}/bin" )
+#elif [[ "$(uname -r)" =~ 'ARCH' ]]; then
+#    export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
+#fi
 
 export GOPATH=/opt/go
 export path=( $path /opt/go/bin )

@@ -310,9 +310,11 @@ if dein#load_state(expand(g:load_path))
 
     "call AddPlugin('xolox/vim-easytags')
     "call AddPlugin('ludovicchabant/vim-gutentags')
-    "call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+    call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     "call AddPlugin('cquery-project/cquery')
     call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
+    call AddPlugin('Shougo/neosnippet.vim')
+    call AddPlugin('Shougo/neosnippet-snippets')
 
     call AddPlugin('xolox/vim-misc')
     call AddPlugin('xolox/vim-shell')
@@ -327,7 +329,6 @@ if dein#load_state(expand(g:load_path))
     "call dein#add('app-vim/searchcomplete')
     "call AddPlugin('nathanaelkane/vim-indent-guides')
     "call AddPlugin('maralla/validator.vim')
-    "call AddPlugin('neomake/neomake')
 
     if !exists('g:ONI')
         call AddPlugin('Yggdroot/indentLine')
@@ -336,12 +337,15 @@ if dein#load_state(expand(g:load_path))
     if has('nvim')
         if g:use_ale == 1
             call AddPlugin('w0rp/ale')
+        else
+            call AddPlugin('neomake/neomake')
         endif
         if g:use_deoplete == 1
             call AddPlugin('Shougo/deoplete.nvim')
             call AddPlugin('zchee/deoplete-jedi')
             call AddPlugin('Shougo/neco-vim')
             call AddPlugin('artur-shaik/vim-javacomplete2')
+            call AddPlugin('zchee/deoplete-clang')
         else
             call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
             call AddPlugin('rdnetto/YCM-Generator')
@@ -367,6 +371,8 @@ if dein#load_state(expand(g:load_path))
         call AddPlugin('vim-airline/vim-airline-themes')
     endif
     call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
+
+    call AddPlugin('Shougo/unite.vim')
      
       
     " Colour Schemes ----------------
@@ -589,6 +595,8 @@ if IsSourced('ctrlp.vim')
         "funky
         nnoremap <Leader>fu :CtrlPFunky<Cr>
     endif
+
+    :source ~/personaldotfiles/.Vim/ctrlp.vim
 endif
 
 
@@ -757,50 +765,52 @@ endif
 
 " ### NEOMAKE ###
 if IsSourced('neomake')
-    let g:neomake_c_lint_maker = {
-        \ 'exe': 'lint',
-        \ 'args': ['--option', 'x'],
-        \ 'errorformat': '%f:%l:%c: %m',
-        \ }
-    let g:neomake_error_sign = {
-                \ 'text': '>>',
-                \ 'texthl': 'ErrorMsg',
-                \ }
-    hi MyWarningMsg ctermbg=3 ctermfg=0
-    let g:neomake_warning_sign = {
-                \ 'text': '>>',
-                \ 'texthl': 'MyWarningMsg',
-                \ }
-    "Disable inherited syntastic
-    let g:syntastic_mode_map = {
-        \ 'mode': 'passive',
-        \ 'active_filetypes': [],
-        \ 'passive_filetypes': []
-        \ }
-         
-    let g:neomake_serialize = 1
-    let g:neomake_serialize_abort_on_error = 1
-    let g:neomake_highlight_lines = 1
-    let g:neomake_place_signs=0
-    let g:neomake_verbose=2
-    let g:neomake_echo_current_error=1
-    let g:neomake_open_list=0
-    let g:neomake_c_enabled_makers=['gcc']
-    let g:neomake_c_enabled_makers=['clangcheck']
-    let g:neomake_make_maker = {
-        \ 'exe': 'make',
-        \ 'args': ['--build'],
-        \ 'errorformat': '%f:%l:%c: %m',
-        \ }
-    
-    augroup my_neomake_highlights
-        au!
-        autocmd ColorScheme *
-          \ hi link NeomakeError SpellBad |
-          \ hi link NeomakeWarning SpellCap
-    augroup END
-    
-    autocmd! BufReadPost,BufWritePost * Neomake
+    " let g:neomake_c_lint_maker = {
+        " \ 'exe': 'lint',
+        " \ 'args': ['--option', 'x'],
+        " \ 'errorformat': '%f:%l:%c: %m',
+        " \ }
+    " let g:neomake_error_sign = {
+                " \ 'text': '>>',
+                " \ 'texthl': 'ErrorMsg',
+                " \ }
+    " hi MyWarningMsg ctermbg=3 ctermfg=0
+    " let g:neomake_warning_sign = {
+                " \ 'text': '>>',
+                " \ 'texthl': 'MyWarningMsg',
+                " \ }
+    " Disable inherited syntastic
+    " let g:syntastic_mode_map = {
+        " \ 'mode': 'passive',
+        " \ 'active_filetypes': [],
+        " \ 'passive_filetypes': []
+        " \ }
+"
+    " let g:neomake_serialize = 1
+    " let g:neomake_serialize_abort_on_error = 1
+    " let g:neomake_highlight_lines = 1
+    " let g:neomake_place_signs=0
+    " let g:neomake_verbose=2
+    " let g:neomake_echo_current_error=1
+    " let g:neomake_open_list=0
+    let g:neomake_c_enabled_makers=['gcc', 'clangcheck', 'clangtidy']
+    "let g:neomake_c_enabled_makers=['clangcheck']
+    "let g:neomake_c_enabled_makers=['clangtidy']
+    " let g:neomake_make_maker = {
+        " \ 'exe': 'make',
+        " \ 'args': ['--build'],
+        " \ 'errorformat': '%f:%l:%c: %m',
+        " \ }
+"
+    " augroup my_neomake_highlights
+        " au!
+        " autocmd ColorScheme *
+          " \ hi link NeomakeError SpellBad |
+          " \ hi link NeomakeWarning SpellCap
+    " augroup END
+"
+    " autocmd! BufReadPost,BufWritePost * Neomake
+    :source ~/personaldotfiles/.Vim/neomake.vim
 endif
 
 
@@ -821,7 +831,7 @@ if IsSourced('ale')
                                       \ '-llvm-header-guard']
 
         let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
-        call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*'])
+        call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*, -*fuchsia*'])
                                         
 
         let b:ale_linters_c = {'c':   ['gcc', 'clangtidy', 'cppcheck'],
@@ -852,6 +862,7 @@ if IsSourced('ale')
     "                           \}
 
     ca ale ALE
+    :source ~/personaldotfiles/.Vim/ale.vim
 endif
 
 
@@ -865,17 +876,8 @@ if IsSourced('vim-easytags')
     let g:easytags_python_enabled = 0
     let g:easytags_dynamic_files = 2
     set tags=./tags;
-    "if LINUX() || ( IsSourced('vim-shell') && IsSourced('vim-misc') )
-    "    let g:easytags_async = 1
-    "endif
     nnoremap <leader>tag :UpdateTags<CR>
     nnoremap <leader>tah :HighlightTags<CR>
-    "if $IS_CYGWIN && !CYGWIN()
-        "set tags=expand("$USERPROFILE/_vimtags"),expand("$USERPROFILE/_vimtags")
-        "let s:vimtags_file = expand('$USERPROFILE/_vimtags')
-        "let &tags = s:vimtags_file . ',' . &tags
-    "endif
-
     "let g:easytags_autorecurse = 1
     "let g:easytags_include_members = 1
     let g:easytags_async = 1
@@ -895,26 +897,45 @@ endif
 
 " ### DEOCOMPLETE ###
 if IsSourced('deoplete.nvim')
-    let g:deoplete#enable_at_startup = 1
-    if !exists('g:deoplete#omni#input_patterns')
-        let g:deoplete#omni#input_patterns = {}
-    endif
+    " let g:deoplete#enable_at_startup = 1
+    " if !exists('g:deoplete#omni#input_patterns')
+        " let g:deoplete#omni#input_patterns = {}
+    " endif
+    :source /home/bml/personaldotfiles/.Vim/deoplete.vim
+    
 
     " let g:deoplete#disable_auto_complete = 1
 
     " deoplete tab-complete
     inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
-    inoremap <expr> <CR> pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
+    "inoremap <expr> <CR> pumvisible() ? "\<C-y>\<CR>" : "\<CR>"
     "imap <expr><CR> pumvisible() ? "<c-y><CR>" : <CR>
     "inoremap <buffer> <silent> <CR> <C-R>=AutoPairsReturn()<CR>
     "inoremap <expr><CR> pumvisible() ? deoplete#smart_close_popup() : "\<CR>"
     "inoremap <expr><CR> pumvisible() ? deoplete#smart_close_popup()  "\<CR>" : "\<CR>"
 
-    augroup DeocompleteSetup
-        autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
-        " tern
-        autocmd FileType javascript nnoremap <silent> <buffer> gb :TernDef<CR>
-    augroup END
+    "augroup DeocompleteSetup
+    "    autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+    "    " tern
+    "    autocmd FileType javascript nnoremap <silent> <buffer> gb :TernDef<CR>
+    "augroup END
+    " Use smartcase.
+    let g:deoplete#enable_smart_case = 1
+
+    " <C-h>, <BS>: close popup and delete backword char.
+    inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
+    inoremap <expr><BS>  deoplete#smart_close_popup()."\<C-h>"
+
+    " <CR>: close popup and save indent.
+    inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+    function! s:my_cr_function() abort
+        return deoplete#close_popup() . "\<CR>"
+    endfunction
+    
+    if IsSourced('zchee/deoplete-clang')
+        g:deoplete#sources#clang#libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
+        g:deoplete#sources#clang#clang_header = '/usr/lib64/clang/7.0.0/include'
+    endif
 endif
 
 
@@ -1088,7 +1109,7 @@ if IsSourced('neotags.nvim')
     let g:neotags_enabled = 1
     let g:neotags_highlight = 1
     let g:neotags_run_ctags = 1
-    let g:neotags_verbose = 1
+    "let g:neotags_verbose = 1
 
     let g:neotags#c#order = 'cgstuedfpm'
     let g:neotags#cpp#order = 'cgstuedfpm'
@@ -1137,11 +1158,21 @@ if IsSourced('LanguageClient-neovim')
         \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
         \ 'c': ['cquery', '--log-file=/tmp/cq.log'],
         \ } 
+    "let g:LanguageClient_serverCommands = {
+        "\ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
+        "\ 'c': ['clangd']
+        "\ } 
+    let g:LanguageClient_diagnosticsEnable = 0
+
+    let g:LanguageClient_autoStart = 1
+    let g:LanguageClient_trace = 'verbose'
 
     let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings 
     let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
-    set completefunc=LanguageClient#complete
-    set formatexpr=LanguageClient_textDocument_rangeFormatting()
+    "set completefunc=LanguageClient#complete
+    "set formatexpr=LanguageClient_textDocument_rangeFormatting()
+
+    nnoremap <silent> <leader>h :call LanguageClient_textDocument_hover()<CR>
 
     nnoremap <silent> <leader>gh :call LanguageClient_textDocument_hover()<CR>
     nnoremap <silent> <leader>gd :call LanguageClient_textDocument_definition()<CR>
@@ -1150,6 +1181,11 @@ if IsSourced('LanguageClient-neovim')
     nnoremap <silent> <leader><F2> :call LanguageClient_textDocument_rename()<CR>
 
     let g:LanguageClient_serverCommands.rust = ['rustup', 'run', 'nightly', 'rls']
+endif
+
+
+if IsSourced('unite.vim')
+    :source ~/personaldotfiles/.Vim/unite.vim
 endif
 
 

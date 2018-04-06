@@ -21,7 +21,7 @@ BinPackArguments: false
 
 AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
-AlignConsecutiveAssignments: true
+#AlignConsecutiveAssignments: true
 AlignTrailingComments: true
 AlignOperands: true
 

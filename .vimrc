@@ -63,6 +63,7 @@ let g:spf13_keep_trailing_whitespace = 1
 let g:spf13_no_omni_complete = 1
 let g:spf13_no_fastTabs = 1
 let g:spf13_no_restore_cursor = 1
+let g:spf13_no_autochdir = 1
 "let g:spf13_no_easyWindows = 0
 
 
@@ -228,6 +229,7 @@ if dein#load_state(expand(g:load_path))
       
     " General Programming -----
     call AddPlugin('tpope/vim-fugitive')
+    "call AddPlugin("bling/vim-bufferline")
     call AddPlugin('mattn/webapi-vim')
     call AddPlugin('mattn/gist-vim')
     call AddPlugin('scrooloose/nerdcommenter')
@@ -336,9 +338,9 @@ if dein#load_state(expand(g:load_path))
 
     if has('nvim')
         if g:use_ale == 1
-            call AddPlugin('w0rp/ale')
+            call AddPlugin('w0rp/ale', {'merged': 0})
         else
-            call AddPlugin('neomake/neomake')
+            call AddPlugin('neomake/neomake', {'merged': 0})
         endif
         if g:use_deoplete == 1
             call AddPlugin('Shougo/deoplete.nvim')
@@ -728,27 +730,29 @@ if IsSourced('vim-airline')
         let g:airline_powerline_fonts = 1
     endif
 
-    let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
+    "let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tagbar#enabled = 1
     let g:airline#extensions#tabline#buffer_nr_show = 1
     let g:airline#extensions#whitespace#enabled = 0
+    let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
     let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
+
     nnoremap <silent> <leader>al :AirlineRefresh<CR>
     if IsSourced('vim-airline-themes') && $TERM !=# 'linux'
         "let g:airline_theme = 'molokai'
         let g:airline_theme = 'papercolor'
     endif
 
-    augroup Airline
-        autocmd!
-        autocmd BufNew,BufAdd * call airline#update_statusline()
-        "autocmd BufRead,BufEnter * :AirlineRefresh
-        autocmd BufEnter * call airline#update_statusline()
-        autocmd BufReadPost * call airline#update_statusline()
-        autocmd BufWinEnter * call airline#update_statusline()
-        autocmd BufHidden * call airline#update_statusline()
-    augroup END
+    "augroup Airline
+    "    autocmd!
+    "    autocmd BufNew,BufAdd * call airline#update_statusline()
+    "    "autocmd BufRead,BufEnter * :AirlineRefresh
+    "    autocmd BufEnter * call airline#update_statusline()
+    "    autocmd BufReadPost * call airline#update_statusline()
+    "    autocmd BufWinEnter * call airline#update_statusline()
+    "    autocmd BufHidden * call airline#update_statusline()
+    "augroup END
 
     nnoremap <silent> <leader>bn :bp<CR>:call airline#update_statusline()<CR>
     nnoremap <silent> <leader>bm :bn<CR>:call airline#update_statusline()<CR>
@@ -821,11 +825,17 @@ if IsSourced('ale')
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 0
     let g:ale_linters_explicit = 0
+    let g:ale_open_list = 1
+    let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
 
+    function! Find_File_Cwd()
+        return fnamemodify(expand('%:p'), ':h')
+    endfunction
+
     " C, C++, C# {
-        let g:ale_c_gcc_options   = '-Wall -Iinc -Wpedantic -Wextra'
-        let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc'
+        let g:ale_c_gcc_options   = '-Wall -Wpedantic -Wextra -Iinc -iinclude -i..'
+        let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -i..'
 
         let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*',
                                       \ '-llvm-header-guard']
@@ -833,9 +843,10 @@ if IsSourced('ale')
         let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
         call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*, -*fuchsia*'])
                                         
+        let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
 
-        let b:ale_linters_c = {'c':   ['gcc', 'clangtidy', 'cppcheck'],
-                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck']
+        let b:ale_linters_c = {'c': s:ALE_C,
+                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck', 'flawfinder']
                              \ }
     "}
 
@@ -856,12 +867,17 @@ if IsSourced('ale')
     call extend(g:ale_linters, b:ale_linters_py)
     call extend(g:ale_linters, b:ale_linters_perl)
 
+    augroup CloseLoclistWindowGroup
+        autocmd!
+        autocmd QuitPre * if empty(&buftype) | lclose | endif
+    augroup END
+
 
     "let g:ale_linter_aliases = { 'zsh': 'sh',
     "                           \ 'csh': 'sh'
     "                           \}
 
-    ca ale ALE
+    "ca ale ALE
     :source ~/personaldotfiles/.Vim/ale.vim
 endif
 
@@ -1113,6 +1129,10 @@ if IsSourced('neotags.nvim')
 
     let g:neotags#c#order = 'cgstuedfpm'
     let g:neotags#cpp#order = 'cgstuedfpm'
+
+    "let g:neotags_events_highlight = ['BufEnter']
+    "let g:neotags_events_highlight = ['Syntax', 'FileType']
+    let g:neotags_events_rehighlight = []
 
     highlight def link cEnumTag Enum
     highlight def link cMemberTag CMember
@@ -1819,6 +1839,7 @@ endfunction
 
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
+command! RecacheRunetimepath call dein#recache_runtimepath()
 
 "if exists('$NVIM_QT')
 "    augroup NvimQt

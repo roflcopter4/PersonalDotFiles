@@ -16,19 +16,30 @@ if !empty(s:neomake_automake_events)
   endtry
 endif
 " 1 open list and move cursor 2 open list without move cursor
-let g:neomake_open_list = get(g:, 'neomake_open_list', 2)
+let g:neomake_open_list = 2
 let g:neomake_verbose = 1
-let g:neomake_java_javac_delete_output = get(g:, 'neomake_java_javac_delete_output', 0)
-let g:neomake_error_sign = get(g:, 'neomake_error_sign', {
-      \ 'text': get(g:, 'spacevim_error_symbol', '✖'),
-      \ })
+let g:neomake_java_javac_delete_output = 0
+let g:neomake_error_sign =  {
+      \ 'text': '✖',
+      \ }
       "\ 'texthl': (g:spacevim_colorscheme ==# 'gruvbox' ? 'GruvboxRedSign' : 'error'),
-let g:neomake_warning_sign = get(g:, 'neomake_warning_sign', {
-      \ 'text': get(g:,'spacevim_warning_symbol', '➤'),
-      \ })
+let g:neomake_warning_sign = {
+      \ 'text': '➤',
+      \ }
       "\ 'texthl': (g:spacevim_colorscheme ==# 'gruvbox' ? 'GruvboxYellowSign' : 'todo'),
-let g:neomake_info_sign = get(g:, 'neomake_info_sign', {
-      \ 'text': get(g:,'spacevim_info_symbol', '~'),
-      \ })
+let g:neomake_info_sign = {
+      \ 'text': '~',
+      \ }
       "\ 'texthl': (g:spacevim_colorscheme ==# 'gruvbox' ? 'GruvboxYellowSign' : 'todo'),
 " vim:set et sw=2:
+
+
+let g:neomake_c_newgcc_maker = {
+        \'errorformat': '%-G%f:%s:,%-G%f:%l: %#error: %#(Each undeclared identifier is reported only%.%#,%-G%f:%l:'
+                     \. ' %#error: %#for each function it appears%.%#,%-GIn file included%.%#,%-G %#from %f:%l\,,%f:%l:%c: %trror: %m,%f:%l:%c: %tarning:'
+                     \. ' %m,%I%f:%l:%c: note: %m,%f:%l:%c: %m,%f:%l: %trror: %m,%f:%l: %tarning: %m,%I%f:%l: note: %m,%f:%l: %m',
+        \ 'args': ['-fsyntax-only', '-Wall', '-Wextra', '-I./', '-I..', '-Iinc', '-Iinclude', ],
+        \ 'exe': 'gcc'
+\ }
+
+let g:neomake_c_enabled_makers = ['clangtidy', 'cppcheck', 'newgcc']

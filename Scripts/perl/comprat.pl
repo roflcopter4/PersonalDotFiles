@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use strict; use warnings; use v5.26;
+use strict; use warnings; use v5.22;
 use Carp;
 
 if ( @ARGV == 0 or @ARGV > 1 or $ARGV[0] =~ /-{1,2}(?:h|help)/ ) {
@@ -9,7 +9,7 @@ if ( @ARGV == 0 or @ARGV > 1 or $ARGV[0] =~ /-{1,2}(?:h|help)/ ) {
 }
 
 my $file = $ARGV[0];
-unless ( -e $file and not -d $file ) {
+if ( not -e $file or -d $file ) {
     die "File '$file' either doesn't exist or is a directory.";
 }
 

@@ -32,7 +32,7 @@ AllowShortFunctionsOnASingleLine: None
 
 SpaceBeforeAssignmentOperators: true
 AlwaysBreakAfterReturnType: AllDefinitions
-IndentPPDirectives: AfterHash
+#IndentPPDirectives: AfterHash
 MaxEmptyLinesToKeep: 2
 
 BreakStringLiterals: true

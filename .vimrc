@@ -310,10 +310,10 @@ if dein#load_state(expand(g:load_path))
     call AddPlugin('tpope/vim-markdown')
     call AddPlugin('vim-scripts/Vimball')
 
-    "call AddPlugin('xolox/vim-easytags')
+    "call AddPlugin('xolox/vim-easytags', {'merged': 0})
     "call AddPlugin('ludovicchabant/vim-gutentags')
+    "call AddPlugin('Chilledheart/vim-clangd')
     call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
-    "call AddPlugin('cquery-project/cquery')
     call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
     call AddPlugin('Shougo/neosnippet.vim')
     call AddPlugin('Shougo/neosnippet-snippets')
@@ -537,7 +537,7 @@ if IsSourced('python-mode')
 
     let g:pymode_indent = 1
     let g:pymode_options_colorcolumn = 0
-    let g:pymode_python = 'python3'
+    let g:pymode_python = 'python'
     let g:pymode_doc = 1
     let g:pymode_doc_bind = 'K'
 
@@ -730,12 +730,12 @@ if IsSourced('vim-airline')
         let g:airline_powerline_fonts = 1
     endif
 
-    "let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
+    let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
     let g:airline#extensions#tabline#enabled = 1
     let g:airline#extensions#tagbar#enabled = 1
     let g:airline#extensions#tabline#buffer_nr_show = 1
     let g:airline#extensions#whitespace#enabled = 0
-    let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+    "let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
     let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
 
     nnoremap <silent> <leader>al :AirlineRefresh<CR>
@@ -825,7 +825,7 @@ if IsSourced('ale')
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 0
     let g:ale_linters_explicit = 0
-    let g:ale_open_list = 1
+    let g:ale_open_list = 0
     let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
 
@@ -834,7 +834,7 @@ if IsSourced('ale')
     endfunction
 
     " C, C++, C# {
-        let g:ale_c_gcc_options   = '-Wall -Wpedantic -Wextra -Iinc -iinclude -i..'
+        let g:ale_c_gcc_options   = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I..'
         let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -i..'
 
         let g:ale_c_clangtidy_checks = ['*', '-*-braces-around-statements', '-android*',
@@ -892,10 +892,11 @@ if IsSourced('vim-easytags')
     let g:easytags_python_enabled = 0
     let g:easytags_dynamic_files = 2
     set tags=./tags;
+    let &cpoptions .= 'd'
     nnoremap <leader>tag :UpdateTags<CR>
     nnoremap <leader>tah :HighlightTags<CR>
-    "let g:easytags_autorecurse = 1
-    "let g:easytags_include_members = 1
+    let g:easytags_autorecurse = 1
+    let g:easytags_include_members = 1
     let g:easytags_async = 1
     "let g:easytags_always_enabled = 1
 
@@ -908,6 +909,10 @@ if IsSourced('vim-easytags')
 
     highlight def link cMember perlSpecialChar2
     highlight def link shFunctionTag Type
+    highlight def link cEnumTag Enum
+    highlight def link cMemberTag CMember
+    highlight def link cPreProcTag PreProc
+    highlight def link cFunctionTag CFuncTag
 endif
 
 
@@ -1125,14 +1130,18 @@ if IsSourced('neotags.nvim')
     let g:neotags_enabled = 1
     let g:neotags_highlight = 1
     let g:neotags_run_ctags = 1
-    "let g:neotags_verbose = 1
+    let g:neotags_verbose = 0
+    "let g:neotags_file = expand('~/.vimtags')
 
+    "let g:neotags#c#order = 'cgstuedf'
     let g:neotags#c#order = 'cgstuedfpm'
+    "let g:neotags#c#order = 'cgstedf'
+    "let g:neotags#c#order = 'cgstuedfp'
     let g:neotags#cpp#order = 'cgstuedfpm'
 
     "let g:neotags_events_highlight = ['BufEnter']
     "let g:neotags_events_highlight = ['Syntax', 'FileType']
-    let g:neotags_events_rehighlight = []
+    "let g:neotags_events_rehighlight = []
 
     highlight def link cEnumTag Enum
     highlight def link cMemberTag CMember
@@ -1148,6 +1157,12 @@ if IsSourced('neotags.nvim')
 
     "let g:neotags#cpp#order = 'cedfm'
     "let g:neotags#c#order = 'cedfm'
+    set tags=./tags;
+    let &cpoptions .= 'd'
+
+    let g:neotags_norecurse_dirs = [$HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include', '/usr/local/share',
+                                  \ expand('~/personaldotfiles'), expand('~/random'), expand('~/random/Code'), expand('~/random/school')]
+
 endif
 
 
@@ -1208,6 +1223,17 @@ if IsSourced('unite.vim')
     :source ~/personaldotfiles/.Vim/unite.vim
 endif
 
+
+if IsSourced('nerdcommenter')
+    let g:NERDCompactSexyComs = 1
+    let g:NERDCommentEmptyLines = 1
+    let g:NERDSpaceDelims = 1
+    let g:NERDRemoveExtraSpaces = 1
+    imap <C-c> <plug>NERDCommenterInsert
+    nmap <leader>ci <plug>NERDCommenterInsert
+    nmap <leader>ce <plug>NERDCommenterAppend
+    map <leader>cd <plug>NERDCommenterInvert
+endif
 
 
 " ======================================================================================================
@@ -1641,7 +1667,7 @@ map <leader>fc /\v^[<\|=>]{7}( .*\|$)<CR>
 " Shortcuts
 
 " Change Working Directory to that of the current file
-cmap cwd lcd %:p:h
+" cmap cwd lcd %:p:h
 cmap cd. lcd %:p:h
 
 " Visual shifting (does not exit Visual mode)
@@ -1755,7 +1781,7 @@ noremap <leader>bg :call ToggleBG()<CR>
 command -nargs=1 Sdiff execute 'w !diff -au "%" - > ' . "<args>"
 
 function! ToggleList()
-    if &list
+    if &list == 1
         set nolist
     else
         set list
@@ -1776,7 +1802,8 @@ nnoremap <leader>QA :qa!<CR>
 nnoremap <leader>buf :buffers<CR>
 command Config e $MYVIMRC
 
-nnoremap <leader>nl ToggleList()
+nnoremap <leader>nl call ToggleList()
+nnoremap <leader>j :pc<CR>
 
 " ================================================================================================================
 " Neovim Terminal Config
@@ -1840,6 +1867,11 @@ endfunction
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
+
+if has('nvim')
+    let g:python3_host_prog = '/usr/bin/pypy3'
+    let g:python2_host_prog = '/usr/bin/pypy'
+endif
 
 "if exists('$NVIM_QT')
 "    augroup NvimQt

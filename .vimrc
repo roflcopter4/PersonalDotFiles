@@ -169,6 +169,25 @@ function! IsSourced(name)
     return dein#is_sourced(a:name)
 endfunction
 
+function! SourceFile(filename)
+    if CYGWIN()
+        let l:file = system('cygpath -w '. a:filename)
+        let l:file = substitute(l:file, '\%(\r\|\n\)', '', 'g')
+        echom l:file
+        echom a:filename
+        :source a:filename
+    elseif WINDOWS()
+        let l:file = system('D:/cygwin/bin/cygpath -w '. a:filename)
+        let l:file = substitute(l:file, '\%(\r\|\n\)', '', 'g')
+        !echo l:file
+        echom l:file
+        :source l:file
+    else
+        :source a:filename
+    endif
+endfunction
+
+
 if LINUX() || CYGWIN()
     let g:load_path=expand('~/.vim/dein')
     let g:dein_path=expand('~/.vim/dein/repos/github.com/Shougo/dein.vim')
@@ -313,8 +332,12 @@ if dein#load_state(expand(g:load_path))
     "call AddPlugin('xolox/vim-easytags', {'merged': 0})
     "call AddPlugin('ludovicchabant/vim-gutentags')
     "call AddPlugin('Chilledheart/vim-clangd')
-    call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
-    call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
+    if !WINDOWS()
+        call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+    endif
+    if has('nvim')
+        call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
+    endif
     call AddPlugin('Shougo/neosnippet.vim')
     call AddPlugin('Shougo/neosnippet-snippets')
 
@@ -598,7 +621,12 @@ if IsSourced('ctrlp.vim')
         nnoremap <Leader>fu :CtrlPFunky<Cr>
     endif
 
-    :source ~/personaldotfiles/.Vim/ctrlp.vim
+    " call SourceFile('~/personaldotfiles/.Vim/ctrlp.vim')
+    " if WINDOWS()
+    "     :source D:/cygwin/home/bml/personaldotfiles/.Vim/ctrlp.vim
+    " else
+    "     :source ~/personaldotfiles/.Vim/ctrlp.vim
+    " endif
 endif
 
 
@@ -814,7 +842,8 @@ if IsSourced('neomake')
     " augroup END
 "
     " autocmd! BufReadPost,BufWritePost * Neomake
-    :source ~/personaldotfiles/.Vim/neomake.vim
+    " call SourceFile(expand('~/personaldotfiles/.Vim/neomake.vim'))
+    " :source ~/personaldotfiles/.Vim/neomake.vim
 endif
 
 
@@ -878,7 +907,8 @@ if IsSourced('ale')
     "                           \}
 
     "ca ale ALE
-    :source ~/personaldotfiles/.Vim/ale.vim
+    " :source ~/personaldotfiles/.Vim/ale.vim
+    " call SourceFile(expand('~/personaldotfiles/.Vim/ale.vim'))
 endif
 
 
@@ -922,7 +952,8 @@ if IsSourced('deoplete.nvim')
     " if !exists('g:deoplete#omni#input_patterns')
         " let g:deoplete#omni#input_patterns = {}
     " endif
-    :source /home/bml/personaldotfiles/.Vim/deoplete.vim
+    " :source /home/bml/personaldotfiles/.Vim/deoplete.vim
+    " call SourceFile(expand('~/personaldotfiles/.Vim/deoplete.vim'))
     
 
     " let g:deoplete#disable_auto_complete = 1
@@ -1220,7 +1251,8 @@ endif
 
 
 if IsSourced('unite.vim')
-    :source ~/personaldotfiles/.Vim/unite.vim
+    " :source ~/personaldotfiles/.Vim/unite.vim
+    " call SourceFile(expand('~/personaldotfiles/.Vim/unite.vim'))
 endif
 
 
@@ -1233,6 +1265,18 @@ if IsSourced('nerdcommenter')
     nmap <leader>ci <plug>NERDCommenterInsert
     nmap <leader>ce <plug>NERDCommenterAppend
     map <leader>cd <plug>NERDCommenterInvert
+
+    function! FixNerdSpaces()
+        if &ft ==# 'python'
+            let g:NERDSpaceDelims = 0
+        else
+            let g:NERDSpaceDelims = 1
+        endif
+    endfunction
+
+    augroup NerdCommentSpaces
+        autocmd BufEnter * call FixNerdSpaces()
+    augroup END
 endif
 
 
@@ -1868,7 +1912,7 @@ command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
-if has('nvim')
+if has('nvim') && !WIN_OR_CYG()
     let g:python3_host_prog = '/usr/bin/pypy3'
     let g:python2_host_prog = '/usr/bin/pypy'
 endif

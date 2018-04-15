@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use strict; use warnings; use v5.22;
+use strict; use warnings; use v5.24;
 use feature qw( signatures );
 no warnings qw( experimental::signatures );
 use Carp;
@@ -8,8 +8,9 @@ use File::Temp qw( tempfile cleanup );
 
 ###############################################################################
 
-sub usage {
-    my $status = shift or confess 'Invalid usage of usage!';
+
+sub usage($status=0)
+{
     my $THIS = $0;
     $THIS =~ s|.*/(.*)|$1|;
     print << "EOF";
@@ -21,13 +22,17 @@ EOF
     exit $status;
 }
 
-sub get_cmd($program) {
+
+sub get_cmd($program)
+{
     defined($program) or croak "No program identified in commandline!\n";
     my $cmd = which($program) or croak "Command '$program' not found.\n";
     return $cmd;
 }
 
-sub get_tmp($type) {
+
+sub get_tmp($type)
+{
     if ( defined($type) ) {
         return tempfile SUFFIX => ".$type", TMPDIR => 1, CLEANUP => 1;
     }
@@ -36,7 +41,9 @@ sub get_tmp($type) {
     }
 }
 
+
 ###############################################################################
+# Main
 
 if ( @ARGV == 0 ) {
     carp "No arguments!";
@@ -75,7 +82,7 @@ while (@ARGV) {
 ###############################################################################
 # Now some processing
 
-$program = get_cmd($program);    # Dies if program doesn't exist.
+$program = get_cmd($program);  # Dies if program doesn't exist.
 my ( $FH, $tmpname ) = get_tmp($type);
 
 if ( defined($position) ) {
@@ -86,9 +93,7 @@ else {
 }
 
 # Dump stdin to the file.
-while (<>) {
-    print $FH $_;
-}
+while (<>) { print $FH $_ }
 
 # Run the command, wait a bit for programs like firefox that automatically
 # fork and separate themselves to open the file, then delete the file and exit.

@@ -1,25 +1,35 @@
 #!/usr/bin/env perl
 use warnings; use strict; use v5.22;
 #no warnings 'experimental';
-use Cwd qw( getcwd realpath );
+use constant true  => 1;
+use constant false => 0;
+
+use Cwd qw( getcwd );
 use Carp;
-use boolean;
-use File::Basename;
+use DateTime;
+# use Path::Class;
 use File::Which;
-use File::Temp qw( tempfile tempdir cleanup );
+use File::Basename;
+# use File::Copy::Recursive qw( fcopy );
+use File::Temp qw( tempfile tempdir );
+use File::Spec::Functions qw( rel2abs abs2rel catfile );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
-use Unix::Processors;
+
+# $File::Copy::Recursive::CopyLink = true;
 
 ###############################################################################
 
+our $DEBUG;
 our ( $TopDir, $BaseDir, $Verbose );
 our $TimeStamp = time;
 our $CWD       = getcwd;
-our $TmpDir    = get_tempdir();
+our $TmpDir;
 
 ###############################################################################
 
-sub show_usage {
+
+sub show_usage
+{
     my $status;
     $status = shift or $status = 0;
     my $THIS = basename $0;
@@ -43,44 +53,114 @@ EOF
     exit $status;
 }
 
-sub get_odir {
+
+sub get_odir
+{
     if ( -w $CWD ) {
-        return realpath $CWD;
+        return rel2abs($CWD);
     }
     else {
         warn 'Current directory is not writable. Placing archive in your home '
            . "directory.\n";
-        return ENV {'HOME'};
+        return $ENV{HOME};
     }
 }
 
-sub get_tempdir {
-    my @CWD_info  = stat $CWD;
-    my @dest_info = stat '/tmp';
 
-    if ( $CWD_info[0] == $dest_info[0] ) {
-        return tempdir( CLEANUP => 1 );
+sub get_tempdir
+{
+    my @target_info = stat $ARGV[0];
+    my $C = 1;
+    my $dir;
+    
+    if ( $target_info[0] == [stat '/tmp']->[0] ) {
+        $dir = tempdir( CLEANUP => $C );
+    }
+    elsif ( -w $CWD ) {
+        $dir = tempdir( CLEANUP => $C, DIR => $CWD );
+    }
+    elsif ( $target_info[0] == [stat $ENV{'HOME'}]->[0] ) {
+        $dir = tempdir( CLEANUP => $C, DIR => $ENV{'HOME'} );
+    }
+    else {
+        print STDERR <<'EOF';
+Fatal error: This script requires there to be a writable directory on the same
+filesystem as the targets.
+EOF
+        exit 1;
     }
 
-    if ( -w $CWD ) {
-        return tempdir( CLEANUP => 1, DIR => $CWD );
-    }
-
-    @dest_info = stat( $ENV{'HOME'} );
-    if ( $CWD_info[0] == $dest_info[0] ) {
-        return tempdir( CLEANUP => 1, DIR => $ENV{'HOME'} );
-    }
-
-    return tempdir( CLEANUP => 1 );
+    say STDERR "Using $dir as tmpdir." if $DEBUG;
+    return $dir;
 }
+
+
+sub sayG
+{
+    my $str = shift or confess('Invalid usage.');
+    say "\033[1m\033[36m" . $str . "\033[0m";
+}
+
+
+sub link_file
+{
+    my ( $file, $target ) = ( shift, shift ) or confess("Invalid args.");
+    $file = rel2abs($file);
+    $target = rel2abs($target);
+    (
+        ( -w $file ) and (
+            $Verbose && $DEBUG && say STDERR "link '$file' to '$target'"
+            or true
+        )
+        and link( $file, $target )
+    ) or (
+        # (
+            # $DEBUG && say STDERR "Failed to link '$file' to '$target'. $!"
+            # or true
+        # )
+        true
+        and fcopy( $file, $target )
+        and (
+                $DEBUG && say STDERR 'Successful copy.'
+                or true
+            )
+    ) or (
+        say STDERR "Failed to copy '$file' to '$target!'"
+    )
+}
+
 
 ###############################################################################
 # Setup and option handing
 
-my $UseCores;
-{
-    my $procs = new Unix::Processors;
+my $rc = eval {
+    require Unix::Processors;
+    Unix::Processors->import();
+    1;
+};
+
+my $wc = eval {
+    require Win32::SystemInfo;
+    Win32::SystemInfo->import();
+    1;
+};
+
+my ( $procs, $UseCores );
+
+if ( $rc ) {
+    $procs = new Unix::Processors;
     $UseCores = $procs->max_online;
+}
+elsif ( which( 'nproc' ) ) {
+    $procs = `nproc`;
+    chomp $procs;
+    $UseCores = int( $procs );
+}
+elsif ( $wc ) {
+    $UseCores = Win32::SystemInfo::ProcessorInfo( 'NumProcessors' );
+}
+else {
+    $UseCores = 4; # Just pick a number I guess.
 }
 
 my $v7z  = '-bso0 -bsp0';
@@ -102,7 +182,8 @@ GetOptions(
     'o|output=s' => \$output,
     'b|bsdtar'   => \$bsdtar,
     'g|gtar'     => \$gtar,
-    'N|notar'    => \$notar
+    'N|notar'    => \$notar,
+    'd|debug'    => \$DEBUG
 ) or show_usage(1);
 
 if ( defined($level) ) {
@@ -122,6 +203,7 @@ if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
     $output = shift;
     unless (@ARGV) { die "Error: No input files\n" }
 }
+
 
 ###############################################################################
 # Check validity of archive type
@@ -157,21 +239,37 @@ for ($type) {
         @CMD      = ( '7z', 'a', $v7z, qw( -ms=on -md=512m -mfb=256 -m0=lzma2 ),
                       "-mmt=${UseCores}", "-mx=${lev9}", $tmp );
     }
-    elsif (/^(zpaq|zq|zp)$/n)    { $basetype = 'zpaq' }
-    elsif (/^(tzpaq|tzq|tzp)$/n) { $basetype = 'tzpaq' }
-
+    elsif (/^(zpaq|zq|zp)$/n) {
+        if ($notar) { $basetype = 'zpaq' }
+        else        { $basetype = 'tzpaq' }
+    }
     else {
-        warn "Filetype '$type' not recognized.\n";
+        say STDERR "Filetype '$type' not recognized.";
         show_usage(2);
     }
 }
 
-if ( $notar and not $type =~ /^(zip|7z)$/ ) {
+if ( $notar and not $type =~ /^(zip|7z|zpaq)$/ ) {
     die "Error: Only zip, 7zip, and zpaq can make archives without tar.";
 }
 
+
 ###############################################################################
 # Get our names and check whether we have GNU cp(1).
+
+foreach my $file (@ARGV) {
+    my @target_info = stat $ARGV[0];
+    unless ( -e $file ) {
+        say STDERR "Fatal error: File '$file' does not exist.";
+        exit 127;
+    }
+
+    unless ( $target_info[0] == [stat $file]->[0] ) {
+        say STDERR 'Fatal error: This script requires all targets',
+            ' to be on the same filesystem.';
+        exit 1;
+    }
+}
 
 my ( $OutDir, $OutName );
 if ( defined($output) ) {
@@ -180,7 +278,7 @@ if ( defined($output) ) {
         $OutName = basename $output;
     }
     elsif ( $output =~ m|/| ) {
-        $OutDir  = dirname( realpath($output) );
+        $OutDir  = dirname( rel2abs($output) );
         $OutName = basename $output;
     }
     else {
@@ -189,24 +287,24 @@ if ( defined($output) ) {
     }
 }
 else {
+    my $dt = DateTime->now;
     $OutDir  = get_odir;
-    $OutName = $TimeStamp;
+    # $OutName = 'archive_' . $dt->dmy . '_' . $dt->hour . $dt->minute;
+    my $time = $dt->hms('') =~ s/^(\d{4}).*/$1/r;
+    $OutName = 'archive_' . $dt->dmy . '_' . $time;
 }
 
-unless ( defined($TAR) and which($TAR) ) {
-    #if   ( which('bsdtar') ) { $TAR = 'bsdtar' }
-    #else                     { $TAR = 'tar' }
-    $TAR = 'tar';
-}
+$TAR = 'tar' unless ( defined($TAR) and which($TAR) );
 
 my $CP;
-system('cp  --help >/dev/null 2>&1');
+system('cp --help >/dev/null 2>&1');
 if ( $? == 0 ) { $CP = 'cp' }
 else {
     system('gcp --help >/dev/null 2>&1');
     if ( $? == 0 ) { $CP = 'gcp' }
-    else           { die "ERROR: This script requires GNU cp.\n" }
+    else           { die "ERROR: This script requires GNU `cp(1)'.\n" }
 }
+
 
 ###############################################################################
 # Set everything up
@@ -215,9 +313,7 @@ my $single;
 if ( @ARGV == 1 ) {
     $TopDir = basename( $ARGV[0] );
     $single = true;
-    if ( not defined($output) and -d $ARGV[0] ) {
-        $OutName = $TopDir;
-    }
+    $OutName = $TopDir unless ( defined($output) );
 }
 else {
     $TopDir = $OutName;
@@ -229,57 +325,97 @@ elsif ( $basetype eq 'tzpaq' ) { $OutName .= '.tar.zpaq' }
 elsif ( $notar )               { $OutName .= ".${basetype}" }
 else                           { $OutName .= ".tar.${basetype}" }
 
-my $TDirFull  = "${TmpDir}/${TopDir}";
+my $TDirFull;
 my $ONameFull = "${OutDir}/${OutName}";
-my $RelName = $ONameFull =~ s|$CWD/(.*)|$1|r;
+my $RelName   = $ONameFull =~ s|$CWD/(.*)|$1|r;
 
-say "mkdir '$TDirFull'" if $Verbose;;
-mkdir $TDirFull or croak 'Failed to make temporary directory.';
+if ( $single and -d $ARGV[0] ) {
+    $TDirFull = rel2abs($ARGV[0]);
+    chdir dirname($TDirFull);
+}
+else {
+    $TmpDir   = get_tempdir();
+    $TDirFull = "${TmpDir}/${TopDir}";
 
-while (@ARGV) {
-    my $arg = shift;
-    # if ( $single ) {
-    #     print <<~ "EOF" if $Verbose;
-    #         $CP -rla $arg $TmpDir 2>/dev/null
-    #         $CP -rna $arg $TmpDir 2>/dev/null
-    #         EOF
-    #     system "$CP -rla $arg $TmpDir 2>/dev/null";
-    #     system "$CP -rna $arg $TmpDir 2>/dev/null";
-    # }
-    # else {
-    #     print <<~ "EOF" if $Verbose;
-    #         $CP -rla $arg $TDirFull 2>/dev/null
-    #         $CP -rna $arg $TDirFull 2>/dev/null
-    #         EOF
-    #     system "$CP -rla $arg $TDirFull 2>/dev/null";
-    #     system "$CP -rna $arg $TDirFull 2>/dev/null";
-    # }
-    if ( $single ) {
-        say "$CP -rla $arg $TmpDir 2>/dev/null" if $Verbose;
-        say "$CP -rna $arg $TmpDir 2>/dev/null" if $Verbose;
-        system "$CP -rla $arg $TmpDir 2>/dev/null";
-        system "$CP -rna $arg $TmpDir 2>/dev/null";
+    say "mkdir '$TDirFull'" if $Verbose;;
+    mkdir $TDirFull or croak 'Failed to make temporary directory.';
+
+    while (@ARGV) {
+        my $arg = shift;
+        my $TMP = $TDirFull;
+
+        # if ( -d $arg ) {
+        #     my $root = dir($arg);
+        # 
+        #     $root->traverse_if(
+        #         sub {
+        #             my ( $child, $cont ) = @_;
+        #             my $relto = ($single) ? $root : $root->parent();
+        # 
+        #             # return unless ( -r $child );
+        # 
+        #             if ( $child->is_dir ) {
+        #                 my $target = catfile( $TMP, $child->relative($relto) );
+        #                 unless ( -e $target ) {
+        #                     mkdir $target
+        #                       or confess "Failed to make directory '$target'.\n$!";
+        #                 }
+        #             }
+        #             else {
+        #                 my $target = catfile( $TMP, $child->relative($relto) );
+        #                 link_file( $child, $target );
+        #             }
+        # 
+        #             return $cont->();
+        #         },
+        #         sub {
+        #             my ($child) = @_;
+        # 
+        #             # Process only readable items
+        #             return (-r $child);
+        #         }
+        #     );
+            # $root->recurse(
+            #     callback => sub {
+            #         my $file = shift;
+            #         my $relto = ($single) ? $root : $root->parent();
+            # 
+            #         return unless ( -r $file );
+            # 
+            #         if ( $file->is_dir ) {
+            #             my $target = catfile( $TMP, $file->relative($relto) );
+            #             unless ( -e $target ) {
+            #                 mkdir $target
+            #                   or confess "Failed to make directory '$target'.\n$!";
+            #             }
+            #         }
+            #         else {
+            #             my $target = catfile( $TMP, $file->relative($relto) );
+            #             link_file( $file, $target );
+            #         }
+            #     }
+            # );
+        # }
+        # else {
+        #     my $target = catfile($TMP, basename($arg));
+        #     link_file( $arg, $target );
+        # }
+
+        say "$CP -Rla $arg $TDirFull 2>/dev/null" if $Verbose;
+        say "$CP -Rna $arg $TDirFull 2>/dev/null" if $Verbose;
+        system "$CP -Rla $arg $TDirFull 2>/dev/null";
+        system "$CP -Rna $arg $TDirFull 2>/dev/null";
     }
-    else {
-        say "$CP -rla $arg $TDirFull 2>/dev/null" if $Verbose;
-        say "$CP -rna $arg $TDirFull 2>/dev/null" if $Verbose;
-        system "$CP -rla $arg $TDirFull 2>/dev/null";
-        system "$CP -rna $arg $TDirFull 2>/dev/null";
-    }
+
+    say "cd '$TmpDir'" if $Verbose;
+    chdir $TmpDir or croak 'Failed to cd to the temporary directory!';
 }
 
-say "cd '$TmpDir'" if $Verbose;
-chdir $TmpDir or croak 'Failed to cd to the temporary directory!';
-
-###############################################################################
-
-sub sayG {
-    my $str = shift or croak();
-    say "\033[1m\033[32m" . $str . "\033[0m";
-}
 
 ###############################################################################
 # Now for the command. What a mess.
+
+SKIP:
 
 # zpaq is "special".
 if ( $basetype eq 'zpaq' ) {
@@ -308,6 +444,5 @@ else {
     system "$TAR -cf - '$TopDir' 2>/dev/null | @CMD '$ONameFull'";
 }
 
-# Get rid of the temporary directory.
+# Make triply certain we are able to rid of the temporary directory.
 chdir $CWD;
-cleanup;

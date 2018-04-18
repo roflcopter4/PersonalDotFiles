@@ -104,12 +104,14 @@ mkalias() {
 MOARINFO='true'
 
 # Aliases based on the standard ls will hide backups.
-if Exists 'gls'; then
-    # If 'gls' exists, we're probably on a BSD system, and should use it
-    alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
-else
-    alias ls='LC_ALL=C ls -B -H --color --group-directories-first'
-fi
+Exists 'gls' && __LS_='gls'
+alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
+# if Exists 'gls'; then
+#     # If 'gls' exists, we're probably on a BSD system, and should use it
+#     alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
+# else
+#     alias ls='LC_ALL=C ls -B -H --color --group-directories-first'
+# fi
 
 if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
     alias ll='ls -l -h'
@@ -183,7 +185,7 @@ mkalias -T pylint3='pylint3 -f colorized'
 mkalias -T sage='sage -q' 
 mkalias -T ari='aria2c' 
 mkalias -T par='par-format'
-mkalias -TS zef='/usr/share/perl6/site/bin/zef'
+mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
 
 mkalias -T wolf='wolframscript'
 
@@ -296,9 +298,9 @@ gitc() {
 
 
 perlman () {  
-    [ $# -eq 1 ] || return 1
-    perldoc -T "$1" >/dev/null || return 2
-    perldoc -T -onroff "$1" | man -l -
+    [ $# -ge 1 ] || return 1
+    perldoc -T "$@" >/dev/null || return 2
+    perldoc -T -onroff "$@" | man -l -
 }
 
 
@@ -456,6 +458,8 @@ if Exists 'fzy'; then
     cdf() {
         ffzy -c "$@"
     }
+
+    alias fz='ffzy'
 fi
 
 

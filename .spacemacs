@@ -546,9 +546,9 @@ values."
   ;; (global-linum-mode) ; Show line numbers by default
   (global-aggressive-indent-mode t)
   (global-auto-complete-mode t)
-  ;; (global-flycheck-mode)
+  (global-flycheck-mode)
   (indent-guide-global-mode t)
-  (setq-default indent-tabs-mode t)
+  (setq-default indent-tabs-mode nil)
   (setq-default tab-width 8)
 
   ;; ================================================================================
@@ -578,6 +578,7 @@ values."
   ;; Scroll compilation output to first error
   (setq compilation-scroll-output t)
   (setq compilation-scroll-output #'first-error)
+
   ;; TODO highlighting
   ;; (defun highlight-todos ()
   ;;   (font-lock-add-keywords nil '(("\\<\\(NOTE\\|TODO\\|HACK\\|BUG\\):" 1 font-lock-warning-face t))))
@@ -608,6 +609,9 @@ values."
                  (get-buffer-create "*compilation*"))
                 (message "No Compilation Errors")))))
 
+  (setq-default line-spacing 1)
+  (setq-default column-enforce-column 100)
+
 
   ;; ==============================================================================================================================
   ;; ==============================================================================================================================
@@ -634,7 +638,6 @@ values."
   ;;                            SpaceBeforeParens: ControlStatements,
   ;;                            Standard: Auto}"
   ;; 	)
-  ;; (setq clang-format-style "{BasedOnStyle: LLVM, AlignEscapedNewlinesLeft: true, AlignTrailingComments: true, AllowAllParametersOfDeclarationOnNextLine: true, AllowShortBlocksOnASingleLine: false, AllowShortFunctionsOnASingleLine: None, AllowShortIfStatementsOnASingleLine: false, AllowShortLoopsOnASingleLine: false, AlwaysBreakTemplateDeclarations: true, BreakBeforeBraces: Linux, IndentWidth: 8, ColumnLimit: 100, TabWidth: 8, UseTab: Never, IndentCaseLabels: false, MaxEmptyLinesToKeep: 2, SpaceBeforeAssignmentOperators: true, SpaceBeforeParens: ControlStatements, Standard: Auto}")
   )
 
 

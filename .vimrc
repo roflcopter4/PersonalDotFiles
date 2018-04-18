@@ -1,28 +1,24 @@
-" Modeline and Notes " vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker 
-
-" FORMERLY SPF13 Now totally changed. Little remains. It is very sad. Or something.
-" let g:spf13_bundle_groups=['general', 'writing', 'neocomplete', 'programming',
-"                          \ 'php', 'ruby', 'python', 'javascript', 'html', 'misc',]
+" vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker 
 
 " ======================================================================================================
 " Environment
 
 " Identify platform
-silent function! OSX()
+sil fu! OSX()
     return has('macunix')
-endfunction
-silent function! LINUX()
+endf
+sil fu! LINUX()
     return has('unix') && !has('macunix') && !has('win32unix')
-endfunction
-silent function! WINDOWS()
+endf
+sil fu! WINDOWS()
     return  (has('win16') || has('win32') || has('win64'))
-endfunction
-silent function! CYGWIN()
+endf
+sil fu! CYGWIN()
     return has('win32unix')
-endfunction
-silent function! WIN_OR_CYG()
+endf
+sil fu! WIN_OR_CYG()
     return WINDOWS() || CYGWIN()
-endfunction
+endf
 
 " Basics
 set nocompatible
@@ -93,24 +89,25 @@ let g:mapleader = ' '
 " ======================================================================================================
 " Some colorscheme setup that must come before the plugin is loaded.
 
-"let g:myMolokai_BG = 'darker'
-let g:myMolokai_BG = 'custom'
-" Monokai_Brown
-"let g:myMolokai_CustomBG = '#272822'
-" BLACK_
-"let g:myMolokai_CustomBG = '#000000'
-" NEAR_BLACK
-let g:myMolokai_CustomBG = '#080808'
+let g:myMolokai_BG = 'darker'
+" let g:myMolokai_BG = 'custom'
+
+" ## Monokai_Brown
+" let g:myMolokai_CustomBG = '#272822'
+" ## BLACK_
+" let g:myMolokai_CustomBG = '#000000'
+" ## NEAR_BLACK
+" let g:myMolokai_CustomBG = '#080808'
 
 "let g:myMolokai_FG = 'other'
 "let g:myMolokai_FG = 'custom'
 "let g:myMolokai_CustomFG =
 
-let g:myMolokaiComment = 'custom'
-"let g:myMolokaiComment = 'shiny'
-"let g:myMolokaiComment = 'comment_grey'
+let g:myMolokaiComment         = 'custom'
+"let g:myMolokaiComment        = 'shiny'
+"let g:myMolokaiComment        = 'comment_grey'
 "let g:myMolokaiComment_Custom = '#70F0F0'
-let g:myMolokaiComment_Custom ='#5F87AF'
+let g:myMolokaiComment_Custom  = '#5F87AF'
 
 let g:myNova_BG = '#1B1D1E'
 
@@ -157,36 +154,17 @@ let g:plugin_manager = 'dein'
 "let g:dein#install_max_processes = 12
 filetype off
 
-function! AddPlugin(name,...)
-    if exists('a:1')
-        call dein#add(a:name, a:1)
-    else
-        call dein#add(a:name)
-    endif
-endfunction
+" fu! dein#add(name,...)
+"     if exists('a:1')
+"         call dein#add(a:name, a:1)
+"     else
+"         call dein#add(a:name)
+"     endif
+" endf
 
-function! IsSourced(name)
+fu! IsSourced(name)
     return dein#is_sourced(a:name)
-endfunction
-
-function! SourceFile(filename)
-    if CYGWIN()
-        let l:file = system('cygpath -w '. a:filename)
-        let l:file = substitute(l:file, '\%(\r\|\n\)', '', 'g')
-        echom l:file
-        echom a:filename
-        :source a:filename
-    elseif WINDOWS()
-        let l:file = system('D:/cygwin/bin/cygpath -w '. a:filename)
-        let l:file = substitute(l:file, '\%(\r\|\n\)', '', 'g')
-        !echo l:file
-        echom l:file
-        :source l:file
-    else
-        :source a:filename
-    endif
-endfunction
-
+endf
 
 if LINUX() || CYGWIN()
     let g:load_path=expand('~/.vim/dein')
@@ -205,225 +183,228 @@ endif
 " PLUGINS
 if dein#load_state(expand(g:load_path))
     call dein#begin(expand(g:load_path))
-    call AddPlugin(expand(g:dein_path))
-    call AddPlugin('haya14busa/dein-command.vim')
+    call dein#add(expand(g:dein_path))
+    call dein#add('haya14busa/dein-command.vim')
 
     if executable('ag') || executable('ack-grep') || executable('ack')
-        call AddPlugin('mileszs/ack.vim')
+        call dein#add('mileszs/ack.vim')
     endif
 
     " My own stuff should be first!
-    call AddPlugin('roflcopter4/PersonalVimStuff', {'merged': 0})
+    call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
      
     " General ---------
-    call AddPlugin('MarcWeber/vim-addon-mw-utils')
-    call AddPlugin('ctrlpvim/ctrlp.vim')
-    call AddPlugin('easymotion/vim-easymotion')
-    call AddPlugin('gcmt/wildfire.vim')
-    call AddPlugin('huawenyu/neogdb.vim')
-    call AddPlugin('jiangmiao/auto-pairs')
-    call AddPlugin('jistr/vim-nerdtree-tabs')
-    call AddPlugin('kana/vim-textobj-indent')
-    call AddPlugin('kana/vim-textobj-user')
-    call AddPlugin('mbbill/undotree')
-    call AddPlugin('osyo-manga/vim-over')
-    call AddPlugin('powerline/fonts')
-    call AddPlugin('rhysd/conflict-marker.vim')
-    call AddPlugin('scrooloose/nerdtree')
-    call AddPlugin('tacahiroy/ctrlp-funky')
-    call AddPlugin('terryma/vim-multiple-cursors')
-    call AddPlugin('tomtom/tlib_vim')
-    call AddPlugin('tpope/vim-abolish.git')
-    call AddPlugin('tpope/vim-repeat')
-    call AddPlugin('tpope/vim-surround')
-    call AddPlugin('vim-scripts/matchit.zip')
-    call AddPlugin('vim-scripts/restore_view.vim')
-    call AddPlugin('vim-scripts/sessionman.vim')
+    call dein#add('MarcWeber/vim-addon-mw-utils')
+    call dein#add('ctrlpvim/ctrlp.vim')
+    call dein#add('easymotion/vim-easymotion')
+    call dein#add('gcmt/wildfire.vim')
+    call dein#add('huawenyu/neogdb.vim')
+    call dein#add('jiangmiao/auto-pairs')
+    call dein#add('jistr/vim-nerdtree-tabs')
+    call dein#add('kana/vim-textobj-indent')
+    call dein#add('kana/vim-textobj-user')
+    call dein#add('mbbill/undotree')
+    call dein#add('osyo-manga/vim-over')
+    call dein#add('powerline/fonts')
+    call dein#add('rhysd/conflict-marker.vim')
+    call dein#add('scrooloose/nerdtree')
+    call dein#add('tacahiroy/ctrlp-funky')
+    call dein#add('terryma/vim-multiple-cursors')
+    call dein#add('tomtom/tlib_vim')
+    call dein#add('tpope/vim-abolish.git')
+    call dein#add('tpope/vim-repeat')
+    call dein#add('tpope/vim-surround')
+    call dein#add('vim-scripts/matchit.zip')
+    call dein#add('vim-scripts/restore_view.vim')
+    call dein#add('vim-scripts/sessionman.vim')
       
     " Writing -----
-    call AddPlugin('reedes/vim-litecorrect')
-    call AddPlugin('reedes/vim-textobj-sentence')
-    call AddPlugin('reedes/vim-textobj-quote')
-    call AddPlugin('reedes/vim-wordy')
+    call dein#add('reedes/vim-litecorrect')
+    call dein#add('reedes/vim-textobj-sentence')
+    call dein#add('reedes/vim-textobj-quote')
+    call dein#add('reedes/vim-wordy')
       
     " General Programming -----
-    call AddPlugin('tpope/vim-fugitive')
-    "call AddPlugin("bling/vim-bufferline")
-    call AddPlugin('mattn/webapi-vim')
-    call AddPlugin('mattn/gist-vim')
-    call AddPlugin('scrooloose/nerdcommenter')
-    call AddPlugin('godlygeek/tabular')
-    "call AddPlugin('luochen1990/rainbow')
-    call AddPlugin('junegunn/vim-easy-align')
+    call dein#add('tpope/vim-fugitive')
+    "call dein#add("bling/vim-bufferline")
+    call dein#add('mattn/webapi-vim')
+    call dein#add('mattn/gist-vim')
+    call dein#add('scrooloose/nerdcommenter')
+    call dein#add('godlygeek/tabular')
+    " call dein#add('luochen1990/rainbow')
+    call dein#add('junegunn/vim-easy-align')
     if executable('ctags')
-        call AddPlugin('majutsushi/tagbar')
+        call dein#add('majutsushi/tagbar')
     endif
           
     " PHP --------
-    call AddPlugin('spf13/PIV')
-    call AddPlugin('arnaud-lb/vim-php-namespace')
-    call AddPlugin('beyondwords/vim-twig')
+    call dein#add('spf13/PIV')
+    call dein#add('arnaud-lb/vim-php-namespace')
+    call dein#add('beyondwords/vim-twig')
      
     " Python ---------
-    call AddPlugin('klen/python-mode')
-    call AddPlugin('yssource/python.vim')
-    call AddPlugin('vim-scripts/python_match.vim')
-    call AddPlugin('vim-scripts/pythoncomplete')
+    call dein#add('klen/python-mode')
+    call dein#add('yssource/python.vim')
+    call dein#add('vim-scripts/python_match.vim')
+    call dein#add('vim-scripts/pythoncomplete')
       
     " Javascript ----------
-    call AddPlugin('elzr/vim-json')
-    call AddPlugin('groenewege/vim-less')
-    call AddPlugin('pangloss/vim-javascript')
-    call AddPlugin('briancollins/vim-jst')
-    call AddPlugin('kchmck/vim-coffee-script')
+    call dein#add('elzr/vim-json')
+    call dein#add('groenewege/vim-less')
+    call dein#add('pangloss/vim-javascript')
+    call dein#add('briancollins/vim-jst')
+    call dein#add('kchmck/vim-coffee-script')
     
     " Scala ---------
-    call AddPlugin('derekwyatt/vim-scala')
-    call AddPlugin('derekwyatt/vim-sbt')
-    call AddPlugin('vim-scripts/xptemplate')
+    call dein#add('derekwyatt/vim-scala')
+    call dein#add('derekwyatt/vim-sbt')
+    call dein#add('vim-scripts/xptemplate')
     
     " Haskell ----------
-    call AddPlugin('Twinside/vim-haskellConceal')
-    call AddPlugin('Twinside/vim-haskellFold')
-    call AddPlugin('adinapoli/cumino')
-    call AddPlugin('bitc/vim-hdevtools')
-    call AddPlugin('dag/vim2hs')
-    call AddPlugin('eagletmt/ghcmod-vim')
-    call AddPlugin('eagletmt/neco-ghc')
-    call AddPlugin('lukerandall/haskellmode-vim')
-    call AddPlugin('travitch/hasksyn')
+    call dein#add('Twinside/vim-haskellConceal')
+    call dein#add('Twinside/vim-haskellFold')
+    call dein#add('adinapoli/cumino')
+    call dein#add('bitc/vim-hdevtools')
+    call dein#add('dag/vim2hs')
+    call dein#add('eagletmt/ghcmod-vim')
+    call dein#add('eagletmt/neco-ghc')
+    call dein#add('lukerandall/haskellmode-vim')
+    call dein#add('travitch/hasksyn')
     
     " HTML ---------
-    call AddPlugin('hail2u/vim-css3-syntax')
-    call AddPlugin('gorodinskiy/vim-coloresque')
-    call AddPlugin('tpope/vim-haml')
-    "call AddPlugin('amirh/HTML-AutoCloseTag')
+    call dein#add('hail2u/vim-css3-syntax')
+    call dein#add('gorodinskiy/vim-coloresque')
+    call dein#add('tpope/vim-haml')
+    "call dein#add('amirh/HTML-AutoCloseTag')
 
     " Markdown
-    call AddPlugin('vim-pandoc/vim-pandoc')
-    call AddPlugin('vim-pandoc/vim-pandoc-syntax')
+    call dein#add('vim-pandoc/vim-pandoc')
+    call dein#add('vim-pandoc/vim-pandoc-syntax')
 
     " Moar Languages ------
-    call AddPlugin('rsmenon/vim-mathematica')
-    call AddPlugin('dag/vim-fish')
-    call AddPlugin('fsharp/vim-fsharp')
-    call AddPlugin('chaimleib/vim-renpy')
-    call AddPlugin('gentoo/gentoo-syntax')
-    call AddPlugin('rust-lang/rust.vim')
+    call dein#add('rsmenon/vim-mathematica')
+    call dein#add('dag/vim-fish')
+    call dein#add('fsharp/vim-fsharp')
+    call dein#add('chaimleib/vim-renpy')
+    call dein#add('gentoo/gentoo-syntax')
+    call dein#add('rust-lang/rust.vim')
 
     " Misc ----------
-    call AddPlugin('Chiel92/vim-autoformat')
-    call AddPlugin('PProvost/vim-ps1')
-    call AddPlugin('carlosgaldino/elixir-snippets')
-    call AddPlugin('cespare/vim-toml')
-    call AddPlugin('chrisbra/Colorizer')
-    call AddPlugin('elixir-lang/vim-elixir')
-    call AddPlugin('equalsraf/neovim-gui-shim')
-    call AddPlugin('idanarye/vim-vebugger')
-    call AddPlugin('junegunn/fzf.vim')
-    call AddPlugin('mattreduce/vim-mix')
-    call AddPlugin('quentindecock/vim-cucumber-align-pipes')
-    call AddPlugin('rodjek/vim-puppet')
-    call AddPlugin('saltstack/salt-vim')
-    call AddPlugin('tpope/vim-cucumber')
-    call AddPlugin('tpope/vim-markdown')
-    call AddPlugin('vim-scripts/Vimball')
+    call dein#add('Chiel92/vim-autoformat')
+    call dein#add('PProvost/vim-ps1')
+    call dein#add('carlosgaldino/elixir-snippets')
+    call dein#add('cespare/vim-toml')
+    call dein#add('chrisbra/Colorizer')
+    call dein#add('elixir-lang/vim-elixir')
+    call dein#add('equalsraf/neovim-gui-shim')
+    call dein#add('idanarye/vim-vebugger')
+    call dein#add('junegunn/fzf.vim')
+    call dein#add('mattreduce/vim-mix')
+    call dein#add('quentindecock/vim-cucumber-align-pipes')
+    call dein#add('rodjek/vim-puppet')
+    call dein#add('saltstack/salt-vim')
+    call dein#add('tpope/vim-cucumber')
+    call dein#add('tpope/vim-markdown')
+    call dein#add('vim-scripts/Vimball')
+    " call dein#add('octol/vim-cpp-enhanced-highlight')
 
-    "call AddPlugin('xolox/vim-easytags', {'merged': 0})
-    "call AddPlugin('ludovicchabant/vim-gutentags')
-    "call AddPlugin('Chilledheart/vim-clangd')
+    "call dein#add('xolox/vim-easytags', {'merged': 0})
+    "call dein#add('Chilledheart/vim-clangd')
+
     if !WINDOWS()
-        call AddPlugin('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
-        " call AddPlugin('c0r73x/neotags.nvim', {'merged': 0})
-        call AddPlugin('roflcopter4/neotags.nvim', {'merged': 0})
+        " call dein#add('c0r73x/neotags.nvim', {'merged': 0})
+        call dein#add('roflcopter4/neotags.nvim', {'merged': 0})
     endif
-    call AddPlugin('Shougo/neosnippet.vim')
-    call AddPlugin('Shougo/neosnippet-snippets')
+    call dein#add('Shougo/neosnippet.vim')
+    call dein#add('Shougo/neosnippet-snippets')
 
-    call AddPlugin('xolox/vim-misc')
-    call AddPlugin('xolox/vim-shell')
+    call dein#add('xolox/vim-misc')
+    call dein#add('xolox/vim-shell')
 
-    call AddPlugin('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
-    call AddPlugin('vim-perl/vim-perl',  {'merged': 0, 'build': 'make -k contrib_syntax carp try-tiny '
-                                                              \.' method-signatures moose test-more'})
+    call dein#add('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
+    call dein#add('vim-perl/vim-perl',  {'merged': 0, 'build': 'make -k contrib_syntax carp try-tiny '
+                                                              \.'method-signatures moose test-more'})
 
-    "call AddPlugin('Blackrush/vim-gocode')
-    "call AddPlugin('fatih/vim-go')
-    "call AddPlugin('dzhou121/gonvim-fuzzy')
+    "call dein#add('Blackrush/vim-gocode')
+    "call dein#add('fatih/vim-go')
+    "call dein#add('dzhou121/gonvim-fuzzy')
     "call dein#add('app-vim/searchcomplete')
-    "call AddPlugin('nathanaelkane/vim-indent-guides')
-    "call AddPlugin('maralla/validator.vim')
+    "call dein#add('nathanaelkane/vim-indent-guides')
+    "call dein#add('maralla/validator.vim')
 
     if !exists('g:ONI')
-        call AddPlugin('Yggdroot/indentLine')
+        call dein#add('Yggdroot/indentLine')
     endif
 
     if has('nvim')
         if g:use_ale == 1
-            call AddPlugin('w0rp/ale', {'merged': 0})
+            call dein#add('w0rp/ale', {'merged': 0})
         else
-            call AddPlugin('neomake/neomake', {'merged': 0})
+            call dein#add('neomake/neomake', {'merged': 0})
         endif
         if g:use_deoplete == 1
-            call AddPlugin('Shougo/deoplete.nvim')
-            call AddPlugin('zchee/deoplete-jedi')
-            call AddPlugin('Shougo/neco-vim')
-            call AddPlugin('artur-shaik/vim-javacomplete2')
-            call AddPlugin('zchee/deoplete-clang')
+            call dein#add('Shougo/deoplete.nvim')
+            call dein#add('zchee/deoplete-jedi')
+            call dein#add('Shougo/neco-vim')
+            call dein#add('artur-shaik/vim-javacomplete2')
+            call dein#add('zchee/deoplete-clang')
         else
-            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
-            call AddPlugin('rdnetto/YCM-Generator')
+            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
+            call dein#add('rdnetto/YCM-Generator')
         endif
     else
         if s:vim_ale == 1
-            call AddPlugin('w0rp/ale')
-            call AddPlugin('Shougo/neco-vim')
-            call AddPlugin('artur-shaik/vim-javacomplete2')
+            call dein#add('w0rp/ale')
+            call dein#add('Shougo/neco-vim')
+            call dein#add('artur-shaik/vim-javacomplete2')
         endif
 
         if has('python3') || has('nvim')
-            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
-            call AddPlugin('rdnetto/YCM-Generator')
+            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
+            call dein#add('rdnetto/YCM-Generator')
         elseif has('python')
-            call AddPlugin('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
-            call AddPlugin('rdnetto/YCM-Generator')
+            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
+            call dein#add('rdnetto/YCM-Generator')
         endif
     endif
 
     if (has('nvim') || !s:VimUsesPowerline) && !exists('g:ONI')
-        call AddPlugin('vim-airline/vim-airline')
-        call AddPlugin('vim-airline/vim-airline-themes')
+        call dein#add('vim-airline/vim-airline')
+        call dein#add('vim-airline/vim-airline-themes')
     endif
-    call AddPlugin('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
+    call dein#add('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
 
-    call AddPlugin('Shougo/denite.vim')
+    call dein#add('Shougo/denite.vim')
      
       
     " Colour Schemes ----------------
-    call AddPlugin('MaxSt/FlatColor')
-    call AddPlugin('mhinz/vim-janah')
-    call AddPlugin('iCyMind/NeoSolarized')
-    call AddPlugin('joshdick/onedark.vim')
-    call AddPlugin('reewr/vim-monokai-phoenix')
-    call AddPlugin('KeitaNakamura/neodark.vim')
-    call AddPlugin('dunckr/vim-monokai-soda')
-    call AddPlugin('tyrannicaltoucan/vim-quantum')
-    call AddPlugin('zanglg/nova.vim')
-    call AddPlugin('crater2150/vim-theme-chroma')
-    call AddPlugin('muellan/am-colors')
-    call AddPlugin('jaromero/vim-monokai-refined')
-    call AddPlugin('vim-scripts/darkspectrum')
-    call AddPlugin('lanox/lanox-vim-theme')
-    call AddPlugin('benjaminwhite/Benokai')
-    call AddPlugin('Valloric/vim-valloric-colorscheme')
-    call AddPlugin('petelewis/vim-evolution')
-    call AddPlugin('ratazzi/blackboard.vim')
-    call AddPlugin('nielsmadan/harlequin')
-    call AddPlugin('morhetz/gruvbox')
-    call AddPlugin('mhartington/oceanic-next')
-    call AddPlugin('xolox/vim-colorscheme-switcher')
+    call dein#add('MaxSt/FlatColor')
+    call dein#add('mhinz/vim-janah')
+    call dein#add('iCyMind/NeoSolarized')
+    call dein#add('joshdick/onedark.vim')
+    call dein#add('reewr/vim-monokai-phoenix')
+    call dein#add('KeitaNakamura/neodark.vim')
+    call dein#add('dunckr/vim-monokai-soda')
+    call dein#add('tyrannicaltoucan/vim-quantum')
+    call dein#add('zanglg/nova.vim')
+    call dein#add('crater2150/vim-theme-chroma')
+    call dein#add('muellan/am-colors')
+    call dein#add('jaromero/vim-monokai-refined')
+    call dein#add('vim-scripts/darkspectrum')
+    call dein#add('lanox/lanox-vim-theme')
+    call dein#add('benjaminwhite/Benokai')
+    call dein#add('Valloric/vim-valloric-colorscheme')
+    call dein#add('petelewis/vim-evolution')
+    call dein#add('ratazzi/blackboard.vim')
+    call dein#add('nielsmadan/harlequin')
+    call dein#add('morhetz/gruvbox')
+    call dein#add('mhartington/oceanic-next')
+    call dein#add('dracula/vim')
+    call dein#add('nanotech/jellybeans.vim')
+    call dein#add('xolox/vim-colorscheme-switcher')
 
     call dein#local(expand('~/.vim/bundles/findent'))
 
@@ -458,20 +439,17 @@ syntax enable
 " Plugin Config
 
 
-" PIV
 if IsSourced('tabular')
     let g:DisableAutoPHPFolding = 0
     let g:PIVAutoClose = 0
 endif
 
 
-" Misc
 if IsSourced('matchit.zip')
     let b:match_ignorecase = 1
 endif
 
 
-" AutoCloseTag
 if IsSourced('HTML-AutoCloseTag')
     " Make it so AutoCloseTag works for xml and xhtml files as well
     augroup HTML_CloseTag
@@ -481,20 +459,18 @@ if IsSourced('HTML-AutoCloseTag')
 endif
 
 
-" Ack-vim
 if IsSourced('ack.vim')
     if executable('ag')
         let g:ackprg = 'ag --nogroup --nocolor --column --smart-case'
     elseif executable('ack-grep')
         let g:ackprg='ack-grep -H --nocolor --nogroup --column'
-        call AddPlugin('mileszs/ack.vim')
+        call dein#add('mileszs/ack.vim')
     elseif executable('ack')
-        call AddPlugin('mileszs/ack.vim')
+        call dein#add('mileszs/ack.vim')
     endif
 endif
 
 
-" NerdTree
 if IsSourced('nerdtree')
     noremap <leader>ee :NERDTreeTabsToggle<CR>
     "noremap <leader>e :NERDTreeFind<CR>
@@ -512,7 +488,6 @@ if IsSourced('nerdtree')
 endif
 
 
-" Tabularize
 if IsSourced('tabular')
     nmap <Leader>a& :Tabularize /&<CR>
     vmap <Leader>a& :Tabularize /&<CR>
@@ -533,7 +508,6 @@ if IsSourced('tabular')
 endif
 
 
-" Session List
 set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
 if IsSourced('sessionman.vim')
     nmap <leader>sl :SessionList<CR>
@@ -542,13 +516,10 @@ if IsSourced('sessionman.vim')
 endif
 
 
-" JSON
 nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
 let g:vim_json_syntax_conceal = 0
 
 
-" PyMode
-" Disable if python support not present
 if !has('python') && !has('python3')
     let g:pymode = 0
 endif
@@ -581,7 +552,6 @@ if IsSourced('python-mode')
 endif
 
 
-" ctrlp
 if IsSourced('ctrlp.vim')
     let g:ctrlp_working_path_mode = 'ra'
     nnoremap <silent> <D-t> :CtrlP<CR>
@@ -627,13 +597,11 @@ if IsSourced('ctrlp.vim')
 endif
 
 
-" TagBar
 if IsSourced('tagbar')
     nnoremap <silent> <leader>tt :TagbarToggle<CR>
 endif
 
 
-"Rainbow
 if IsSourced('rainbow') || 1
     let g:rainbow_active = 1
     " God, what a horrific mess.
@@ -683,7 +651,6 @@ if IsSourced('rainbow') || 1
 endif
 
 
-"Fugitive
 if IsSourced('vim-fugitive')
     nnoremap <silent> <leader>gs :Gstatus<CR>count(g:spf13_bundle_groups, 'neocomplcache')
     nnoremap <silent> <leader>gd :Gdiff<CR>
@@ -700,7 +667,6 @@ if IsSourced('vim-fugitive')
 endif
 
 
-" Snippets
 if IsSourced('neocomplcache') || IsSourced('neocomplete')
     " Use honza's snippets.
     let g:neosnippet#snippets_directory='C:Vim/dein/repos/github.com/vim-snippets/snippets'
@@ -718,7 +684,6 @@ if IsSourced('neocomplcache') || IsSourced('neocomplete')
 endif
 
 
-" UndoTree
 if IsSourced('undotree')
     nnoremap <Leader>u :UndotreeToggle<CR>
     " If undotree is opened, it is likely one wants to interact with it.
@@ -726,7 +691,6 @@ if IsSourced('undotree')
 endif
 
 
-" indent_guides
 if IsSourced('vim-indent-guides')
     let g:indent_guides_start_level = 1
     let g:indent_guides_guide_size = 0
@@ -738,7 +702,6 @@ if IsSourced('vim-indent-guides')
 endif
 
 
-" Wildfire
 if IsSourced('wildfire.vim')
     let g:wildfire_objects = {
                 \ '*' : ["i'", 'i"', 'i)', 'i]', 'i}', 'ip'],
@@ -747,7 +710,6 @@ if IsSourced('wildfire.vim')
 endif
 
 
-" vim-airline
 if IsSourced('vim-airline') 
     if CYGWIN() || WINDOWS()
         let g:airline_powerline_fonts = 0
@@ -782,29 +744,28 @@ else
 endif
 
 
-" ### NEOMAKE ###
 if IsSourced('neomake')
     " let g:neomake_c_lint_maker = {
-        " \ 'exe': 'lint',
-        " \ 'args': ['--option', 'x'],
-        " \ 'errorformat': '%f:%l:%c: %m',
-        " \ }
+    "     \ 'exe': 'lint',
+    "     \ 'args': ['--option', 'x'],
+    "     \ 'errorformat': '%f:%l:%c: %m',
+    "     \ }
     " let g:neomake_error_sign = {
-                " \ 'text': '>>',
-                " \ 'texthl': 'ErrorMsg',
-                " \ }
+    "             \ 'text': '>>',
+    "             \ 'texthl': 'ErrorMsg',
+    "             \ }
     " hi MyWarningMsg ctermbg=3 ctermfg=0
     " let g:neomake_warning_sign = {
-                " \ 'text': '>>',
-                " \ 'texthl': 'MyWarningMsg',
-                " \ }
+    "             \ 'text': '>>',
+    "             \ 'texthl': 'MyWarningMsg',
+    "             \ }
     " Disable inherited syntastic
     " let g:syntastic_mode_map = {
-        " \ 'mode': 'passive',
-        " \ 'active_filetypes': [],
-        " \ 'passive_filetypes': []
-        " \ }
-"
+    "     \ 'mode': 'passive',
+    "     \ 'active_filetypes': [],
+    "     \ 'passive_filetypes': []
+    "     \ }
+    " 
     " let g:neomake_serialize = 1
     " let g:neomake_serialize_abort_on_error = 1
     " let g:neomake_highlight_lines = 1
@@ -813,21 +774,21 @@ if IsSourced('neomake')
     " let g:neomake_echo_current_error=1
     " let g:neomake_open_list=0
     let g:neomake_c_enabled_makers=['gcc', 'clangcheck', 'clangtidy']
-    "let g:neomake_c_enabled_makers=['clangcheck']
-    "let g:neomake_c_enabled_makers=['clangtidy']
+    " let g:neomake_c_enabled_makers=['clangcheck']
+    " let g:neomake_c_enabled_makers=['clangtidy']
     " let g:neomake_make_maker = {
-        " \ 'exe': 'make',
-        " \ 'args': ['--build'],
-        " \ 'errorformat': '%f:%l:%c: %m',
-        " \ }
-"
+    "     \ 'exe': 'make',
+    "     \ 'args': ['--build'],
+    "     \ 'errorformat': '%f:%l:%c: %m',
+    "     \ }
+    " 
     " augroup my_neomake_highlights
-        " au!
-        " autocmd ColorScheme *
-          " \ hi link NeomakeError SpellBad |
-          " \ hi link NeomakeWarning SpellCap
+    "     au!
+    "     autocmd ColorScheme *
+    "       \ hi link NeomakeError SpellBad |
+    "       \ hi link NeomakeWarning SpellCap
     " augroup END
-"
+    " 
     " autocmd! BufReadPost,BufWritePost * Neomake
 
     if filereadable(expand('~/personaldotfiles/.Vim/neomake.vim'))
@@ -836,7 +797,6 @@ if IsSourced('neomake')
 endif
 
 
-" ### ALE ###
 if IsSourced('ale')
     let g:airline#extensions#ale#enabled = 1
     let g:ale_lint_on_text_changed = 1 
@@ -871,18 +831,15 @@ if IsSourced('ale')
         let b:ale_linters_c = {'c': s:ALE_C,
                              \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck', 'flawfinder']
                              \ }
-    "}
 
     " Python {
         let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
         let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
         let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
-    "}
 
     " Perl {
         let b:ale_linters_perl = {'perl': ['perl']}
         let g:ale_perl_perlcritic_options = '-4'
-    "}
 
     let g:ale_linters =  {}
     call extend(g:ale_linters, b:ale_linters_c)
@@ -895,9 +852,7 @@ if IsSourced('ale')
     augroup END
 
 
-    "let g:ale_linter_aliases = { 'zsh': 'sh',
-    "                           \ 'csh': 'sh'
-    "                           \}
+    let g:ale_linter_aliases = {'csh': 'sh'}
 
     if filereadable(expand('~/personaldotfiles/.Vim/ale.vim'))
         :source ~/personaldotfiles/.Vim/ale.vim
@@ -910,7 +865,6 @@ if IsSourced('vim-vebugger')
 endif
 
 
-" ### EASYTAGS ###
 if IsSourced('vim-easytags')
     let g:easytags_python_enabled = 0
     let g:easytags_dynamic_files = 2
@@ -922,7 +876,6 @@ if IsSourced('vim-easytags')
     let g:easytags_include_members = 1
     let g:easytags_async = 1
     "let g:easytags_always_enabled = 1
-
 
     let g:easytags_languages = {
     \   'c': {
@@ -939,7 +892,6 @@ if IsSourced('vim-easytags')
 endif
 
 
-" ### DEOCOMPLETE ###
 if IsSourced('deoplete.nvim')
     " let g:deoplete#enable_at_startup = 1
     " if !exists('g:deoplete#omni#input_patterns')
@@ -948,7 +900,6 @@ if IsSourced('deoplete.nvim')
     if filereadable(expand('~/personaldotfiles/.Vim/deoplete.vim'))
         :source ~/personaldotfiles/.Vim/deoplete.vim
     endif
-    
 
     " let g:deoplete#disable_auto_complete = 1
 
@@ -985,7 +936,6 @@ if IsSourced('deoplete.nvim')
 endif
 
 
-" ### YouCompleteMe ###
 if IsSourced('YouCompleteMe')
     let g:acp_enableAtStartup = 0
 
@@ -1042,7 +992,6 @@ if IsSourced('YouCompleteMe')
 endif
 
 
-" ### Indent Line ###
 if IsSourced('indentLine')
     if exists('g:ONI')
         let g:indentLine_loaded = 0
@@ -1062,7 +1011,6 @@ if IsSourced('indentLine')
 endif
 
 
-" ### Autoformat Config ###
 if IsSourced('vim-autoformat')
     augroup c_formatting
         autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
@@ -1104,35 +1052,32 @@ if IsSourced('vim-autoformat')
             endif
         endfunction
 
-        if exists('s:ClangFile')
+        if exists('s:ClangFile') 
             let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- "
-                                      \ . "-lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\"'"
-        else
-            let g:formatdef_clangformat = "'clang-format -- -lines='.a:firstline.':'.a:lastline.' --assume-filename=\"'.expand('%:p').'\" -style=\"{BasedOnStyle: WebKit,".
-                                            \" AlignTrailingComments: true, '.(&textwidth ? 'ColumnLimit: '.&textwidth.', ' : '').(&expandtab ? 'UseTab: Never,".
-                                            \" IndentWidth: '.shiftwidth() : 'UseTab: Always').'}\"'"
+                                      \ . "-lines='.a:firstline.':'.a:lastline.' "
+                                      \ . "--assume-filename=\"'.expand('%:p').'\"'"
         endif
     "}
-    
+
     "--------------------------------------------------------------------------------------
 
     "### C {
         let g:formatdef_astyle_c    = g:_Astyle_Allman_ . g:_Astyle_c_
         let g:formatdef_astyle_c_KR = g:_Astyle_KR_     . g:_Astyle_c_
         let g:formatters_c          = ['clangformat', 'astyle_c_KR', 'astyle_c']
-    "}
+    "### }
 
     "### C++ {
         let g:formatdef_astyle_cpp    = g:_Astyle_Allman_ . g:_Astyle_cpp_
         let g:formatdef_astyle_cpp_KR = g:_Astyle_KR_     . g:_Astyle_cpp_
         let g:formatters_cpp          = ['clangformat', 'astyle_cpp_KR', 'astyle_cpp']
-    "}
+    "### }
 
     "### C-sharp {
         let g:formatdef_astyle_cs    = g:_Astyle_Allman_ . g:_Astyle_cs_
         let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
         let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
-    "}
+    "### }
 
 
     "### Some generic options
@@ -1143,7 +1088,6 @@ if IsSourced('vim-autoformat')
 endif
 
 
-" ### Line numbering ###
 if IsSourced('numbers.vim') || IsSourced('PersonalVimStuff')
     nnoremap <F3> :NumbersToggle<CR>
     let g:enable_numbers = 0
@@ -1151,15 +1095,19 @@ if IsSourced('numbers.vim') || IsSourced('PersonalVimStuff')
 endif
 
 
-" ### NEOTAGS ###
 if IsSourced('neotags.nvim')
     let g:neotags_enabled = 1
     let g:neotags_highlight = 1
     let g:neotags_run_ctags = 1
     let g:neotags_verbose = 0
+    let g:neotags_recursive = 1
+    let g:neotags_no_autoconf = 1
+    " let g:neotags_find_tool = 'ag -g ""'
 
-    let g:neotags#c#order = 'cgstuedfpm'
-    let g:neotags#cpp#order = 'cgstuedfpm'
+    " let g:neotags#c#order = 'cgstuedfpm'
+    " let g:neotags#cpp#order = 'cgstuedfpm'
+    let g:neotags#c#order = 'cgstuedfm'
+    let g:neotags#cpp#order = 'cgstuedfm'
 
     " C
     highlight def link cEnumTag Enum
@@ -1199,9 +1147,19 @@ if IsSourced('neotags.nvim')
     "     \ ]
 
     let g:neotags_ignored_tags = ['NULL', 'restrict', 'const', 'BUFSIZ', 'true', 'false']
-    let g:neotags_no_autoconf = 1
 
     nmap <leader>tag :NeotagsToggle<CR>
+endif
+
+
+if IsSourced('octol/vim-cpp-enhanced-highlight')
+    let g:cpp_class_scope_highlight = 1
+    let g:cpp_class_decl_highlight = 1
+    let g:cpp_member_variable_highlight = 1
+    let g:cpp_experimental_simple_template_highlight = 1
+    " let g:cpp_experimental_template_highlight = 1
+    let g:cpp_concepts_highlight = 1
+    let g:cpp_no_function_highlight = 1
 endif
 
 
@@ -1275,8 +1233,12 @@ if IsSourced('nerdcommenter')
     nmap <leader>ce <plug>NERDCommenterAppend
     map <leader>cd <plug>NERDCommenterInvert
 
+    let g:NERDCustomDelimiters = {
+                \ 'perl': { 'left': '#', 'rightAlt': '*/', 'leftAlt': '/*' }
+                \ }
+
     function! FixNerdSpaces()
-        if &ft ==# 'python'
+        if &filetype ==# 'python'
             let g:NERDSpaceDelims = 0
         else
             let g:NERDSpaceDelims = 1
@@ -1355,7 +1317,7 @@ function! StripTrailingWhitespace()
     let l:l = line('.')
     let l:c = col('.')
     " do the business:
-    %s/\s\+$//e
+    call execute('%s/\s\+$//e')
     " clean up: restore previous search history, and cursor position
     let @/=l:_s
     call cursor(l:l, l:c)
@@ -1444,11 +1406,10 @@ endif
 "endif
 
 " Automatically switch to the current file directory when a new buffer is opened.
-if !exists('g:spf13_no_autochdir')
-    augroup spf13_autchdir
-        autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-    augroup END
-endif
+augroup spf13_autchdir
+    " autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    autocmd VimEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+augroup END
 
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
@@ -1569,6 +1530,7 @@ set smartindent             " Better autoindent
 set cindent
 set breakindent
 
+set textwidth=120
 set tabstop=8               " An indentation every four columns
 set shiftwidth=4            " Use indents of 4 spaces
 set softtabstop=4           " Let backspace delete indent
@@ -1804,6 +1766,7 @@ augroup PerlFix
 augroup END
 
 function! FixPerl()
+    setlocal nocindent
     setlocal smartindent
     setlocal autoindent
     setlocal indentexpr=
@@ -1885,6 +1848,8 @@ if has('nvim')
         let g:terminal_color_14 = s:colorlist[14]
         let g:terminal_color_15 = s:colorlist[15]
     endif
+
+    command! Term term 'zsh'
 endif
 
 " ================================================================================================================
@@ -1916,7 +1881,7 @@ command! RecacheRunetimepath call dein#recache_runtimepath()
 
 if has('nvim') && !WIN_OR_CYG() && executable('pypy3')
     let g:python3_host_prog = '/usr/bin/pypy3'
-    let g:python2_host_prog = '/usr/bin/pypy'
+    let g:python_host_prog = '/usr/bin/pypy'
 endif
 
 
@@ -1930,16 +1895,10 @@ endf
 
 nnoremap <silent> <leader>ve :call ToggleOneMore()<CR>
 
-"if exists('$NVIM_QT')
-"    augroup NvimQt
-"        autocmd BufEnter * GuiLinespace 1
-"    augroup END
-"endif
-
-"if has('clipboard')
-"if has('unnamedplus')  " When possible use + register for copy-paste
-"set clipboard=unnamed,unnamedplus
-"else         " On mac and Windows, use * register for copy-paste
-"set clipboard=unnamed
-"endif
-"endif
+if has('clipboard')
+    if has('unnamedplus')
+        set clipboard=unnamed,unnamedplus
+    else
+        set clipboard=unnamed
+    endif
+endif

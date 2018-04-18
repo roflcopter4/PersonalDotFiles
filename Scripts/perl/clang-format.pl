@@ -1,18 +1,17 @@
 #!/usr/bin/perl
-use warnings;
-use strict;
-use v5.22;
+use warnings; use strict; use v5.24;
 use Carp;
 use File::Which;
-use Getopt::Long qw(:config gnu_getopt no_ignore_case require_order);
+use Getopt::Long qw(:config gnu_compat bundling no_ignore_case require_order pass_through);
 
 ###############################################################################
 
-sub slurp_file {
+sub slurp_file
+{
     my ( $data, $filename, $style ) = ( shift, shift, shift ) or croak;
 
     my ( $fp, $found );
-    open( $fp, '<', $filename ) or croak $!;
+    open( $fp, '<', $filename ) or croak "$!";
     $found = 0;
 
     while (<$fp>) {
@@ -36,12 +35,12 @@ sub slurp_file {
         ${$data} .= $_ . ', ';
     }
 
-    close $fp or croak $!;
+    close $fp or croak "$!";
 }
 
 ###############################################################################
 
-my $file = $ENV{"HOME"} . "/.clang-format";
+my $file = $ENV{HOME} . '/.clang-format';
 my ( $fp, $length, $usetabs, $notabs, $indent, $style );
 
 GetOptions(
@@ -51,7 +50,7 @@ GetOptions(
     'T|notabs'   => \$notabs,
     'i|indent=i' => \$indent,
     's|style=s'  => \$style
-) or croak("Error in command line arguments.\n");
+) or die;
 
 my $data = '{';
 slurp_file( \$data, $file, $style );
@@ -89,4 +88,4 @@ if ( defined $indent ) {
 }
 
 my @clformat = which('clang-format');
-exec( $clformat[1], "-style=$data", @ARGV ) or croak $!;
+exec( $clformat[1], "-style=$data", @ARGV ) or croak "$!";

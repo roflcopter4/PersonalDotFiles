@@ -44,11 +44,11 @@ if WINDOWS()
 endif
 
 
-if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
-        \ && !has('nvim')
+" if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
+"         \ && !has('nvim')
     set encoding=utf-8
     setglobal fileencoding=utf-8
-endif
+"endif
 
 
 " ======================================================================================================
@@ -311,7 +311,7 @@ if dein#load_state(expand(g:load_path))
     "call dein#add('xolox/vim-easytags', {'merged': 0})
     "call dein#add('Chilledheart/vim-clangd')
 
-    if !WINDOWS()
+    if !WINDOWS() && 0
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
@@ -362,12 +362,14 @@ if dein#load_state(expand(g:load_path))
             call dein#add('artur-shaik/vim-javacomplete2')
         endif
 
-        if has('python3') || has('nvim')
-            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
-            call dein#add('rdnetto/YCM-Generator')
-        elseif has('python')
-            call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
-            call dein#add('rdnetto/YCM-Generator')
+        if &encoding ==# 'utf-8'
+            if has('python3') || has('nvim')
+                call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python3 install.py --all'})
+                call dein#add('rdnetto/YCM-Generator')
+            elseif has('python')
+                call dein#add('Valloric/YouCompleteMe', {'merged': 0, 'build': 'python2 install.py --all'})
+                call dein#add('rdnetto/YCM-Generator')
+            endif
         endif
     endif
 
@@ -1559,8 +1561,12 @@ set matchpairs+=<:>            " Match, to be used with %
 
 "# Highlight problematic whitespace. #
 set list
-set listchars=tab:›\ ,extends:#,nbsp:.
-"set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+if &encoding ==# 'utf-8' || has('nvim')
+    set listchars=tab:›\ ,extends:#,nbsp:.
+    "set listchars=tab:›\ ,trail:•,extends:#,nbsp:.
+else
+    set nolist
+endif
 
 
 " ================================================================================================================

@@ -828,7 +828,8 @@ if IsSourced('ale')
         let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
         call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*, -*fuchsia*'])
                                         
-        let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
+        " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
+        let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
 
         let b:ale_linters_c = {'c': s:ALE_C,
                              \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck', 'flawfinder']
@@ -1101,15 +1102,15 @@ if IsSourced('neotags.nvim')
     let g:neotags_enabled = 1
     let g:neotags_highlight = 1
     let g:neotags_run_ctags = 1
-    let g:neotags_verbose = 0
+    let g:neotags_verbose = 1
     let g:neotags_recursive = 1
     let g:neotags_no_autoconf = 1
     " let g:neotags_find_tool = 'ag -g ""'
 
-    " let g:neotags#c#order = 'cgstuedfpm'
-    " let g:neotags#cpp#order = 'cgstuedfpm'
-    let g:neotags#c#order = 'cgstuedfm'
-    let g:neotags#cpp#order = 'cgstuedfm'
+    let g:neotags#c#order = 'cgstuedfpm'
+    let g:neotags#cpp#order = 'cgstuedfpm'
+    " let g:neotags#c#order = 'cgstuedfm'
+    " let g:neotags#cpp#order = 'cgstuedfm'
 
     " C
     highlight def link cEnumTag Enum
@@ -1882,7 +1883,7 @@ fu! DoIfZeroRange() range
 endf
 
 command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
-nnoremap <silent> <leader>cf :IfZeroRange<CR>
+noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
 if has('nvim') && !WIN_OR_CYG() && executable('pypy3')

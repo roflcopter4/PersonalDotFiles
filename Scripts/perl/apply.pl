@@ -2,12 +2,14 @@
 use strict; use warnings; use v5.24;
 use feature 'signatures';
 no warnings 'experimental::signatures';
-use File::Basename;
 use Carp;
+use Clone qw( clone );
+use File::Basename;
 use Getopt::Long qw(:config gnu_compat bundling no_getopt_compat
                             require_order auto_version no_ignore_case);
 
-$main::VERSION = '0.0.1';
+$main::VERSION = v0.2;
+our $DEBUG;
 
 ###############################################################################
 
@@ -29,11 +31,13 @@ sub cmdarg( $cmd_args, $arg, $options )
         }
         else {
             if ( grep( /--/, @ARGV ) ) {
-                say STDERR "Allowing spaces!";
+                say STDERR "Allowing spaces!" if $DEBUG;
                 $options->{allow_spaces} = 1;
                 push @{$cmd_args}, $arg;
             }
-            else { $init = 2 }
+            else {
+                $init = 2
+            }
         }
     }
 
@@ -47,7 +51,9 @@ sub filearg( $files, $arg, $options )
         if ( $arg eq '--' ) { push @{$files}, [] }
         else                { push @{$files->[-1]}, $arg }
     }
-    else { push @{$files}, $arg }
+    else {
+        push @{$files}, $arg
+    }
 }
 
 
@@ -64,6 +70,18 @@ sub handle_fail( $ret, $options )
 }
 
 
+sub run( $options, @cmd )
+{
+        say qq/\033[0m\033[33m\nsystem( @cmd )\033[0m/ if $DEBUG;
+        system( @cmd );
+        my $ret = $? >> 8;
+
+        if ( $ret != 0 ) {
+            handle_fail( $ret, $options );
+        }
+}
+
+
 ###############################################################################
 
 
@@ -74,7 +92,8 @@ GetOptions(
     'k|keep-going'  => \$options{keep_going},
     's|stop'        => \$options{stop},
     'i|interactive' => \$options{interactive},
-    'd|diff'        => \$options{diff}
+    'd|diff'        => \$options{diff},
+    'D|debug'       => \$DEBUG
 ) or ( print STDERR "\n" && show_usage(1) );
 
 if ( $options{help} ) { show_usage() }
@@ -106,26 +125,17 @@ while (@ARGV) {
 
 ###############################################################################
 
-if ( $options{diff} ) {
-    foreach my $file (@files) {
-        say qq/\nrunning system( $cmd, @cmd_args, @{$file} )\n/;
-        system( $cmd, @cmd_args, @{$file} );
-        my $ret = $? >> 8;
+my $file_ref = $options{diff} ? '@{$file}' : '$file';
+$options{sub} = grep( /--\?/, @cmd_args );
 
-        if ( $ret != 0 ) {
-            handle_fail( $ret, \%options );
-        }
+foreach my $file (@files) {
+    if ( $options{sub} ) {
+        my @cmd_args_cpy = @{clone( \@cmd_args )};
+        eval qq( map { s/--\\?/$file_ref/ } \@cmd_args_cpy );
+        run( \%options, $cmd, @cmd_args_cpy );
     }
-}
-else {
-    foreach my $file (@files) {
-        say qq/\nrunning system( $cmd, @cmd_args, $file )\n/;
-        system( $cmd, @cmd_args, $file );
-        my $ret = $? >> 8;
-
-        if ( $ret != 0 ) {
-            handle_fail( $ret, \%options );
-        }
+    else {
+        eval qq( run( \\\%options, \$cmd, \@cmd_args, $file_ref ) )
     }
 }
 

@@ -4,19 +4,19 @@
 " Environment
 
 " Identify platform
-sil fu! OSX()
+function! OSX()
     return has('macunix')
 endf
-sil fu! LINUX()
+function! LINUX()
     return has('unix') && !has('macunix') && !has('win32unix')
 endf
-sil fu! WINDOWS()
+function! WINDOWS()
     return  (has('win16') || has('win32') || has('win64'))
 endf
-sil fu! CYGWIN()
+function! CYGWIN()
     return has('win32unix')
 endf
-sil fu! WIN_OR_CYG()
+function! WIN_OR_CYG()
     return WINDOWS() || CYGWIN()
 endf
 
@@ -315,8 +315,8 @@ if dein#load_state(expand(g:load_path))
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
-        " call dein#add('c0r73x/neotags.nvim', {'merged': 0})
-        call dein#add('roflcopter4/neotags.nvim', {'merged': 0})
+        call dein#add('c0r73x/neotags.nvim', {'merged': 0})
+        " call dein#add('roflcopter4/neotags.nvim', {'merged': 0})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -835,6 +835,9 @@ if IsSourced('ale')
 
     " Python {
         let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
+        " let b:ale_linters_py = {'python': ['flake8', 'pyflakes', 'mypy']}
+        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyls', 'pyflakes', 'pep8']}
+        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
         let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
         let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
 
@@ -1014,7 +1017,7 @@ endif
 
 if IsSourced('vim-autoformat')
     augroup c_formatting
-        autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
+        autocmd FileType c,cpp,cs,c++,go setlocal cindent sw=8 sts=8
     augroup END
     let g:__c__shiftwidth = 8
 
@@ -1103,31 +1106,43 @@ if IsSourced('neotags.nvim')
     let g:neotags_verbose = 1
     let g:neotags_recursive = 1
     let g:neotags_no_autoconf = 1
+    let g:neotags_use_binary = 1
+    let g:neotags_compression_type = 'lzma'
     " let g:neotags_find_tool = 'ag -g ""'
 
     let g:neotags#c#order = 'cgstuedfpm'
     let g:neotags#cpp#order = 'cgstuedfpm'
-    " let g:neotags#c#order = 'cgstuedfm'
-    " let g:neotags#cpp#order = 'cgstuedfm'
+    " let g:neotags#c#order = 'cgstuedf'
+    " let g:neotags#cpp#order = 'cgstuedf'
 
     " C
-    highlight def link cEnumTag Enum
-    highlight def link cMemberTag CMember
-    highlight def link cPreProcTag PreProc
-    highlight def link cFunctionTag CFuncTag
+    highlight def link cEnumTag		Enum
+    highlight def link cMemberTag	CMember
+    highlight def link cPreProcTag	PreProc
+    highlight def link cFunctionTag	CFuncTag
+    highlight def link cTypeTag		NT_cTypeTag
 
     " C++
-    highlight def link cppEnumTag Enum
-    highlight def link cppMemberTag CMember
-    highlight def link cppPreProcTag PreProc
-    highlight def link cppFunctionTag CFuncTag
+    highlight def link cppEnumTag	Enum
+    highlight def link cppMemberTag	CMember
+    highlight def link cppPreProcTag	PreProc
+    highlight def link cppFunctionTag	CFuncTag
+
+    " Go
+    " highlight def link goPackageTag	PreProc
+    highlight def link goFunctionTag	CFuncTag
+    " highlight def link goConstantTag	PreProc
+    " highlight def link goTypeTag	Type
+    " highlight def link goStructTag	Type
+    " highlight def link goInterfaceTag	PreProc
+    highlight def link goMemberTag	CMember
 
     " Sh
-    highlight def link shFunctionTag CFuncTag
-    highlight def link shAliasTag Constant
+    highlight def link shFunctionTag	CFuncTag
+    highlight def link shAliasTag	Constant
 
     " Perl
-    highlight def link perlFunctionTag CFuncTag
+    highlight def link perlFunctionTag	CFuncTag
 
     set tags=./tags;
     let &cpoptions .= 'd'
@@ -1147,7 +1162,7 @@ if IsSourced('neotags.nvim')
     "     \ "--exclude='*config.status' --exclude='*config.h.in' --exclude='*Makefile'"
     "     \ ]
 
-    let g:neotags_ignored_tags = ['NULL', 'restrict', 'const', 'BUFSIZ', 'true', 'false']
+    let g:neotags_ignored_tags = ['NULL', 'restrict', 'const', 'BUFSIZ', 'true', 'false', '__attribute__']
 
     nmap <leader>tag :NeotagsToggle<CR>
 endif
@@ -1599,43 +1614,43 @@ if !exists('g:spf13_no_easyWindows')
 endif
 
 " Wrapped lines goes down/up to next row, rather than next line in file.
-noremap j gj
-noremap k gk
+" noremap j gj
+" noremap k gk
 
 
 " End/Start of line motion keys act relative to row/wrap width in the
 " presence of `:set wrap`, and relative to line for `:set nowrap`.
 " Default vim behaviour is to act relative to text line in both cases
-if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
-    " Same for 0, home, end, etc
-    function! WrapRelativeMotion(key, ...)
-        let l:vis_sel=''
-        if a:0
-            let l:vis_sel='gv'
-        endif
-        if &wrap
-            execute 'normal!' l:vis_sel . 'g' . a:key
-        else
-            execute 'normal!' l:vis_sel . a:key
-        endif
-    endfunction
-     
-    " Map g* keys in Normal, Operator-pending, and Visual+select
-    noremap $ :call WrapRelativeMotion("$")<CR>
-    noremap <End> :call WrapRelativeMotion("$")<CR>
-    noremap 0 :call WrapRelativeMotion("0")<CR>
-    noremap <Home> :call WrapRelativeMotion("0")<CR>
-    noremap ^ :call WrapRelativeMotion("^")<CR>
-    " Overwrite the operator pending $/<End> mappings from above to force inclusive motion with :execute normal!
-    onoremap $ v:call WrapRelativeMotion("$")<CR>
-    onoremap <End> v:call WrapRelativeMotion("$")<CR>
-    " Overwrite the Visual+select mode mappings from above to ensure the correct vis_sel flag is passed to function
-    vnoremap $ :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap <End> :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap 0 :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
-endif
+" if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
+"     " Same for 0, home, end, etc
+"     function! WrapRelativeMotion(key, ...)
+"         let l:vis_sel=''
+"         if a:0
+"             let l:vis_sel='gv'
+"         endif
+"         if &wrap
+"             execute 'normal!' l:vis_sel . 'g' . a:key
+"         else
+"             execute 'normal!' l:vis_sel . a:key
+"         endif
+"     endfunction
+"      
+"     " Map g* keys in Normal, Operator-pending, and Visual+select
+"     noremap $ :call WrapRelativeMotion("$")<CR>
+"     noremap <End> :call WrapRelativeMotion("$")<CR>
+"     noremap 0 :call WrapRelativeMotion("0")<CR>
+"     noremap <Home> :call WrapRelativeMotion("0")<CR>
+"     noremap ^ :call WrapRelativeMotion("^")<CR>
+"     " Overwrite the operator pending $/<End> mappings from above to force inclusive motion with :execute normal!
+"     onoremap $ v:call WrapRelativeMotion("$")<CR>
+"     onoremap <End> v:call WrapRelativeMotion("$")<CR>
+"     " Overwrite the Visual+select mode mappings from above to ensure the correct vis_sel flag is passed to function
+"     vnoremap $ :<C-U>call WrapRelativeMotion("$", 1)<CR>
+"     vnoremap <End> :<C-U>call WrapRelativeMotion("$", 1)<CR>
+"     vnoremap 0 :<C-U>call WrapRelativeMotion("0", 1)<CR>
+"     vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
+"     vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
+" endif
 
 " " The following two lines conflict with moving to top and bottom of the screen.
 " if !exists('g:spf13_no_fastTabs')
@@ -1643,19 +1658,19 @@ endif
 "     map <S-L> gt
 " endif
 " 
-" " Stupid shift key fixes
-" if !exists('g:spf13_no_keyfixes')
-"     command! -bang -nargs=* -complete=file E e<bang> <args>
-"     command! -bang -nargs=* -complete=file W w<bang> <args>
-"     command! -bang -nargs=* -complete=file Wq wq<bang> <args>
-"     command! -bang -nargs=* -complete=file WQ wq<bang> <args>
-"     command! -bang Wa wa<bang>
-"     command! -bang WA wa<bang>
-"     command! -bang Q q<bang>
-"     command! -bang QA qa<bang>
-"     command! -bang Qa qa<bang>
-"     cmap Tabe tabe
-" endif
+" Stupid shift key fixes
+if !exists('g:spf13_no_keyfixes')
+    command! -bang -nargs=* -complete=file E e<bang> <args>
+    command! -bang -nargs=* -complete=file W w<bang> <args>
+    command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+    command! -bang -nargs=* -complete=file WQ wq<bang> <args>
+    command! -bang Wa wa<bang>
+    command! -bang WA wa<bang>
+    command! -bang Q q<bang>
+    command! -bang QA qa<bang>
+    command! -bang Qa qa<bang>
+    cmap Tabe tabe
+endif
 
 " Yank from the cursor to the end of the line, to be consistent with C and D.
 nnoremap Y y$
@@ -1859,6 +1874,7 @@ endif
 let g:is_posix = 1
 let g:is_kornshell = 1
 let g:perl_sub_signatures = 1
+let g:c_gnu = 1
 
 let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
@@ -1880,9 +1896,17 @@ command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
+nnoremap ,, @:
+nnoremap <leader>aa :.Autoformat<CR>
+nnoremap <leader>af :Autoformat<CR>
+nnoremap <leader>sj <leader>ysVj{
+vnoremap <leader>aa :Autoformat<CR>
+
 if has('nvim') && !WIN_OR_CYG() && executable('pypy3')
-    let g:python3_host_prog = '/usr/bin/pypy3'
-    let g:python_host_prog = '/usr/bin/pypy'
+    " let g:python3_host_prog = '/usr/bin/pypy3'
+    " let g:python_host_prog = '/usr/bin/pypy'
+    let g:python3_host_prog = 'python3'
+    let g:python_host_prog = 'python2'
 endif
 
 

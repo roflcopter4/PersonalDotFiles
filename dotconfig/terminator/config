@@ -3,6 +3,8 @@
   inactive_color_offset = 1.0
   scroll_tabbar = True
 [keybindings]
+  next_tab = <Primary>Page_Up
+  prev_tab = <Primary>Page_Down
 [layouts]
   [[default]]
     [[[child0]]]

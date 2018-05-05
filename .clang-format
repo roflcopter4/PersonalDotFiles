@@ -16,15 +16,16 @@ BasedOnStyle: LLVM
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakTemplateDeclarations: true
-BinPackParameters: false
-BinPackArguments: false
+BinPackParameters: true
+BinPackArguments: true
 
 AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
-#AlignConsecutiveAssignments: true
+AlignConsecutiveAssignments: true
 AlignTrailingComments: true
 AlignOperands: true
 
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortLoopsOnASingleLine: false

@@ -22,11 +22,11 @@ let g:deoplete#omni#input_patterns.jsp = get(g:deoplete#omni#input_patterns, 'js
 "if g:spacevim_enable_javacomplete2_py
 if 0
   let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['omni'])
-  call deoplete#custom#set('javacomplete2', 'mark', '')
+  call deoplete#custom#source('javacomplete2', 'mark', '')
 else
   let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['javacomplete2', 'around', 'member'])
-  call deoplete#custom#set('omni', 'mark', '')
-  call deoplete#custom#set('omni', 'rank', 9999)
+  call deoplete#custom#source('omni', 'mark', '')
+  call deoplete#custom#source('omni', 'rank', 9999)
 endif
 
 " sh
@@ -34,8 +34,8 @@ let g:deoplete#ignore_sources.sh = get(g:deoplete#ignore_sources, 'sh', ['around
 
 " go
 let g:deoplete#ignore_sources.go = get(g:deoplete#ignore_sources, 'go', ['omni'])
-call deoplete#custom#set('go', 'mark', '')
-call deoplete#custom#set('go', 'rank', 9999)
+call deoplete#custom#source('go', 'mark', '')
+call deoplete#custom#source('go', 'rank', 9999)
 
 " markdown
 let g:deoplete#ignore_sources.markdown = get(g:deoplete#ignore_sources, 'markdown', ['tag'])
@@ -50,12 +50,12 @@ let g:deoplete#omni#input_patterns.perl = get(g:deoplete#omni#input_patterns, 'p
 " javascript
 "let g:deoplete#omni#input_patterns.javascript = get(g:deoplete#omni#input_patterns, 'javascript', ['[^. \t0-9]\.\w*'])
 let g:deoplete#ignore_sources.javascript = get(g:deoplete#ignore_sources, 'javascript', ['omni'])
-call deoplete#custom#set('ternjs', 'mark', 'tern')
-call deoplete#custom#set('ternjs', 'rank', 9999)
+call deoplete#custom#source('ternjs', 'mark', 'tern')
+call deoplete#custom#source('ternjs', 'rank', 9999)
 
 " typescript
 let g:deoplete#ignore_sources.typescript = get(g:deoplete#ignore_sources, 'typescript', ['tag','omni', 'syntax'])
-call deoplete#custom#set('typescript', 'rank', 9999)
+call deoplete#custom#source('typescript', 'rank', 9999)
 
 
 " php two types, 1. phpcd (default)  2. lsp
@@ -68,8 +68,8 @@ if 0
   endif
 else
   let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['phpcd', 'around', 'member'])
-  "call deoplete#custom#set('phpcd', 'mark', '')
-  "call deoplete#custom#set('phpcd', 'input_pattern', '\w*|[^. \t]->\w*|\w*::\w*')
+  "call deoplete#custom#source('phpcd', 'mark', '')
+  "call deoplete#custom#source('phpcd', 'input_pattern', '\w*|[^. \t]->\w*|\w*::\w*')
 endif
 let g:deoplete#omni#input_patterns.php = get(g:deoplete#omni#input_patterns, 'php', [
       \'[^. \t0-9]\.\w*',
@@ -88,12 +88,12 @@ let g:deoplete#ignore_sources.gitcommit = get(g:deoplete#ignore_sources, 'gitcom
 let g:deoplete#omni_patterns.lua = get(g:deoplete#omni_patterns, 'lua', '.')
 
 " c c++
-call deoplete#custom#set('clang2', 'mark', '')
+call deoplete#custom#source('clang2', 'mark', '')
 let g:deoplete#ignore_sources.c = get(g:deoplete#ignore_sources, 'c', ['omni'])
 
 " rust
 let g:deoplete#ignore_sources.rust = get(g:deoplete#ignore_sources, 'rust', ['omni'])
-call deoplete#custom#set('racer', 'mark', '')
+call deoplete#custom#source('racer', 'mark', '')
 
 " vim
 let g:deoplete#ignore_sources.vim = get(g:deoplete#ignore_sources, 'vim', ['tag'])
@@ -106,7 +106,7 @@ let g:deoplete#ignore_sources.ocaml = ['buffer', 'around', 'omni']
 
 " public settings
 "call deoplete#cstom#set('_', 'matchers', ['matcher_full_fuzzy'])
-"call deoplete#custom#set('file/include', 'matchers', ['matcher_head'])
+"call deoplete#custom#source('file/include', 'matchers', ['matcher_head'])
 let g:deoplete#ignore_sources._ = get(g:deoplete#ignore_sources, '_', ['around', 'LanguageClient'])
 for key in keys(g:deoplete#ignore_sources)
   if key != '_' && index(keys(get(g:, 'LanguageClient_serverCommands', {})), key) == -1

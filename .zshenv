@@ -65,6 +65,11 @@ if [[ -o interactive ]]; then
 fi
 
 
+if [[ "$(uname)" == 'Linux' ]]; then
+    export MALLOC_PERTURB_=1
+fi
+
+
 case "$SYSID" in
     'slackware')
         export path=( "${HOME}"/.local/bin /usr/local/sbin /usr/sbin /sbin /usr/local/bin /usr/bin /bin /usr/games /usr/lib64/kde4/libexec /usr/lib64/qt/bin /usr/share/texmf/bin )

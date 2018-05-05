@@ -186,6 +186,7 @@ mkalias -T sage='sage -q'
 mkalias -T ari='aria2c' 
 mkalias -T par='par-format'
 mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
+mkalias -S parted='parted'
 
 mkalias -T wolf='wolframscript'
 

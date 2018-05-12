@@ -1,8 +1,8 @@
 #!/bin/dash
 
 ID_SHELL() {                                                     
-    if ! ( [ "$(uname)" = 'DragonFly' ]  || [ "$(uname)" = 'OpenBSD' ] || \
-           [ "$(uname -o)" = 'Cygwin' ]  || [ "$(uname -o)" = 'Msys' ] )
+    if ! ( [ "$(uname)" = 'DragonFly' ] || [ "$(uname)" = 'OpenBSD' ] || \
+           [ "$(uname -o)" = 'Cygwin' ] || [ "$(uname -o)" = 'Msys' ] )
     then
         printf "%s" "$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
@@ -108,23 +108,16 @@ if [ "$(uname)" = 'OpenBSD' ] && ! Exists 'gls'; then
     alias ll='ls -lh'
     alias lla='ls -lhA'
 else
-{
     # Aliases based on the standard ls will hide backups.
     Exists 'gls' && __LS_='gls'
     alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
-    # if Exists 'gls'; then
-    #     # If 'gls' exists, we're probably on a BSD system, and should use it
-    #     alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
-    # else
-    #     alias ls='LC_ALL=C ls -B -H --color --group-directories-first'
-    # fi
 
     if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
-	alias ll='ls -l -h'
-	alias lll='ls -go -h'
+        alias ll='ls -l -h'
+        alias lll='ls -go -h'
     else
-	alias ll='ls -go -h'
-	alias lll='ls -l -h'
+        alias ll='ls -go -h'
+        alias lll='ls -l -h'
     fi
 
     alias la='ls -A'
@@ -146,7 +139,6 @@ else
     alias Ll='ll -L'
     alias Lla='lla -L'
     alias Ls='ls -L'
-}
 fi
 
 # ---------------------------------------------------------

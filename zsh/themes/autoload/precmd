@@ -1,0 +1,28 @@
+local TERMWIDTH=0
+(( TERMWIDTH = ${COLUMNS} - 2 ))
+
+# Truncate the path if it's too long.
+local leadersize=${#${(%):---%n-%m--}}
+local pwdmax=0
+(( pwdmax = COLUMNS - leadersize ))
+_pwdStr="%${pwdmax}<…<%~ %<<"
+
+float fPromptWidth=${#${(%):---%n-%m--%~---}}
+float fTermWidth=${COLUMNS}
+float fRatio
+local FreeSpace
+(( fRatio = fPromptWidth / fTermWidth ))
+(( FreeSpace = COLUMNS - fPromptWidth ))
+
+if ! [[ "$(uname)" == 'FreeBSD' ]]; then
+    if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
+        _ThirdLine=''
+    else
+        _ThirdLine=$"\n"
+    fi
+fi
+
+_Char="%(!.#.$)"
+
+_Fillbar=""
+_Fillbar="\${(l.${TERMWIDTH}..${_Hbar}.)}"

@@ -15,7 +15,8 @@ if ( not -e $file or -d $file ) {
 
 ###############################################################################
 
-sub get_array {
+sub get_array
+{
     my $cmd = shift or croak("No command supplied!\n");
     my $output = `$cmd`;
     chomp $output;
@@ -52,9 +53,18 @@ else {
 
 die "I can't divide by zero!\n" if ( $num1 == 0 );
 
-my $len = length( int($num1 / 1000) );
+my $len;
 my $ans = ($num2 / $num1) * 100;
 
-printf "Actual size:        %*d kB\n", $len, ($num1 / 1000);
-printf "Compressed size:    %*d kB\n", $len, ($num2 / 1000);
+if ( $num2 < 10000 ) {
+    $len = length( int($num1) );
+    printf "Actual size:        %*d\n", $len, ($num1);
+    printf "Compressed size:    %*d\n", $len, ($num2);
+}
+else {
+    $len = length( int($num1 / 1000) );
+    printf "Actual size:        %*d kB\n", $len, ($num1 / 1000);
+    printf "Compressed size:    %*d kB\n", $len, ($num2 / 1000);
+}
+
 print  "Compression ratio:  $ans %\n";

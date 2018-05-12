@@ -89,15 +89,15 @@ let g:mapleader = ' '
 " ======================================================================================================
 " Some colorscheme setup that must come before the plugin is loaded.
 
-let g:myMolokai_BG = 'darker'
-" let g:myMolokai_BG = 'custom'
+" let g:myMolokai_BG = 'darker'
+let g:myMolokai_BG = 'custom'
 
 " ## Monokai_Brown
 " let g:myMolokai_CustomBG = '#272822'
 " ## BLACK_
 " let g:myMolokai_CustomBG = '#000000'
 " ## NEAR_BLACK
-" let g:myMolokai_CustomBG = '#080808'
+let g:myMolokai_CustomBG = '#080808'
 
 "let g:myMolokai_FG = 'other'
 "let g:myMolokai_FG = 'custom'
@@ -140,10 +140,9 @@ let g:structderef_color_gui = '#42A5F5'
 " Plugin Setup
 
 
-"if has('nvim')
-    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . &runtimepath
-    "    \ . ',' . expand('/usr/share/vim/vimfiles/after')
-    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . expand('/usr/share/vim/vimfiles/after') . ',' . &runtimepath
+" if has('nvim')
+"     let &runtimepath = expand('/usr/share/vim/vimfiles') .','.&runtimepath.','. expand('/usr/share/vim/vimfiles/after')
+"     let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . expand('/usr/share/vim/vimfiles/after') . ',' . &runtimepath
 "else
     "let &runtimepath = expand('~/.local/share/nvim/site') . ',' . &runtimepath
     "    \ . ',' . expand('~/.local/share/nvim/site/after')
@@ -185,6 +184,10 @@ if dein#load_state(expand(g:load_path))
     call dein#begin(expand(g:load_path))
     call dein#add(expand(g:dein_path))
     call dein#add('haya14busa/dein-command.vim')
+
+    if has('nvim') && 0
+        call dein#add('/usr/share/vim/vimfiles')
+    endif
 
     if executable('ag') || executable('ack-grep') || executable('ack')
         call dein#add('mileszs/ack.vim')
@@ -311,7 +314,7 @@ if dein#load_state(expand(g:load_path))
     "call dein#add('xolox/vim-easytags', {'merged': 0})
     "call dein#add('Chilledheart/vim-clangd')
 
-    if !WINDOWS() && 0
+    if !WINDOWS()
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
@@ -1108,12 +1111,19 @@ if IsSourced('neotags.nvim')
     let g:neotags_verbose = 1
     let g:neotags_recursive = 1
     let g:neotags_no_autoconf = 1
-    let g:neotags_use_binary = 1
+    let g:neotags_use_binary = 0
+    let g:neotags_strip_comments = 1
+    " let g:neotags_compression_type = 'gzip'
     let g:neotags_compression_type = 'lzma'
+    " let g:neotags_find_tool = 'find'
     " let g:neotags_find_tool = 'ag -g ""'
+    " let g:neotags_find_tool = "find . -name '*.[ch]'"
+    " let g:neotags_find_tool = ['find', "-name '*.[ch]'"]
 
-    let g:neotags#c#order = 'cgstuedfpm'
-    let g:neotags#cpp#order = 'cgstuedfpm'
+    " let g:neotags#c#order = 'cgstuedfpm'
+    " let g:neotags#cpp#order = 'cgstuedfpm'
+    let g:neotags#c#order = 'cgstuedfm'
+    let g:neotags#cpp#order = 'cgstuedfm'
     " let g:neotags#c#order = 'cgstuedf'
     " let g:neotags#cpp#order = 'cgstuedf'
 
@@ -1146,8 +1156,8 @@ if IsSourced('neotags.nvim')
     " Perl
     highlight def link perlFunctionTag	CFuncTag
 
-    set tags=./tags;
-    let &cpoptions .= 'd'
+    set tags=./tags,tags,../tags
+    " let &cpoptions .= 'd'
 
     let g:neotags_norecurse_dirs = [$HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include', '/usr/local/share',
                                   \ expand('~/personaldotfiles'), expand('~/random'), expand('~/random/Code'), expand('~/random/school')]
@@ -1164,7 +1174,8 @@ if IsSourced('neotags.nvim')
     "     \ "--exclude='*config.status' --exclude='*config.h.in' --exclude='*Makefile'"
     "     \ ]
 
-    let g:neotags_ignored_tags = ['NULL', 'restrict', 'const', 'BUFSIZ', 'true', 'false', '__attribute__']
+    let g:neotags_ignored_tags = ['restrict', 'static', 'extern', 'const', 'inline', '__attribute__', 'BUFSIZ',
+                               \  'bool', 'true', 'false', 'NULL', 'void', 'xmalloc', 'xcalloc', 'xrealloc']
 
     nmap <leader>tag :NeotagsToggle<CR>
 endif
@@ -1425,15 +1436,15 @@ endif
 
 " Automatically switch to the current file directory when a new buffer is opened.
 augroup spf13_autchdir
-    " autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-    autocmd VimEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    autocmd BufEnter * if bufname("") !~# "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    " autocmd VimEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
 augroup END
 
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
-augroup no_revertcursor_git
-    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
-augroup END
+" augroup no_revertcursor_git
+    " au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+" augroup END
 
 " Restore cursor to file position in previous editing session
 if !exists('g:spf13_no_restore_cursor')
@@ -1548,7 +1559,7 @@ set smartindent             " Better autoindent
 set cindent
 set breakindent
 
-set textwidth=120
+set textwidth=80
 set tabstop=8               " An indentation every four columns
 set shiftwidth=4            " Use indents of 4 spaces
 set softtabstop=4           " Let backspace delete indent
@@ -1876,6 +1887,14 @@ endif
 
 " ================================================================================================================
 
+" Some commands because I'm lazy
+command! -nargs=1 -complete=help Vhelp :vert help <args>
+command! -nargs=* -complete=customlist,man#complete Vman :vert Man <args>
+cmap vhelp Vhelp
+cmap vman Vman
+
+" ================================================================================================================
+
 " This makes sure vim knows that /bin/sh is not bash.
 let g:is_posix = 1
 let g:is_kornshell = 1
@@ -1908,11 +1927,14 @@ nnoremap <leader>af :Autoformat<CR>
 nnoremap <leader>sj <leader>ysVj{
 vnoremap <leader>aa :Autoformat<CR>
 
+nnoremap <leader>;; q:
+nnoremap q: :q
+
 if has('nvim') && !WIN_OR_CYG() && executable('pypy3')
-    " let g:python3_host_prog = '/usr/bin/pypy3'
-    " let g:python_host_prog = '/usr/bin/pypy'
-    let g:python3_host_prog = 'python3'
-    let g:python_host_prog = 'python2'
+    let g:python3_host_prog = '/usr/bin/pypy3'
+    let g:python_host_prog = '/usr/bin/pypy'
+    " let g:python3_host_prog = 'python3'
+    " let g:python_host_prog = 'python2'
 endif
 
 
@@ -1933,3 +1955,8 @@ if has('clipboard')
         set clipboard=unnamed
     endif
 endif
+
+augroup CMakeSyntaxFix
+    " autocmd BufEnter,BufNew,BufReadPost,BufAdd,BufCreate CMake* :syntax enable
+    autocmd BufReadPost CMake* :syntax enable
+augroup END

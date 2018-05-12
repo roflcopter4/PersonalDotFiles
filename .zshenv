@@ -65,9 +65,9 @@ if [[ -o interactive ]]; then
 fi
 
 
-if [[ "$(uname)" == 'Linux' ]]; then
-    export MALLOC_PERTURB_=1
-fi
+# if [[ "$(uname)" == 'Linux' ]]; then
+#     export MALLOC_PERTURB_=$(( (RANDOM % 255) + 1 ))
+# fi
 
 
 case "$SYSID" in

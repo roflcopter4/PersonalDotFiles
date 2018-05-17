@@ -34,6 +34,7 @@ zplug load
 local MARK=21
 local LoadTheme="myTheme_MK${MARK}"
 local ThemeName="${HOME}/personaldotfiles/zsh/themes/${LoadTheme}.zsh-theme"
+# local ThemeName='/home/bml/Downloads/personaldotfiles/zsh/themes/myTheme_MK19.zsh-theme'
 if [[ -f "$ThemeName" ]]; then
     # Necessary to use my prompt apparently.
     prompt off
@@ -61,6 +62,7 @@ setopt multios
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
+setopt globstarshort
 
 alias -g ...='../..'
 alias -g ....='../../..'

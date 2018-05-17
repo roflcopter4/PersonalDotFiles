@@ -14,15 +14,19 @@ local FreeSpace
 (( fRatio = fPromptWidth / fTermWidth ))
 (( FreeSpace = COLUMNS - fPromptWidth ))
 
-if ! [[ "$(uname)" == 'FreeBSD' ]]; then
-    if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
-        _ThirdLine=''
-    else
-        _ThirdLine=$"\n"
-    fi
+if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
+    _ThirdLine=''
+else
+    _ThirdLine='
+'
 fi
 
 _Char="%(!.#.$)"
 
 _Fillbar=""
 _Fillbar="\${(l.${TERMWIDTH}..${_Hbar}.)}"
+
+if [[ $_Mode_Swap -eq 1 ]]; then
+    _VI_Mode=
+    _Mode_Swap=0
+fi

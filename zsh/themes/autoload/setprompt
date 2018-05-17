@@ -1,15 +1,11 @@
-# Need this so the prompt will work.
+# Required setup
 setopt prompt_subst
-
-[[ -z "$MODE_INDICATOR" ]] && MODE_INDICATOR="%{$fg_bold[red]%}<%{$fg[red]%}<<%{$reset_color%}"
-
-# See if we can use colors.
 autoload colors zsh/terminfo
-[[ "$terminfo[colors]" -ge 8 ]] && colors
+[[ $terminfo[colors] -ge 8 ]] && colors
 
 for color in Red Green Yellow Blue Magenta Cyan White; do
-    eval _Set_b$color='%{$fg_bold[${(L)color}]%}'
-    eval _Set_$color='%{$fg_no_bold[${(L)color}]%}'
+    eval "_Set_b$color='%{$fg_bold[${(L)color}]%}'"
+    eval "_Set_$color='%{$fg_no_bold[${(L)color}]%}'"
 done
 _NoColor="%{$terminfo[sgr0]%}"
 
@@ -20,6 +16,7 @@ _Set_Charset="%{$terminfo[enacs]%}"
 _ShiftIn="%{$terminfo[smacs]%}"
 _ShiftOut="%{$terminfo[rmacs]%}"
 
+# The user is always right.
 if [[ "${NoExtChars}" ]]; then
     _Hbar='-'
     _ulCorner='/'
@@ -27,23 +24,39 @@ if [[ "${NoExtChars}" ]]; then
     _lrCorner='/'
     _urCorner='\'
 else
-    _Hbar=${altchar[q]:--}
-    _ulCorner=${altchar[l]:--}
-    _llCorner=${altchar[m]:--}
-    _lrCorner=${altchar[j]:--}
-    _urCorner=${altchar[k]:--}
+    _Hbar=${altchar[q]:-'-'}
+    _ulCorner=${altchar[l]:-'/'}
+    _llCorner=${altchar[m]:-'\'}
+    _lrCorner=${altchar[j]:-'/'}
+    _urCorner=${altchar[k]:-'\'}
 fi
 
+[[ -z "$MODE_INDICATOR" ]] && MODE_INDICATOR="${_Set_Red}:N"
+integer _Mode_Swap
+_Mode_Swap=0
 
-PROMPT='\
+# PS1=\
+# "$_Set_Charset$_Set_bBlue$_ShiftIn\
+# $_ulCorner"'${(e)_Fillbar}'"$_urCorner$_ShiftOut\
+# 
+# ${_Set_bBlue}${_ShiftIn}${_llCorner}(${_ShiftOut}\
+# %(?..${_Set_Red}%?${_Set_bBlue}:)\
+# %(!.${_Set_Red}root%s.${_Set_Green}%n)${_Set_Blue}@${_Set_Yellow}%m"\
+# '$(_Get_VI_Mode)'"${_Set_bBlue}%) \
+# ${_Set_Magenta}${_pwdStr}\
+# %(!.${_NoColor}.${_NoColor})${_ShiftOut}"'${_ThirdLine}'\
+# '${_Char}'"${_NoColor} "
+
+PS1='\
 $_Set_Charset$_Set_bBlue$_ShiftIn\
 $_ulCorner${(e)_Fillbar}$_urCorner$_ShiftOut\
 
-$_Set_bBlue$_ShiftIn$_llCorner($_ShiftOut\
-%(?..$_Set_Red%?$_Set_bBlue:)\
-%(!.${_Set_Red}root%s.${_Set_Green}%n)$_Set_Blue@$_Set_Yellow%m$_Set_bBlue%) \
-$_Set_Magenta$_pwdStr\
-%(!.$_NoColor.$_NoColor)$_ShiftOut$_ThirdLine\
-$_Char$_NoColor '
+${_Set_bBlue}${_ShiftIn}${_llCorner}(${_ShiftOut}\
+%(?..${_Set_Red}%?${_Set_bBlue}:)\
+%(!.${_Set_Red}root%s.${_Set_Green}%n)${_Set_Blue}@${_Set_Yellow}%m\
+$(_Get_VI_Mode)${_Set_bBlue}%) \
+${_Set_Magenta}${_pwdStr}\
+%(!.${_NoColor}.${_NoColor})${_ShiftOut}${_ThirdLine}\
+${_Char}${_NoColor} '
 
 PS2='> '

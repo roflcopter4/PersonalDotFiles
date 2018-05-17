@@ -81,6 +81,7 @@ endif
 
 let g:use_ale = 1
 let g:use_deoplete = 1
+let b:use_language_client = 1
 let s:vim_ale = 1
 
 let g:mapleader = ' '
@@ -314,7 +315,7 @@ if dein#load_state(expand(g:load_path))
     "call dein#add('xolox/vim-easytags', {'merged': 0})
     "call dein#add('Chilledheart/vim-clangd')
 
-    if !WINDOWS()
+    if !WINDOWS() && b:use_language_client
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
@@ -410,6 +411,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('dracula/vim')
     call dein#add('nanotech/jellybeans.vim')
     call dein#add('xolox/vim-colorscheme-switcher')
+    " call dein#add('fenetikm/falcon')
 
     call dein#local(expand('~/.vim/bundles/findent'))
 
@@ -835,7 +837,7 @@ if IsSourced('ale')
         let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
 
         let b:ale_linters_c = {'c': s:ALE_C,
-                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck', 'flawfinder']
+                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck']
                              \ }
 
     " Python {
@@ -1087,6 +1089,9 @@ if IsSourced('vim-autoformat')
         let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
         let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
     "### }
+    
+    " ### PERL {
+        let g:formatdef_perltidy = '"perltidy -q --perl-best-practices --format-skipping -sbl"'
 
 
     "### Some generic options
@@ -1111,7 +1116,7 @@ if IsSourced('neotags.nvim')
     let g:neotags_verbose = 1
     let g:neotags_recursive = 1
     let g:neotags_no_autoconf = 1
-    let g:neotags_use_binary = 0
+    let g:neotags_use_binary = 1
     let g:neotags_strip_comments = 1
     " let g:neotags_compression_type = 'gzip'
     let g:neotags_compression_type = 'lzma'
@@ -1120,43 +1125,49 @@ if IsSourced('neotags.nvim')
     " let g:neotags_find_tool = "find . -name '*.[ch]'"
     " let g:neotags_find_tool = ['find', "-name '*.[ch]'"]
 
-    " let g:neotags#c#order = 'cgstuedfpm'
-    " let g:neotags#cpp#order = 'cgstuedfpm'
-    let g:neotags#c#order = 'cgstuedfm'
-    let g:neotags#cpp#order = 'cgstuedfm'
-    " let g:neotags#c#order = 'cgstuedf'
-    " let g:neotags#cpp#order = 'cgstuedf'
+    " let g:neotags#c#order = 'fdeutsg'
+    let g:neotags#c#order = 'uetsgfdm'
+    " let g:neotags#cpp#order = 'cgstuedfm'
 
     " C
-    highlight def link cEnumTag		Enum
-    highlight def link cMemberTag	CMember
-    highlight def link cPreProcTag	PreProc
-    highlight def link cFunctionTag	CFuncTag
-    highlight def link cTypeTag		NT_cTypeTag
+    " highlight link EnumTag	Enum
+    " highlight link FunctionTag	CFuncTag
+    " highlight link MemberTag	CMember
+    " highlight link PreProcTag	PreProc
+    " highlight link TypeTag	NT_cTypeTag
 
-    " C++
-    highlight def link cppEnumTag	Enum
-    highlight def link cppMemberTag	CMember
-    highlight def link cppPreProcTag	PreProc
-    highlight def link cppFunctionTag	CFuncTag
+    highlight link neotags_EnumTag	Enum
+    highlight link neotags_FunctionTag	CFuncTag
+    highlight link neotags_MemberTag	CMember
+    highlight link neotags_PreProcTag	PreProc
+    highlight link neotags_TypeTag	NT_cTypeTag
+    
+    
 
-    " Go
-    " highlight def link goPackageTag	PreProc
-    highlight def link goFunctionTag	CFuncTag
-    " highlight def link goConstantTag	PreProc
-    " highlight def link goTypeTag	Type
-    " highlight def link goStructTag	Type
-    " highlight def link goInterfaceTag	PreProc
-    highlight def link goMemberTag	CMember
+    " " C++
+    " highlight def link cppEnumTag	Enum
+    " highlight def link cppMemberTag	CMember
+    " highlight def link cppPreProcTag	PreProc
+    " highlight def link cppFunctionTag	CFuncTag
+    " 
+    " " Go
+    " " highlight def link goPackageTag	PreProc
+    " highlight def link goFunctionTag	CFuncTag
+    " " highlight def link goConstantTag	PreProc
+    " " highlight def link goTypeTag	Type
+    " " highlight def link goStructTag	Type
+    " " highlight def link goInterfaceTag	PreProc
+    " highlight def link goMemberTag	CMember
+    " 
+    " " Sh
+    " highlight def link shFunctionTag	CFuncTag
+    " highlight def link shAliasTag	Constant
+    " 
+    " " Perl
+    " highlight def link perlFunctionTag	CFuncTag
 
-    " Sh
-    highlight def link shFunctionTag	CFuncTag
-    highlight def link shAliasTag	Constant
-
-    " Perl
-    highlight def link perlFunctionTag	CFuncTag
-
-    set tags=./tags,tags,../tags
+    " set tags=./tags,tags,../tags
+    set tags=
     " let &cpoptions .= 'd'
 
     let g:neotags_norecurse_dirs = [$HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include', '/usr/local/share',
@@ -1921,6 +1932,7 @@ command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
+nnoremap <leader>. /\v
 nnoremap ,, @:
 nnoremap <leader>aa :.Autoformat<CR>
 nnoremap <leader>af :Autoformat<CR>

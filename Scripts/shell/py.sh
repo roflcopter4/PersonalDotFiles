@@ -263,8 +263,12 @@ fi
 
 if echo "$2" | grep -q '^\.\{0,2\}/'; then
     file="$2"
-else
+elif [ -x "/usr/bin/${2}" ]; then
     file="/usr/bin/${2}"
+elif [ -x "/usr/local/bin/${2}" ]; then
+    file="/usr/local/bin/${2}"
+else
+    file=$(command -v "${2}")
 fi
 shift 2
 

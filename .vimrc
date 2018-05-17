@@ -4,11 +4,21 @@
 " Environment
 
 " Identify platform
+
+if has('unix') && !has('macunix') && !has('win32unix')
+    let g:_platform = substitute(system('uname'), "\n", '', '')
+    if g:_platform ==# 'FreeBSD' || g:_platform ==# 'DragonFly'
+        let g:_platform = 'BSD'
+    endif
+else
+    let g_platform = 'OTHER'
+endif
+
 function! OSX()
     return has('macunix')
 endf
 function! LINUX()
-    return has('unix') && !has('macunix') && !has('win32unix')
+    return (has('unix') && !has('macunix') && g:_platform ==# 'Linux')
 endf
 function! WINDOWS()
     return  (has('win16') || has('win32') || has('win64'))
@@ -19,6 +29,9 @@ endf
 function! WIN_OR_CYG()
     return WINDOWS() || CYGWIN()
 endf
+function! BSD()
+    return g:_platform ==# 'BSD'
+endfunction
 
 " Basics
 set nocompatible
@@ -166,7 +179,7 @@ fu! IsSourced(name)
     return dein#is_sourced(a:name)
 endf
 
-if LINUX() || CYGWIN()
+if LINUX() || CYGWIN() || BSD()
     let g:load_path=expand('~/.vim/dein')
     let g:dein_path=expand('~/.vim/dein/repos/github.com/Shougo/dein.vim')
     let &runtimepath = &runtimepath.','. g:dein_path
@@ -319,7 +332,7 @@ if dein#load_state(expand(g:load_path))
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
-        call dein#add('c0r73x/neotags.nvim', {'merged': 0})
+        call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
         " call dein#add('roflcopter4/neotags.nvim', {'merged': 0})
     endif
     call dein#add('Shougo/neosnippet.vim')
@@ -1119,7 +1132,11 @@ if IsSourced('neotags.nvim')
     let g:neotags_use_binary = 1
     let g:neotags_strip_comments = 1
     " let g:neotags_compression_type = 'gzip'
-    let g:neotags_compression_type = 'lzma'
+    if LINUX() || WINDOWS()
+        let g:neotags_compression_type = 'lzma'
+    elseif BSD() || CYGWIN()
+        let g:neotags_compression_type = 'gzip'
+    endif
     " let g:neotags_find_tool = 'find'
     " let g:neotags_find_tool = 'ag -g ""'
     " let g:neotags_find_tool = "find . -name '*.[ch]'"
@@ -1943,10 +1960,10 @@ nnoremap <leader>;; q:
 nnoremap q: :q
 
 if has('nvim') && !WIN_OR_CYG() && executable('pypy3')
-    let g:python3_host_prog = '/usr/bin/pypy3'
-    let g:python_host_prog = '/usr/bin/pypy'
-    " let g:python3_host_prog = 'python3'
-    " let g:python_host_prog = 'python2'
+    " let g:python3_host_prog = '/usr/bin/pypy3'
+    " let g:python_host_prog = '/usr/bin/pypy'
+    let g:python3_host_prog = 'python3'
+    let g:python_host_prog = 'python2'
 endif
 
 

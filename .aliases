@@ -237,9 +237,10 @@ if [ "$(uname)" != 'DragonFly' ] && [ "$(uname)" != 'OpenBSD' ] && [ "$(uname -o
 elif [ "$(uname)" = 'FreeBSD' ] || [ "$(uname)" = 'DragonFly' ]; then
     mkalias -S pkg='pkg'
     mkalias -S make='make'
+    mkalias -T pf='portfind'
     alias mic='make install clean'
     alias mc='make config-recursive'
-    alias pki='\pkg rinfo'
+    alias pki='sudo pkg install'
     alias pks='\pkg search'
 fi
 

@@ -43,6 +43,9 @@ else
 	alias las	"lla | less -r"
 endif
 
+alias	pki	sudo pkg install
+alias	pks	sudo pkg search
+
 setenv	EDITOR	vi
 setenv	PAGER	less
 

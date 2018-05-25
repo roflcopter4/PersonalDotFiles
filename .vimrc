@@ -301,7 +301,7 @@ if dein#load_state(expand(g:load_path))
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
-        call dein#add('c0r73x/neotags.nvim', {'merged': 0})
+        call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -1872,6 +1872,7 @@ if has('nvim') && !WIN_OR_CYG()
 else
     let g:python_host_prog  = 'python2'
     let g:python3_host_prog = 'python3'
+    let g:python_host_prog = 'python2'
 endif
 
 

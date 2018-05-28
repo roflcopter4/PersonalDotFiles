@@ -14,15 +14,11 @@ simple commands. Links will be full paths, not relative."
 make_link() {
     extension=$1
     script_type=$2
-    #target=${destDir}/$(basename "${file}" ".${extension}")
     target_name=$(basename "${file}" ".${extension}")
-    echo "Linking ${script_type} script '$(basename "${file}")' as '${target_name}'"
-    (
-        cd "$destDir" || exit 1
-        ln -sf "$("$RELPATH" "$destDir" "$file")" "${target_name}"
-        #echo "ln -sf $("$RELPATH" "$destDir" "$file") ${target_name}"
-    )
-    #ln -sf "$file" "$target"
+    target="${HOME}/.local/bin/${target_name}"
+    #ln -srf "$file" "$target"
+    echo "Linking $file to $target"
+    ln -sf "$file" "$target"
 }
 
 

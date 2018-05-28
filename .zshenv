@@ -65,6 +65,11 @@ if [[ -o interactive ]]; then
 fi
 
 
+# if [[ "$(uname)" == 'Linux' ]]; then
+#     export MALLOC_PERTURB_=$(( (RANDOM % 255) + 1 ))
+# fi
+
+
 case "$SYSID" in
     'slackware')
         export path=( "${HOME}"/.local/bin /usr/local/sbin /usr/sbin /sbin /usr/local/bin /usr/bin /bin /usr/games /usr/lib64/kde4/libexec /usr/lib64/qt/bin /usr/share/texmf/bin )
@@ -84,7 +89,7 @@ case "$SYSID" in
         export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
         ;;
     'DragonFly')
-        export path=( /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /usr/games /sbin /bin "${HOME}/bin" )
+        export path=( "${HOME}/.local/bin" /opt/bin /opt/clang-bin /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/games /sbin /bin )
         ;;
     'ArchLinux'|'Artix')
         export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )

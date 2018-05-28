@@ -16,15 +16,16 @@ BasedOnStyle: LLVM
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakTemplateDeclarations: true
-BinPackParameters: false
-BinPackArguments: false
+BinPackParameters: true
+BinPackArguments: true
 
 AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
-#AlignConsecutiveAssignments: true
+# AlignConsecutiveAssignments: true
 AlignTrailingComments: true
 AlignOperands: true
 
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
@@ -51,3 +52,24 @@ UseTab: Never
 ColumnLimit: 80
 
 ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F', 'foreach_FC', 'foreach_DL', 'foreach_DLC']
+
+# ##Custom##
+#BreakBeforeBraces: Custom
+#BraceWrapping:
+#  AfterClass:            true
+#  AfterControlStatement: false
+#  AfterEnum:             false
+#  AfterFunction:         true
+#  AfterNamespace:        true
+#  AfterObjCDeclaration:  false
+#  AfterStruct:           false
+#  AfterUnion:            false
+#  AfterExternBlock:      false
+#  BeforeCatch:           false
+#  BeforeElse:            true
+#  IndentBraces:          false
+#  SplitEmptyFunction:    true
+#  SplitEmptyRecord:      true
+#  SplitEmptyNamespace:   true
+##
+# ##END##

@@ -1,8 +1,8 @@
 #!/bin/dash
 
 ID_SHELL() {                                                     
-    if ! ( [ "$(uname)" = 'DragonFly' ]  || [ "$(uname)" = 'OpenBSD' ] || \
-           [ "$(uname -o)" = 'Cygwin' ]  || [ "$(uname -o)" = 'Msys' ] )
+    if ! ( [ "$(uname)" = 'DragonFly' ] || [ "$(uname)" = 'OpenBSD' ] || \
+           [ "$(uname -o)" = 'Cygwin' ] || [ "$(uname -o)" = 'Msys' ] )
     then
         printf "%s" "$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
@@ -102,51 +102,53 @@ mkalias() {
 #---------------------------------------------------------
 
 MOARINFO='true'
-
-# Aliases based on the standard ls will hide backups.
-Exists 'gls' && __LS_='gls'
-alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
-# if Exists 'gls'; then
-#     # If 'gls' exists, we're probably on a BSD system, and should use it
-#     alias ls='LC_ALL=C gls -B -H --color --group-directories-first'
-# else
-#     alias ls='LC_ALL=C ls -B -H --color --group-directories-first'
-# fi
-
-if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
-    alias ll='ls -l -h'
-    alias lll='ls -go -h'
+if [ "$(uname)" = 'OpenBSD' ] && ! Exists 'gls'; then
+    alias ls='ls -F'
+    alias la='ls -A'
+    alias ll='ls -lh'
+    alias lla='ls -lhA'
 else
-    alias ll='ls -go -h'
-    alias lll='ls -l -h'
+    # Aliases based on the standard ls will hide backups.
+    Exists 'gls' && __LS_='gls'
+    alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
+
+    if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
+        alias ll='ls -l -h'
+        alias lll='ls -go -h'
+    else
+        alias ll='ls -go -h'
+        alias lll='ls -l -h'
+    fi
+
+    alias la='ls -A'
+    alias lla='ll -A -h'
+    alias laa='lll -A -h'
+    alias llt='ll -t'
+    alias lat='ll -At'
+
+    # I don't remember why these even exist.
+    alias LS='LC_ALL=C \ls -H --group-directories-first'
+    alias l='LS -CF --color'
+    alias llb='l -l -h'
+    alias lab='la -l -h'
+
+    # Force less to take raw characters (color).
+    [ "$LESS" ] || alias less='less -r'
+
+    # Some extras
+    alias Ll='ll -L'
+    alias Lla='lla -L'
+    alias Ls='ls -L'
 fi
-
-alias la='ls -A'
-alias lla='ll -A -h'
-alias laa='lll -A -h'
-alias llt='ll -t'
-alias lat='ll -At'
-
-# I don't remember why these even exist.
-alias LS='LC_ALL=C \ls -H --group-directories-first'
-alias l='LS -CF --color'
-alias llb='l -l -h'
-alias lab='la -l -h'
-
-# Force less to take raw characters (color).
-[ "$LESS" ] || alias less='less -r'
-
-# Some extras
-alias Ll='ll -L'
-alias Lla='lla -L'
-alias Ls='ls -L'
 
 # ---------------------------------------------------------
 
 # Grep with color, from default bashrc.
-alias grep='grep --colour=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+if [ "$(uname)" != 'OpenBSD' ]; then
+    alias grep='grep --colour=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
 
 # Pretty basic.
 mkalias -A 'cd' 'smartcd -P' 'cd -P'
@@ -186,6 +188,7 @@ mkalias -T sage='sage -q'
 mkalias -T ari='aria2c' 
 mkalias -T par='par-format'
 mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
+mkalias -S parted='parted'
 
 mkalias -T wolf='wolframscript'
 
@@ -234,9 +237,10 @@ if [ "$(uname)" = 'Linux' ]; then
 elif [ "$(uname)" = 'FreeBSD' ] || [ "$(uname)" = 'DragonFly' ]; then
     mkalias -S pkg='pkg'
     mkalias -S make='make'
+    mkalias -T pf='portfind'
     alias mic='make install clean'
     alias mc='make config-recursive'
-    alias pki='\pkg rinfo'
+    alias pki='sudo pkg install'
     alias pks='\pkg search'
 fi
 

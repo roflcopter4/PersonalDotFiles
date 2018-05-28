@@ -210,7 +210,8 @@ if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
 
 my ( $basetype, @CMD, $tmp );
 
-for ($type) {
+for ($type)
+{
     if (/^(xz)$/n) {
         $basetype = 'xz';
         @CMD = ( 'xz', "-T${UseCores}", "-${lev9}", '>' );
@@ -298,7 +299,9 @@ $TAR = 'tar' unless ( defined($TAR) and which($TAR) );
 
 my $CP;
 system('cp --help >/dev/null 2>&1');
-if ( $? == 0 ) { $CP = 'cp' }
+if ( $? == 0 ) {
+    $CP = 'cp';
+}
 else {
     system('gcp --help >/dev/null 2>&1');
     if ( $? == 0 ) { $CP = 'gcp' }

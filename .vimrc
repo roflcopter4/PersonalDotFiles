@@ -1,24 +1,36 @@
-" vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker 
+" vim: set sw=4 ts=4 sts=4 et tw=78 foldmarker={,} foldlevel=0 foldmethod=marker
 
 " ======================================================================================================
 " Environment
 
 " Identify platform
-sil fu! OSX()
+if has('unix') && !has('macunix') && !has('win32unix')
+    let g:_platform = substitute(system('uname'), "\n", '', '')
+    if g:_platform ==# 'FreeBSD' || g:_platform ==# 'DragonFly'
+        let g:_platform = 'BSD'
+    endif
+else
+    let g:_platform = 'OTHER'
+endif
+
+function! OSX()
     return has('macunix')
 endf
-sil fu! LINUX()
-    return has('unix') && !has('macunix') && !has('win32unix')
+function! LINUX()
+    return (has('unix') && !has('macunix') && g:_platform ==# 'Linux')
 endf
-sil fu! WINDOWS()
+function! WINDOWS()
     return  (has('win16') || has('win32') || has('win64'))
 endf
-sil fu! CYGWIN()
+function! CYGWIN()
     return has('win32unix')
 endf
-sil fu! WIN_OR_CYG()
+function! WIN_OR_CYG()
     return WINDOWS() || CYGWIN()
 endf
+function! BSD()
+    return g:_platform ==# 'BSD'
+endfunction
 
 " Basics
 set nocompatible
@@ -56,7 +68,7 @@ endif
 
 let g:spf13_writing = 1
 let g:spf13_keep_trailing_whitespace = 1
-let g:spf13_no_omni_complete = 1
+" let g:spf13_no_omni_complete = 1
 let g:spf13_no_fastTabs = 1
 let g:spf13_no_restore_cursor = 1
 let g:spf13_no_autochdir = 1
@@ -81,6 +93,7 @@ endif
 
 let g:use_ale = 1
 let g:use_deoplete = 1
+let b:use_language_client = 1
 let s:vim_ale = 1
 
 let g:mapleader = ' '
@@ -89,15 +102,11 @@ let g:mapleader = ' '
 " ======================================================================================================
 " Some colorscheme setup that must come before the plugin is loaded.
 
-let g:myMolokai_BG = 'darker'
-" let g:myMolokai_BG = 'custom'
-
-" ## Monokai_Brown
-" let g:myMolokai_CustomBG = '#272822'
-" ## BLACK_
-" let g:myMolokai_CustomBG = '#000000'
-" ## NEAR_BLACK
-" let g:myMolokai_CustomBG = '#080808'
+let g:myMolokai_BG        = 'darker'
+"let g:myMolokai_BG       = 'custom'
+"let g:myMolokai_CustomBG = '#272822' " ## Monokai_Brown
+"let g:myMolokai_CustomBG = '#000000' " ## BLACK_
+"let g:myMolokai_CustomBG = '#080808' " ## NEAR_BLACK
 
 "let g:myMolokai_FG = 'other'
 "let g:myMolokai_FG = 'custom'
@@ -121,7 +130,7 @@ let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go' ]
 "let g:ophigh_highlight_link_group = 'Operator'
 let g:ophigh_highlight_link_group = 'OperatorChars'
 "let g:ophigh_color_gui = '#d33682'
-"let g:ophigh_color_gui = '#42A5F5'  ' Lightish-blue
+"let g:ophigh_color_gui = '#42A5F5'  " Lightish-blue
 
 "let g:negchar_highlight_link_group = 'NegationChar'
 "let g:negchar_color_gui = '#66BB6A'
@@ -132,7 +141,6 @@ let g:negchar_color_gui = '#f92672'
 let g:structderef_color_gui = '#42A5F5'
 
 
-
 " ======================================================================================================
 " ======================================================================================================
 " ======================================================================================================
@@ -140,33 +148,15 @@ let g:structderef_color_gui = '#42A5F5'
 " Plugin Setup
 
 
-"if has('nvim')
-    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . &runtimepath
-    "    \ . ',' . expand('/usr/share/vim/vimfiles/after')
-    "let &runtimepath = expand('/usr/share/vim/vimfiles') . ',' . expand('/usr/share/vim/vimfiles/after') . ',' . &runtimepath
-"else
-    "let &runtimepath = expand('~/.local/share/nvim/site') . ',' . &runtimepath
-    "    \ . ',' . expand('~/.local/share/nvim/site/after')
-"endif
-
-
 let g:plugin_manager = 'dein'
 "let g:dein#install_max_processes = 12
 filetype off
-
-" fu! dein#add(name,...)
-"     if exists('a:1')
-"         call dein#add(a:name, a:1)
-"     else
-"         call dein#add(a:name)
-"     endif
-" endf
 
 fu! IsSourced(name)
     return dein#is_sourced(a:name)
 endf
 
-if LINUX() || CYGWIN()
+if LINUX() || CYGWIN() || BSD()
     let g:load_path=expand('~/.vim/dein')
     let g:dein_path=expand('~/.vim/dein/repos/github.com/Shougo/dein.vim')
     let &runtimepath = &runtimepath.','. g:dein_path
@@ -186,13 +176,17 @@ if dein#load_state(expand(g:load_path))
     call dein#add(expand(g:dein_path))
     call dein#add('haya14busa/dein-command.vim')
 
+    if has('nvim') && 0
+        call dein#add('/usr/share/vim/vimfiles')
+    endif
+
     if executable('ag') || executable('ack-grep') || executable('ack')
         call dein#add('mileszs/ack.vim')
     endif
 
     " My own stuff should be first!
     call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
-     
+
     " General ---------
     call dein#add('MarcWeber/vim-addon-mw-utils')
     call dein#add('ctrlpvim/ctrlp.vim')
@@ -217,49 +211,45 @@ if dein#load_state(expand(g:load_path))
     call dein#add('vim-scripts/matchit.zip')
     call dein#add('vim-scripts/restore_view.vim')
     call dein#add('vim-scripts/sessionman.vim')
-      
+
     " Writing -----
     call dein#add('reedes/vim-litecorrect')
-    call dein#add('reedes/vim-textobj-sentence')
     call dein#add('reedes/vim-textobj-quote')
+    call dein#add('reedes/vim-textobj-sentence')
     call dein#add('reedes/vim-wordy')
-      
+
     " General Programming -----
-    call dein#add('tpope/vim-fugitive')
-    "call dein#add("bling/vim-bufferline")
-    call dein#add('mattn/webapi-vim')
-    call dein#add('mattn/gist-vim')
-    call dein#add('scrooloose/nerdcommenter')
     call dein#add('godlygeek/tabular')
-    " call dein#add('luochen1990/rainbow')
     call dein#add('junegunn/vim-easy-align')
-    if executable('ctags')
-        call dein#add('majutsushi/tagbar')
-    endif
-          
+    call dein#add('majutsushi/tagbar')
+    call dein#add('mattn/gist-vim')
+    call dein#add('mattn/webapi-vim')
+    call dein#add('scrooloose/nerdcommenter')
+    call dein#add('tpope/vim-fugitive')
+
     " PHP --------
-    call dein#add('spf13/PIV')
     call dein#add('arnaud-lb/vim-php-namespace')
     call dein#add('beyondwords/vim-twig')
-     
+    call dein#add('spf13/PIV')
+
     " Python ---------
     call dein#add('klen/python-mode')
-    call dein#add('yssource/python.vim')
     call dein#add('vim-scripts/python_match.vim')
     call dein#add('vim-scripts/pythoncomplete')
-      
+    call dein#add('yssource/python.vim')
+
     " Javascript ----------
+    call dein#add('briancollins/vim-jst')
     call dein#add('elzr/vim-json')
     call dein#add('groenewege/vim-less')
-    call dein#add('pangloss/vim-javascript')
-    call dein#add('briancollins/vim-jst')
     call dein#add('kchmck/vim-coffee-script')
-    
+    call dein#add('pangloss/vim-javascript')
+
     " Scala ---------
-    call dein#add('derekwyatt/vim-scala')
     call dein#add('derekwyatt/vim-sbt')
+    call dein#add('derekwyatt/vim-scala')
     call dein#add('vim-scripts/xptemplate')
-    
+
     " Haskell ----------
     call dein#add('Twinside/vim-haskellConceal')
     call dein#add('Twinside/vim-haskellFold')
@@ -270,23 +260,22 @@ if dein#load_state(expand(g:load_path))
     call dein#add('eagletmt/neco-ghc')
     call dein#add('lukerandall/haskellmode-vim')
     call dein#add('travitch/hasksyn')
-    
+
     " HTML ---------
-    call dein#add('hail2u/vim-css3-syntax')
     call dein#add('gorodinskiy/vim-coloresque')
+    call dein#add('hail2u/vim-css3-syntax')
     call dein#add('tpope/vim-haml')
-    "call dein#add('amirh/HTML-AutoCloseTag')
 
     " Markdown
     call dein#add('vim-pandoc/vim-pandoc')
     call dein#add('vim-pandoc/vim-pandoc-syntax')
 
     " Moar Languages ------
-    call dein#add('rsmenon/vim-mathematica')
+    call dein#add('chaimleib/vim-renpy')
     call dein#add('dag/vim-fish')
     call dein#add('fsharp/vim-fsharp')
-    call dein#add('chaimleib/vim-renpy')
     call dein#add('gentoo/gentoo-syntax')
+    call dein#add('rsmenon/vim-mathematica')
     call dein#add('rust-lang/rust.vim')
 
     " Misc ----------
@@ -308,15 +297,11 @@ if dein#load_state(expand(g:load_path))
     call dein#add('vim-scripts/Vimball')
     " call dein#add('octol/vim-cpp-enhanced-highlight')
 
-    "call dein#add('xolox/vim-easytags', {'merged': 0})
-    "call dein#add('Chilledheart/vim-clangd')
-
-    if !WINDOWS() && 0
+    if !WINDOWS() && b:use_language_client
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     if has('nvim')
-        " call dein#add('c0r73x/neotags.nvim', {'merged': 0})
-        call dein#add('roflcopter4/neotags.nvim', {'merged': 0})
+        call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -326,7 +311,7 @@ if dein#load_state(expand(g:load_path))
 
     call dein#add('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
     call dein#add('vim-perl/vim-perl',  {'merged': 0, 'build': 'make -k contrib_syntax carp try-tiny '
-                                                              \.'method-signatures moose test-more'})
+                                                            \. 'method-signatures moose test-more'})
 
     "call dein#add('Blackrush/vim-gocode')
     "call dein#add('fatih/vim-go')
@@ -379,41 +364,41 @@ if dein#load_state(expand(g:load_path))
     endif
     call dein#add('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
 
-    call dein#add('Shougo/denite.vim')
-     
-      
+    call dein#add('Shougo/unite.vim')
+
+
     " Colour Schemes ----------------
-    call dein#add('MaxSt/FlatColor')
-    call dein#add('mhinz/vim-janah')
-    call dein#add('iCyMind/NeoSolarized')
-    call dein#add('joshdick/onedark.vim')
-    call dein#add('reewr/vim-monokai-phoenix')
     call dein#add('KeitaNakamura/neodark.vim')
-    call dein#add('dunckr/vim-monokai-soda')
-    call dein#add('tyrannicaltoucan/vim-quantum')
-    call dein#add('zanglg/nova.vim')
-    call dein#add('crater2150/vim-theme-chroma')
-    call dein#add('muellan/am-colors')
-    call dein#add('jaromero/vim-monokai-refined')
-    call dein#add('vim-scripts/darkspectrum')
-    call dein#add('lanox/lanox-vim-theme')
-    call dein#add('benjaminwhite/Benokai')
+    call dein#add('MaxSt/FlatColor')
     call dein#add('Valloric/vim-valloric-colorscheme')
+    call dein#add('benjaminwhite/Benokai')
+    call dein#add('crater2150/vim-theme-chroma')
+    call dein#add('dracula/vim')
+    call dein#add('dunckr/vim-monokai-soda')
+    call dein#add('iCyMind/NeoSolarized')
+    call dein#add('jaromero/vim-monokai-refined')
+    call dein#add('joshdick/onedark.vim')
+    call dein#add('lanox/lanox-vim-theme')
+    call dein#add('mhartington/oceanic-next')
+    call dein#add('mhinz/vim-janah')
+    call dein#add('morhetz/gruvbox')
+    call dein#add('muellan/am-colors')
+    call dein#add('nanotech/jellybeans.vim')
+    call dein#add('nielsmadan/harlequin')
     call dein#add('petelewis/vim-evolution')
     call dein#add('ratazzi/blackboard.vim')
-    call dein#add('nielsmadan/harlequin')
-    call dein#add('morhetz/gruvbox')
-    call dein#add('mhartington/oceanic-next')
-    call dein#add('dracula/vim')
-    call dein#add('nanotech/jellybeans.vim')
+    call dein#add('reewr/vim-monokai-phoenix')
+    call dein#add('tyrannicaltoucan/vim-quantum')
+    call dein#add('vim-scripts/darkspectrum')
     call dein#add('xolox/vim-colorscheme-switcher')
+    call dein#add('zanglg/nova.vim')
 
     call dein#local(expand('~/.vim/bundles/findent'))
 
     "if has('nvim')
     "    call dein#local(expand('/usr/share/vim/vimfiles'))
     "endif
-     
+
 
     call dein#end()
     call dein#save_state()
@@ -475,11 +460,11 @@ endif
 
 if IsSourced('nerdtree')
     noremap <leader>ee :NERDTreeTabsToggle<CR>
-    "noremap <leader>e :NERDTreeFind<CR>
     noremap <leader>ef :NERDTreeFind<CR>
-     
+
     let g:NERDTreeShowBookmarks=1
-    let g:NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
+    let g:NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$',
+                       \  '^\.hg$', '^\.svn$', '\.bzr$']
     let g:NERDTreeChDirMode=0
     let g:NERDTreeQuitOnOpen=1
     let g:NERDTreeMouseMode=2
@@ -531,26 +516,22 @@ if IsSourced('python-mode')
     let g:pymode_lint_checkers = ['flake8', 'pep8', 'pyflakes']
     "let g:pymode_lint_on_fly = 1
 
-    let g:pymode_indent = 1
-    let g:pymode_options_colorcolumn = 0
-    let g:pymode_python = 'python'
-    let g:pymode_doc = 1
-    let g:pymode_doc_bind = 'K'
-
-    let g:pymode_run = 1
-    let g:pymode_run_bind = '<leader>r'
     let g:pymode_breakpoint = 1
     let g:pymode_breakpoint_bind = '<leader>b'
-
+    let g:pymode_doc = 1
+    let g:pymode_doc_bind = 'K'
+    let g:pymode_indent = 1
+    let g:pymode_options_colorcolumn = 0
     let g:pymode_options_max_line_length = 79
-
-    let g:pymode_trim_whitespaces = 0
+    let g:pymode_python = 'python'
     let g:pymode_rope = 0
-
+    let g:pymode_run = 1
+    let g:pymode_run_bind = '<leader>r'
     let g:pymode_syntax = 1
     let g:pymode_syntax_all = 1
     let g:pymode_syntax_docstrings = g:pymode_syntax_all
     let g:pymode_syntax_highlight_exceptions = g:pymode_syntax_all
+    let g:pymode_trim_whitespaces = 0
 endif
 
 
@@ -559,9 +540,10 @@ if IsSourced('ctrlp.vim')
     nnoremap <silent> <D-t> :CtrlP<CR>
     nnoremap <silent> <D-r> :CtrlPMRU<CR>
     let g:ctrlp_custom_ignore = {
-                \ 'dir':  '\.git$\|\.hg$\|\.svn$',
-                \ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$' }
-                 
+                    \ 'dir':  '\.git$\|\.hg$\|\.svn$',
+                    \ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$'
+                \ }
+
     if executable('ag')
         let s:ctrlp_fallback = 'ag %s --nocolor -l -g ""'
     elseif executable('ack-grep')
@@ -578,18 +560,17 @@ if IsSourced('ctrlp.vim')
         unlet g:ctrlp_user_command
     endif
     let g:ctrlp_user_command = {
-                \ 'types': {
-                \ 1: ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others'],
-                \ 2: ['.hg', 'hg --cwd %s locate -I .'],
-                \ },
-                \ 'fallback': s:ctrlp_fallback
+                \     'types': {
+                \         1: ['.git', 'cd %s && git ls-files . --cached --exclude-standard --others'],
+                \         2: ['.hg', 'hg --cwd %s locate -I .'],
+                \     },
+                \     'fallback': s:ctrlp_fallback
                 \ }
-                 
+
     if IsSourced('ctrlp-funky')
         " CtrlP extensions
         let g:ctrlp_extensions = ['funky']
-         
-        "funky
+        " funky
         nnoremap <Leader>fu :CtrlPFunky<Cr>
     endif
 
@@ -643,6 +624,8 @@ if IsSourced('rainbow') || 1
         \        },
         \        'c': {
         \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
+        \            'parentheses': ['start=/(/ end=/)/ fold',
+                                   \ 'start=/{/ end=/}/ fold'],
         \        },
         \        'css': 0
         \    }
@@ -672,7 +655,6 @@ endif
 if IsSourced('neocomplcache') || IsSourced('neocomplete')
     " Use honza's snippets.
     let g:neosnippet#snippets_directory='C:Vim/dein/repos/github.com/vim-snippets/snippets'
-    " Enable neosnippet snipmate compatibility mode
     let g:neosnippet#enable_snipmate_compatibility = 1
     " For snippet_complete marker.
     if !exists('g:spf13_no_conceal')
@@ -680,7 +662,6 @@ if IsSourced('neocomplcache') || IsSourced('neocomplete')
             set conceallevel=2 concealcursor=i
         endif
     endif
-    " Enable neosnippets when using go
     let g:go_snippet_engine = 'neosnippet'
     set completeopt-=preview
 endif
@@ -688,8 +669,7 @@ endif
 
 if IsSourced('undotree')
     nnoremap <Leader>u :UndotreeToggle<CR>
-    " If undotree is opened, it is likely one wants to interact with it.
-    let g:undotree_SetFocusWhenToggle=1
+    let g:undotree_SetFocusWhenToggle = 1
 endif
 
 
@@ -712,7 +692,7 @@ if IsSourced('wildfire.vim')
 endif
 
 
-if IsSourced('vim-airline') 
+if IsSourced('vim-airline')
     if CYGWIN() || WINDOWS()
         let g:airline_powerline_fonts = 0
     else
@@ -767,7 +747,7 @@ if IsSourced('neomake')
     "     \ 'active_filetypes': [],
     "     \ 'passive_filetypes': []
     "     \ }
-    " 
+    "
     " let g:neomake_serialize = 1
     " let g:neomake_serialize_abort_on_error = 1
     " let g:neomake_highlight_lines = 1
@@ -783,14 +763,14 @@ if IsSourced('neomake')
     "     \ 'args': ['--build'],
     "     \ 'errorformat': '%f:%l:%c: %m',
     "     \ }
-    " 
+    "
     " augroup my_neomake_highlights
     "     au!
     "     autocmd ColorScheme *
     "       \ hi link NeomakeError SpellBad |
     "       \ hi link NeomakeWarning SpellCap
     " augroup END
-    " 
+    "
     " autocmd! BufReadPost,BufWritePost * Neomake
 
     if filereadable(expand('~/personaldotfiles/.Vim/neomake.vim'))
@@ -801,7 +781,7 @@ endif
 
 if IsSourced('ale')
     let g:airline#extensions#ale#enabled = 1
-    let g:ale_lint_on_text_changed = 1 
+    let g:ale_lint_on_text_changed = 1
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 0
     let g:ale_linters_explicit = 0
@@ -813,7 +793,7 @@ if IsSourced('ale')
         return fnamemodify(expand('%:p'), ':h')
     endfunction
 
-    " C, C++, C# {
+    "# C, C++, C# {
         let g:ale_c_gcc_options   = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I..'
         let g:ale_c_clang_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -i..'
 
@@ -827,20 +807,23 @@ if IsSourced('ale')
 
         let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
         call extend(g:ale_cpp_clangtidy_checks, ['-*pointer-arithmetic*, -*fuchsia*'])
-                                        
+
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
         let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
 
         let b:ale_linters_c = {'c': s:ALE_C,
-                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck', 'flawfinder']
+                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck']
                              \ }
 
-    " Python {
+    "# Python {
         let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
+        " let b:ale_linters_py = {'python': ['flake8', 'pyflakes', 'mypy']}
+        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyls', 'pyflakes', 'pep8']}
+        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
         let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
-        let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501' 
+        let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501'
 
-    " Perl {
+    "# Perl {
         let b:ale_linters_perl = {'perl': ['perl']}
         let g:ale_perl_perlcritic_options = '-4'
 
@@ -931,7 +914,7 @@ if IsSourced('deoplete.nvim')
     function! s:my_cr_function() abort
         return deoplete#close_popup() . "\<CR>"
     endfunction
-    
+
     if IsSourced('zchee/deoplete-clang')
         g:deoplete#sources#clang#libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
         g:deoplete#sources#clang#clang_header = '/usr/lib64/clang/7.0.0/include'
@@ -954,14 +937,14 @@ if IsSourced('YouCompleteMe')
             let g:ycm_server_python_interpreter='/usr/bin/env python3'
         endif
     endif
-    " enable completion from tags
+    "# enable completion from tags
     let g:ycm_collect_identifiers_from_tags_files = 1
-    " remap Ultisnips for compatibility for YCM
+    "# remap Ultisnips for compatibility for YCM
     let g:UltiSnipsExpandTrigger = '<C-j>'
     let g:UltiSnipsJumpForwardTrigger = '<C-j>'
     let g:UltiSnipsJumpBackwardTrigger = '<C-k>'
 
-    " Enable omni completion.
+    "# Enable omni completion.
     augroup YcmOmniVimrc
         autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
         autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
@@ -972,8 +955,8 @@ if IsSourced('YouCompleteMe')
         autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
     augroup END
 
-    " Haskell post write lint and check with ghcmod
-    " $ `cabal install ghcmod` if missing and ensure ~/.cabal/bin is in your $PATH.
+    "# Haskell post write lint and check with ghcmod
+    "# $ `cabal install ghcmod` if missing and ensure ~/.cabal/bin is in your $PATH.
     if !executable('ghcmod')
         augroup YcmGhcMod
             autocmd BufWritePost *.hs GhcModCheckAndLintAsync
@@ -1016,11 +999,11 @@ endif
 
 if IsSourced('vim-autoformat')
     augroup c_formatting
-        autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
+        autocmd FileType c,cpp,cs,c++,go setlocal cindent sw=8 sts=8
     augroup END
     let g:__c__shiftwidth = 8
 
-    " ### astyle {
+    "# astyle {
         let g:_Astyle_Main_ = ''
             \ . ' --indent=spaces=' . g:__c__shiftwidth
             \ . ' --pad-oper'
@@ -1038,7 +1021,7 @@ if IsSourced('vim-autoformat')
         let g:_Astyle_cs_     = ' --mode=cs --indent-namespaces"'
     "}
 
-    "### clang-format {
+    "# clang-format {
         if len(findfile('.clang-format', expand('%:p:h').';'))
             let s:ClangFile = findfile('.clang-format', expand('%:p:h').';')
         elseif len(findfile('_clang-format', expand('%:p:h').';'))
@@ -1055,35 +1038,42 @@ if IsSourced('vim-autoformat')
             endif
         endfunction
 
-        if exists('s:ClangFile') 
+        if exists('s:ClangFile')
             let g:formatdef_clangformat = "'clang-format -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- "
                                       \ . "-lines='.a:firstline.':'.a:lastline.' "
                                       \ . "--assume-filename=\"'.expand('%:p').'\"'"
         endif
-    "}
+    "# }
 
     "--------------------------------------------------------------------------------------
 
-    "### C {
+    "# C {
         let g:formatdef_astyle_c    = g:_Astyle_Allman_ . g:_Astyle_c_
         let g:formatdef_astyle_c_KR = g:_Astyle_KR_     . g:_Astyle_c_
         let g:formatters_c          = ['clangformat', 'astyle_c_KR', 'astyle_c']
-    "### }
+    "# }
 
-    "### C++ {
+    "# C++ {
         let g:formatdef_astyle_cpp    = g:_Astyle_Allman_ . g:_Astyle_cpp_
         let g:formatdef_astyle_cpp_KR = g:_Astyle_KR_     . g:_Astyle_cpp_
         let g:formatters_cpp          = ['clangformat', 'astyle_cpp_KR', 'astyle_cpp']
-    "### }
+    "# }
 
-    "### C-sharp {
+    "# C-sharp {
         let g:formatdef_astyle_cs    = g:_Astyle_Allman_ . g:_Astyle_cs_
         let g:formatdef_astyle_cs_KR = g:_Astyle_KR_     . g:_Astyle_cs_
         let g:formatters_cs          = ['clangformat', 'astyle_cs_KR', 'astyle_cs']
-    "### }
+    "# }
 
+    "# Perl {
+        let g:formatdef_perltidy = '"perltidy -q --perl-best-practices --format-skipping -sbl"'
+    "# }
+    
+    "# Python {
+        let g:formatters_python = ['yapf', 'autopep8']
+    "# }
 
-    "### Some generic options
+    "# Some generic options
     let g:autoformat_autoindent = 0
     let g:autoformat_retab = 0
     let g:autoformat_remove_trailing_spaces = 0
@@ -1105,51 +1095,42 @@ if IsSourced('neotags.nvim')
     let g:neotags_verbose = 1
     let g:neotags_recursive = 1
     let g:neotags_no_autoconf = 1
+    let g:neotags_use_binary = 1
+    let g:neotags_strip_comments = 1
+    if LINUX() || WINDOWS()
+        let g:neotags_compression_type = 'lzma'
+    elseif BSD() || CYGWIN()
+        let g:neotags_compression_type = 'gzip'
+    endif
+    " let g:neotags_find_tool = 'find'
     " let g:neotags_find_tool = 'ag -g ""'
+    " let g:neotags_find_tool = "find . -name '*.[ch]'"
+    " let g:neotags_find_tool = ['find', "-name '*.[ch]'"]
 
-    let g:neotags#c#order = 'cgstuedfpm'
-    let g:neotags#cpp#order = 'cgstuedfpm'
-    " let g:neotags#c#order = 'cgstuedfm'
+    " let g:neotags#c#order = 'fdeutsg'
+    let g:neotags#c#order = 'uetsgfdm'
     " let g:neotags#cpp#order = 'cgstuedfm'
 
-    " C
-    highlight def link cEnumTag Enum
-    highlight def link cMemberTag CMember
-    highlight def link cPreProcTag PreProc
-    highlight def link cFunctionTag CFuncTag
+    highlight link neotags_EnumTag	Enum
+    highlight link neotags_FunctionTag	CFuncTag
+    highlight link neotags_MemberTag	CMember
+    highlight link neotags_PreProcTag	PreProc
+    highlight link neotags_TypeTag	Type
 
-    " C++
-    highlight def link cppEnumTag Enum
-    highlight def link cppMemberTag CMember
-    highlight def link cppPreProcTag PreProc
-    highlight def link cppFunctionTag CFuncTag
+    set tags=./tags,tags,../tags
 
-    " Sh
-    highlight def link shFunctionTag CFuncTag
-    highlight def link shAliasTag Constant
+    let g:neotags_norecurse_dirs = [
+                        \     $HOME, '/', '/include', '/usr/include', '/usr/share',
+                        \     '/usr/local/include', '/usr/local/share',
+                        \     expand('~/personaldotfiles'), expand('~/random'),
+                        \     expand('~/random/Code'), expand('~/random/school')
+                        \ ]
 
-    " Perl
-    highlight def link perlFunctionTag CFuncTag
-
-    set tags=./tags;
-    let &cpoptions .= 'd'
-
-    let g:neotags_norecurse_dirs = [$HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include', '/usr/local/share',
-                                  \ expand('~/personaldotfiles'), expand('~/random'), expand('~/random/Code'), expand('~/random/school')]
-    " let g:neotags_ctags_args = [
-    "     \ '--fields=+l',
-    "     \ '--c-kinds=+p',
-    "     \ '--c++-kinds=+p',
-    "     \ '--sort=yes',
-    "     \ '--extras=+q',
-    "     \ '--links=no',
-    "     \ "--languages='-json'",
-    "     \ "--exclude='*config.log' --exclude='*config.guess' --exclude='*configure' --exclude='*Makefile.in'",
-    "     \ "--exclude='*missing' --exclude='*depcomp' --exclude='*aclocal.m4' --exclude='*install-sh'",
-    "     \ "--exclude='*config.status' --exclude='*config.h.in' --exclude='*Makefile'"
-    "     \ ]
-
-    let g:neotags_ignored_tags = ['NULL', 'restrict', 'const', 'BUFSIZ', 'true', 'false']
+    let g:neotags_ignored_tags = ['restrict', 'static', 'extern', 'const', 'inline',
+                               \  '__attribute__', 'BUFSIZ', 'bool', 'true', 'false',
+                               \  'NULL', 'void', 'xmalloc', 'xcalloc', 'xrealloc',
+                               \  'INT_MAX', 'UINT_MAX',
+                               \ ]
 
     nmap <leader>tag :NeotagsToggle<CR>
 endif
@@ -1160,7 +1141,7 @@ if IsSourced('octol/vim-cpp-enhanced-highlight')
     let g:cpp_class_decl_highlight = 1
     let g:cpp_member_variable_highlight = 1
     let g:cpp_experimental_simple_template_highlight = 1
-    " let g:cpp_experimental_template_highlight = 1
+    let g:cpp_experimental_template_highlight = 1
     let g:cpp_concepts_highlight = 1
     let g:cpp_no_function_highlight = 1
 endif
@@ -1184,31 +1165,25 @@ endif
 
 
 if IsSourced('vim-pandoc')
-    "let g:NOPNOPNOPNOP = ''
 endif
 
 
 if IsSourced('LanguageClient-neovim')
     let g:LanguageClient_serverCommands = {
-        \ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
-        \ 'c': ['cquery', '--log-file=/tmp/cq.log'],
-        \ } 
-    "let g:LanguageClient_serverCommands = {
-        "\ 'cpp': ['cquery', '--log-file=/tmp/cq.log'],
-        "\ 'c': ['clangd']
-        "\ } 
-    let g:LanguageClient_diagnosticsEnable = 0
+          \     'cpp': ['cquery', '--log-file=/tmp/cq.log'],
+          \     'c':   ['cquery', '--log-file=/tmp/cq.log'],
+          \ }
 
+    let g:LanguageClient_diagnosticsEnable = 0
     let g:LanguageClient_autoStart = 1
     let g:LanguageClient_trace = 'verbose'
 
-    let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings 
+    let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
     let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
     "set completefunc=LanguageClient#complete
     "set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
     nnoremap <silent> <leader>h :call LanguageClient_textDocument_hover()<CR>
-
     nnoremap <silent> <leader>gh :call LanguageClient_textDocument_hover()<CR>
     nnoremap <silent> <leader>gd :call LanguageClient_textDocument_definition()<CR>
     nnoremap <silent> <leader>gr :call LanguageClient_textDocument_references()<CR>
@@ -1269,19 +1244,19 @@ function! InitializeDirectories()
                 \ 'backup': 'backupdir',
                 \ 'views': 'viewdir',
                 \ 'swap': 'directory' }
-                 
+
     if has('persistent_undo')
         let l:dir_list['undo'] = 'undodir'
     endif
-     
-    " Specify a different directory in which to place the vimbackup vimviews, vimundo, and vimswap
-    " with:  let g:spf13_consolidated_directory = <full path to desired directory>
+
+    "# Specify a different directory in which to place the vimbackup vimviews, vimundo, and vimswap
+    "# with:  let g:spf13_consolidated_directory = <full path to desired directory>
     if exists('g:spf13_consolidated_directory')
         let l:common_dir = g:spf13_consolidated_directory . l:prefix
     else
         let l:common_dir = l:parent . '/.' . l:prefix
     endif
-     
+
     for [l:dirname, l:settingname] in items(l:dir_list)
         let l:directory = l:common_dir . l:dirname . '/'
         if exists('*mkdir')
@@ -1329,7 +1304,7 @@ endfunction
 " Shell command
 function! s:RunShellCommand(cmdline)
     botright new
-     
+
     setlocal buftype=nofile
     setlocal bufhidden=delete
     setlocal nobuflisted
@@ -1337,7 +1312,7 @@ function! s:RunShellCommand(cmdline)
     setlocal nowrap
     setlocal filetype=shell
     setlocal syntax=shell
-     
+
     call setline(1, a:cmdline)
     call setline(2, substitute(a:cmdline, '.', '=', 'g'))
     execute 'silent $read !' . escape(a:cmdline, '%#')
@@ -1380,7 +1355,7 @@ if !exists('g:spf13_no_omni_complete')
                     \setlocal omnifunc=syntaxcomplete#Complete |
                     \endif
     endif
-     
+
     " # Some convenient mappings
     "inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
     "inoremap <expr> <CR>     pumvisible() ? "\<C-y>" : "\<CR>"
@@ -1388,37 +1363,37 @@ if !exists('g:spf13_no_omni_complete')
     inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
     inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
     inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-     
+
     " Automatically open and close the popup menu / preview window
     au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
     set completeopt=menu,preview,longest
 endif
 
 " Normal Vim omni-completion
-"if !exists('g:spf13_no_omni_complete')
-"    " Enable omni-completion.
-"    augroup spf13_omni_complete
-"        autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-"        autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-"        autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-"        autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
-"        autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
-"        autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
-"        autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-"    augroup END
-"endif
+if !exists('g:spf13_no_omni_complete')
+   " Enable omni-completion.
+   augroup spf13_omni_complete
+       autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+       autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+       autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+       autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+       autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+       autocmd FileType ruby setlocal omnifunc=rubycomplete#Complete
+       autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
+   augroup END
+endif
 
 " Automatically switch to the current file directory when a new buffer is opened.
 augroup spf13_autchdir
-    " autocmd BufEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
-    autocmd VimEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    autocmd BufEnter * if bufname("") !~# "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
+    " autocmd VimEnter * if bufname("") !~ "^\[A-Za-z0-9\]*://" | lcd %:p:h | endif
 augroup END
 
 " Instead of reverting the cursor to the last position in the buffer, we
 " set it to the first line when editing a git commit message
-augroup no_revertcursor_git
-    au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
-augroup END
+" augroup no_revertcursor_git
+    " au FileType gitcommit au! BufEnter COMMIT_EDITMSG call setpos('.', [0, 1, 1, 0])
+" augroup END
 
 " Restore cursor to file position in previous editing session
 if !exists('g:spf13_no_restore_cursor')
@@ -1428,7 +1403,7 @@ if !exists('g:spf13_no_restore_cursor')
             return 1
         endif
     endfunction
-     
+
     augroup resCur
         autocmd!
         autocmd BufWinEnter * call ResCur()
@@ -1454,8 +1429,8 @@ endif
 
 augroup misc_config
     " Remove trailing whitespaces and ^M chars
-    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql 
-                \ autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') 
+    autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql
+                \ autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace')
                 \ | call StripTrailingWhitespace() | endif
 
     "autocmd FileType go autocmd BufWritePre <buffer> Fmt
@@ -1480,7 +1455,7 @@ if has('cmdline_info')
     set ruler                   " Show the ruler
     set rulerformat=%30(%=\:b%n%y%m%r%w\ %l,%c%V\ %P%) " A ruler on steroids
     " Show partial commands in status line and selected characters/lines in visual mode
-    set showcmd             
+    set showcmd
 endif
 
 if has('statusline') && !IsSourced('vim-airline') && !exists('g:ONI')
@@ -1533,7 +1508,7 @@ set smartindent             " Better autoindent
 set cindent
 set breakindent
 
-set textwidth=120
+set textwidth=80
 set tabstop=8               " An indentation every four columns
 set shiftwidth=4            " Use indents of 4 spaces
 set softtabstop=4           " Let backspace delete indent
@@ -1558,7 +1533,7 @@ set wildmode=list:longest,full  " Command <Tab> completion, list matches, then l
 set matchpairs+=<:>            " Match, to be used with %
 
 "# Auto format comment blocks. #
-"set comments=sl:/*,mb:*,elx:*/  
+"set comments=sl:/*,mb:*,elx:*/
 
 "# Highlight problematic whitespace. #
 set list
@@ -1605,63 +1580,63 @@ if !exists('g:spf13_no_easyWindows')
 endif
 
 " Wrapped lines goes down/up to next row, rather than next line in file.
-noremap j gj
-noremap k gk
+" noremap j gj
+" noremap k gk
 
 
 " End/Start of line motion keys act relative to row/wrap width in the
 " presence of `:set wrap`, and relative to line for `:set nowrap`.
 " Default vim behaviour is to act relative to text line in both cases
-if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
-    " Same for 0, home, end, etc
-    function! WrapRelativeMotion(key, ...)
-        let l:vis_sel=''
-        if a:0
-            let l:vis_sel='gv'
-        endif
-        if &wrap
-            execute 'normal!' l:vis_sel . 'g' . a:key
-        else
-            execute 'normal!' l:vis_sel . a:key
-        endif
-    endfunction
-     
-    " Map g* keys in Normal, Operator-pending, and Visual+select
-    noremap $ :call WrapRelativeMotion("$")<CR>
-    noremap <End> :call WrapRelativeMotion("$")<CR>
-    noremap 0 :call WrapRelativeMotion("0")<CR>
-    noremap <Home> :call WrapRelativeMotion("0")<CR>
-    noremap ^ :call WrapRelativeMotion("^")<CR>
-    " Overwrite the operator pending $/<End> mappings from above to force inclusive motion with :execute normal!
-    onoremap $ v:call WrapRelativeMotion("$")<CR>
-    onoremap <End> v:call WrapRelativeMotion("$")<CR>
-    " Overwrite the Visual+select mode mappings from above to ensure the correct vis_sel flag is passed to function
-    vnoremap $ :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap <End> :<C-U>call WrapRelativeMotion("$", 1)<CR>
-    vnoremap 0 :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
-    vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
-endif
+" if !exists('g:spf13_no_wrapRelMotion') && !exists('g:ONI')
+"     " Same for 0, home, end, etc
+"     function! WrapRelativeMotion(key, ...)
+"         let l:vis_sel=''
+"         if a:0
+"             let l:vis_sel='gv'
+"         endif
+"         if &wrap
+"             execute 'normal!' l:vis_sel . 'g' . a:key
+"         else
+"             execute 'normal!' l:vis_sel . a:key
+"         endif
+"     endfunction
+"
+"     " Map g* keys in Normal, Operator-pending, and Visual+select
+"     noremap $ :call WrapRelativeMotion("$")<CR>
+"     noremap <End> :call WrapRelativeMotion("$")<CR>
+"     noremap 0 :call WrapRelativeMotion("0")<CR>
+"     noremap <Home> :call WrapRelativeMotion("0")<CR>
+"     noremap ^ :call WrapRelativeMotion("^")<CR>
+"     " Overwrite the operator pending $/<End> mappings from above to force inclusive motion with :execute normal!
+"     onoremap $ v:call WrapRelativeMotion("$")<CR>
+"     onoremap <End> v:call WrapRelativeMotion("$")<CR>
+"     " Overwrite the Visual+select mode mappings from above to ensure the correct vis_sel flag is passed to function
+"     vnoremap $ :<C-U>call WrapRelativeMotion("$", 1)<CR>
+"     vnoremap <End> :<C-U>call WrapRelativeMotion("$", 1)<CR>
+"     vnoremap 0 :<C-U>call WrapRelativeMotion("0", 1)<CR>
+"     vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
+"     vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
+" endif
 
 " " The following two lines conflict with moving to top and bottom of the screen.
 " if !exists('g:spf13_no_fastTabs')
 "     map <S-H> gT
 "     map <S-L> gt
 " endif
-" 
-" " Stupid shift key fixes
-" if !exists('g:spf13_no_keyfixes')
-"     command! -bang -nargs=* -complete=file E e<bang> <args>
-"     command! -bang -nargs=* -complete=file W w<bang> <args>
-"     command! -bang -nargs=* -complete=file Wq wq<bang> <args>
-"     command! -bang -nargs=* -complete=file WQ wq<bang> <args>
-"     command! -bang Wa wa<bang>
-"     command! -bang WA wa<bang>
-"     command! -bang Q q<bang>
-"     command! -bang QA qa<bang>
-"     command! -bang Qa qa<bang>
-"     cmap Tabe tabe
-" endif
+"
+" Stupid shift key fixes
+if !exists('g:spf13_no_keyfixes')
+    command! -bang -nargs=* -complete=file E e<bang> <args>
+    command! -bang -nargs=* -complete=file W w<bang> <args>
+    command! -bang -nargs=* -complete=file Wq wq<bang> <args>
+    command! -bang -nargs=* -complete=file WQ wq<bang> <args>
+    command! -bang Wa wa<bang>
+    command! -bang WA wa<bang>
+    command! -bang Q q<bang>
+    command! -bang QA qa<bang>
+    command! -bang Qa qa<bang>
+    cmap Tabe tabe
+endif
 
 " Yank from the cursor to the end of the line, to be consistent with C and D.
 nnoremap Y y$
@@ -1743,7 +1718,7 @@ else
     set termguicolors
 
     if IsSourced('PersonalVimStuff')
-        colo myMolokai3
+        colo myMolokai4
     else
         colo chroma
         set background=dark
@@ -1831,29 +1806,15 @@ if has('nvim')
         autocmd TermOpen * setlocal nonumber
     augroup END
 
-    " This is the dumbest possible way to set the colors for the terminal but I
-    " can't actually think of any better way to do it.
     if !WIN_OR_CYG()
         let s:colorlist = ['#000000', '#cd0000', '#00cd00', '#cdcd00', '#0075ff', '#cd00cd',
                          \ '#00cdcd', '#e5e5e5', '#7f7f7f', '#ff0000', '#00ff00', '#ffff00',
                          \ '#0075ff', '#ff00ff', '#00ffff', '#ffffff']
-
-        let g:terminal_color_0  = s:colorlist[0]
-        let g:terminal_color_1  = s:colorlist[1]
-        let g:terminal_color_2  = s:colorlist[2]
-        let g:terminal_color_3  = s:colorlist[3]
-        let g:terminal_color_4  = s:colorlist[4]
-        let g:terminal_color_5  = s:colorlist[5]
-        let g:terminal_color_6  = s:colorlist[6]
-        let g:terminal_color_7  = s:colorlist[7]
-        let g:terminal_color_8  = s:colorlist[8]
-        let g:terminal_color_9  = s:colorlist[9]
-        let g:terminal_color_10 = s:colorlist[10]
-        let g:terminal_color_11 = s:colorlist[11]
-        let g:terminal_color_12 = s:colorlist[12]
-        let g:terminal_color_13 = s:colorlist[13]
-        let g:terminal_color_14 = s:colorlist[14]
-        let g:terminal_color_15 = s:colorlist[15]
+        let s:i = 0
+        while s:i < len(s:colorlist)
+            call execute(printf('let g:terminal_color_%d = s:colorlist[%d]', s:i, s:i))
+            let s:i += 1
+        endwhile
     endif
 
     command! Term term 'zsh'
@@ -1861,10 +1822,19 @@ endif
 
 " ================================================================================================================
 
+" Some commands because I'm lazy
+command! -nargs=1 -complete=help Vhelp :vert help <args>
+command! -nargs=* -complete=customlist,man#complete Vman :vert Man <args>
+cmap vhelp Vhelp
+cmap vman Vman
+
+" ================================================================================================================
+
 " This makes sure vim knows that /bin/sh is not bash.
 let g:is_posix = 1
 let g:is_kornshell = 1
 let g:perl_sub_signatures = 1
+let g:c_gnu = 1
 
 let g:gonvim_draw_split      = 1
 let g:gonvim_draw_statusline = 0
@@ -1874,8 +1844,8 @@ fu! DoIfZeroRange() range
     let l:line1 = getline(a:firstline)
     let l:line2 = getline(a:lastline)
     if (l:line1 =~# '\v^[ ]*#[ ]*if 0$') && (l:line2 =~# '\v^[ ]*#[ ]*endif$')
-        :execute a:lastline.'d'
-        :execute a:firstline.'d'
+        execute a:lastline.'d'
+        execute a:firstline.'d'
     else
         call append(a:lastline, '#endif')
         call append(a:firstline - 1, '#if 0')
@@ -1886,9 +1856,23 @@ command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
-if has('nvim') && !WIN_OR_CYG() && executable('pypy3')
-    let g:python3_host_prog = '/usr/bin/pypy3'
-    let g:python_host_prog = '/usr/bin/pypy'
+nnoremap <leader>. /\v
+nnoremap ,, @:
+nnoremap <leader>aa :.Autoformat<CR>
+nnoremap <leader>af :Autoformat<CR>
+nnoremap <leader>sj <leader>ysVj{
+vnoremap <leader>aa :Autoformat<CR>
+
+nnoremap <leader>;<space> q:
+nnoremap q: :q
+
+if has('nvim') && !WIN_OR_CYG()
+    let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
+    let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
+else
+    let g:python_host_prog  = 'python2'
+    let g:python3_host_prog = 'python3'
+    let g:python_host_prog = 'python2'
 endif
 
 
@@ -1909,3 +1893,7 @@ if has('clipboard')
         set clipboard=unnamed
     endif
 endif
+
+augroup CMakeSyntaxFix
+    autocmd BufReadPost CMake* :syntax enable
+augroup END

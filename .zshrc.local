@@ -31,62 +31,24 @@ zplug load
 
 
 # Setup my theme
-local LoadTheme="myTheme_MK18"
+local MARK=21
+local LoadTheme="myTheme_MK${MARK}"
 local ThemeName="${HOME}/personaldotfiles/zsh/themes/${LoadTheme}.zsh-theme"
+# local ThemeName='/home/bml/Downloads/personaldotfiles/zsh/themes/myTheme_MK19.zsh-theme'
 if [[ -f "$ThemeName" ]]; then
     # Necessary to use my prompt apparently.
     prompt off
     # Load in my theme the old fashioned way.
     DEBUG_THEME=false
     source "$ThemeName"
+else
+    echo "Theme not found!" >&2
 fi
 
 local SourceIfExist() {
     [[ -f "$1" ]] && source "$1"
 }
 
-
-#if [[ $(uname) == 'DragonFly' ]]; then
-#    export CC=/usr/local/llvm-devel/bin/cc
-#    export CXX=/usr/local/llvm-devel/bin/c++
-
-#elif [[ $(uname -o) == 'Cygwin' ]]; then
-#    export IS_CYGWIN=1
-#    export IS_WINDOWS=1
-#    export LAD=$(cygpath "$LOCALAPPDATA")
-#    SourceIfExist "${PluginDir}/MountCygDrives/mountCygDrives.zsh"
-
-#elif [[ "$(uname -o)" =~ 'Msys' ]] || [[ "$(uname -o)" =~ 'Mingw' ]]; then
-#    export IS_MSYS=1
-
-#elif [[ $(uname -o) =~ 'GNU/Linux' ]]; then
-#    # Arch Linux Specific Config
-#    if [[ "$(uname -r)" =~ 'ARCH' ]] || [[ "$(uname -r)" =~ 'ARTIX' ]]; then
-#        export AURDEST="${HOME}/Downloads/AUR"
-#    fi
-#fi
-
-
-#local hackPath() {
-#    local newPath=(  )
-#    local found_evil=0
-#    local proscribed_paths=( 'zplug' 'sbin' )
-#    for elem in "${path[@]}"; do
-#        found_evil=0
-#        for evil in "${proscribed_paths[@]}"; do
-#            if [[ "$elem" =~ "$evil" ]]; then
-#                found_evil=1
-#                break
-#            fi
-#        done
-#        if [[ $found_evil -eq 0 ]]; then
-#            newPath+=( "$elem" )
-#        fi
-#    done
-#    newPath+=( "$ZPLUG_BIN" )
-#    export path=( "${newPath[@]}" )
-#}
-#[[ "$(uname -r)" =~ 'ARCH' ]] && hackPath
 
 # SOME SPECIFIC CONFIG I CAN'T PRESENTLY BE BOTHERED TO PUT SOMEWHERE ELSE
 zstyle ':completion:*'               menu select=2
@@ -100,6 +62,7 @@ setopt multios
 setopt auto_pushd
 setopt pushd_ignore_dups
 setopt pushdminus
+setopt globstarshort
 
 alias -g ...='../..'
 alias -g ....='../../..'

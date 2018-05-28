@@ -8,7 +8,7 @@ else
 endif
 
 
-GuiLinespace 1
+GuiLinespace 2
 "augroup GuiSettings
     "autocmd BufEnter GuiLinespace 1
 "augroup END

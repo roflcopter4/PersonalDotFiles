@@ -21,7 +21,7 @@ if ( `uname` == 'FreeBSD' ) then
     set path = ($HOME/bin $HOME/.local/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /sbin /bin) 
 
 else if ( `uname` == 'DragonFly' ) then
-    set path = ($HOME/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/pkg/sbin /usr/pkg/bin /usr/sbin /usr/bin /sbin /bin) 
+    set path = ("${HOME}/.local/bin" /opt/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin) 
 
 else
     set path = ($HOME/.local/bin /opt/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin) 
@@ -37,11 +37,14 @@ if ( -e `where gls` ) then
 else
 	alias ls	"ls -FG"
 	alias la	"ls -A"
-	alias ll	"ls -l"
-	alias lla	"ls -lA"
+	alias ll	"ls -lh"
+	alias lla	"ls -lAh"
 	alias lls	"ll  | less -r"
 	alias las	"lla | less -r"
 endif
+
+alias	pki	sudo pkg install
+alias	pks	sudo pkg search
 
 setenv	EDITOR	vi
 setenv	PAGER	less

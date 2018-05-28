@@ -1,12 +1,4 @@
 
-# zle-keymap-select() {
-#     _VI_Mode="${${KEYMAP/vicmd/$MODE_INDICATOR}/(main|viins)/}"
-#     echo
-#     zle reset-prompt
-#     zle -R
-# }
-# zle -N zle-keymap-select
-
 precmd() {
     local TERMWIDTH=0
     (( TERMWIDTH = ${COLUMNS} - 2 ))
@@ -24,7 +16,7 @@ precmd() {
     (( fRatio = fPromptWidth / fTermWidth ))
     (( FreeSpace = COLUMNS - fPromptWidth ))
     
-    if ! [[ $(uname) == 'FreeBSD' ]]; then
+    if ! [[ "$(uname)" == 'FreeBSD' ]]; then
         if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
             _ThirdLine=''
         else
@@ -38,15 +30,6 @@ precmd() {
     _Fillbar=""
     _Fillbar="\${(l.${TERMWIDTH}..${_Hbar}.)}"
 }
-
-
-# setopt extended_glob
-# preexec () {
-#     if [[ "$TERM" == "screen" ]]; then
-#         local CMD=${1[(wr)^(*=*|sudo|-*)]}
-#         echo -n "\ek$CMD\e\\"
-#     fi
-# }
 
 
 setprompt () {
@@ -98,13 +81,7 @@ $_Set_Magenta$_pwdStr\
 %(!.$_NoColor.$_NoColor)$_ShiftOut$_ThirdLine\
 $_Char$_NoColor '
 
-    #PS2='$_Set_bBlue($_Set_Green%_$_Set_bBlue)$_NoColor > '
     PS2='> '
-
-    #RPROMPT=""$_Set_bBlue"("$_Set_Green"%D{%K:%M %p}"$_Set_bBlue")"$_NoColor""
-
-    #RPROMPT='${_VI_Mode}'
-
 }
 
 setprompt

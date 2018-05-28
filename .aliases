@@ -1,7 +1,7 @@
 #!/bin/dash
 
 ID_SHELL() {                                                     
-    if ! ( [ "$(uname)" = 'DragonFly' ]  || \
+    if ! ( [ "$(uname)" = 'DragonFly' ]  || [ "$(uname)" = 'OpenBSD' ] || \
            [ "$(uname -o)" = 'Cygwin' ]  || [ "$(uname -o)" = 'Msys' ] )
     then
         printf "%s" "$(basename "$(ps -o comm= $$)")"
@@ -211,7 +211,7 @@ esac
 
 
 # Linux Aliases
-if ! [ "$(uname)" = 'DragonFly' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then
+if [ "$(uname)" = 'Linux' ]; then
     if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
         mkalias -s pacs='\pacman --color=always -S' 

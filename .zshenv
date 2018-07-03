@@ -71,10 +71,10 @@ fi
 
 
 case "$SYSID" in
-    'slackware')
+    slackware)
         export path=( "${HOME}"/.local/bin /usr/local/sbin /usr/sbin /sbin /usr/local/bin /usr/bin /bin /usr/games /usr/lib64/kde4/libexec /usr/lib64/qt/bin /usr/share/texmf/bin )
         ;;
-    'gentoo'|'laptop-gentoo')
+    gentoo|laptop-gentoo)
         local adtl_path=( )
         [[ -d '/usr/mnt/bin' ]] && adtl_path+='/usr/mnt/bin'
         [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
@@ -85,13 +85,13 @@ case "$SYSID" in
         export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
         alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
         ;;
-    'FreeBSD')
+    FreeBSD)
         export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
         ;;
-    'DragonFly')
+    DragonFly)
         export path=( "${HOME}/.local/bin" /opt/bin /opt/clang-bin /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/games /sbin /bin )
         ;;
-    'ArchLinux'|'Artix')
+    ArchLinux|Artix)
         export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
         ;;
 esac

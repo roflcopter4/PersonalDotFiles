@@ -16,13 +16,11 @@ precmd() {
     (( fRatio = fPromptWidth / fTermWidth ))
     (( FreeSpace = COLUMNS - fPromptWidth ))
     
-    if ! [[ "$(uname)" == 'FreeBSD' ]]; then
-        if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
-            _ThirdLine=''
-        else
-            _ThirdLine="
+    if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
+        _ThirdLine=''
+    else
+        _ThirdLine="
 "
-        fi
     fi
 
     _Char="%(!.#.$)"

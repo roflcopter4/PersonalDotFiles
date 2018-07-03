@@ -16,12 +16,13 @@ BasedOnStyle: LLVM
 
 AllowAllParametersOfDeclarationOnNextLine: true
 AlwaysBreakTemplateDeclarations: true
-BinPackParameters: true
+BinPackParameters: false
 BinPackArguments: true
 
 AlignAfterOpenBracket: Align
 AlignEscapedNewlines: Left
-# AlignConsecutiveAssignments: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 AlignTrailingComments: true
 AlignOperands: true
 
@@ -51,7 +52,8 @@ IndentWidth: 8
 UseTab: Never
 ColumnLimit: 80
 
-ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F', 'foreach_FC', 'foreach_DL', 'foreach_DLC']
+ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F',
+                'foreach_FC', 'foreach_DL', 'foreach_DLC', 'LL_FOREACH_F', 'LL_FOREACH_B']
 
 # ##Custom##
 #BreakBeforeBraces: Custom

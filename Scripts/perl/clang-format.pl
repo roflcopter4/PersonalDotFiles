@@ -83,7 +83,6 @@ GetOptions(
     'D|debug|dump'       => \$opt{dump},
     'f|file=s'           => \$opt{file},
     'l|w|len|width=i'    => \$opt{length},
-    'w|width=i'          => \$opt{length},
     't|tabs'             => \$opt{usetabs},
     'T|notabs'           => \$opt{notabs},
     'i|s|indent|shift=i' => \$opt{indent},

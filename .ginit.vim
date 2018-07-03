@@ -4,11 +4,13 @@ if WINDOWS()
     GuiFont Dina:h8
 "elseif $QT == 'true'
 else
-    GuiFont DinaPowerline:h8
+    " GuiFont DinaPowerline:h8
+    GuiFont Dina:h7
+    GuiLinespace 1
 endif
 
 
-GuiLinespace 2
+" GuiLinespace 2
 "augroup GuiSettings
     "autocmd BufEnter GuiLinespace 1
 "augroup END

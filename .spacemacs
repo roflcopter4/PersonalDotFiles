@@ -541,7 +541,7 @@ values."
    you should place your code here."
 
   ;; (hes-mode t)
-  (load "~/somefile")
+  ;; (load "~/somefile")
 
   (global-hl-line-mode -1) ; Disable current line highlight
   ;; (global-linum-mode) ; Show line numbers by default

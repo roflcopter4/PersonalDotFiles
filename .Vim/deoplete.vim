@@ -1,8 +1,8 @@
 " deoplete options
 let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_ignore_case = 1
+" let g:deoplete#enable_ignore_case = 1
 let g:deoplete#enable_smart_case = 1
-let g:deoplete#enable_camel_case = 1
+" let g:deoplete#enable_camel_case = 1
 let g:deoplete#enable_refresh_always = 1
 let g:deoplete#max_abbr_width = get(g:, 'deoplete#max_abbr_width', 0)
 let g:deoplete#max_menu_width = get(g:, 'deoplete#max_menu_width', 0)
@@ -14,19 +14,19 @@ let g:deoplete#keyword_patterns = {}
 
 " java && jsp
 let g:deoplete#omni#input_patterns.java = get(g:deoplete#omni#input_patterns, 'java', [
-      \'[^. \t0-9]\.\w*',
-      \'[^. \t0-9]\->\w*',
-      \'[^. \t0-9]\::\w*',
-      \])
+            \'[^. \t0-9]\.\w*',
+            \'[^. \t0-9]\->\w*',
+            \'[^. \t0-9]\::\w*',
+            \])
 let g:deoplete#omni#input_patterns.jsp = get(g:deoplete#omni#input_patterns, 'jsp', ['[^. \t0-9]\.\w*'])
 "if g:spacevim_enable_javacomplete2_py
 if 0
-  let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['omni'])
-  call deoplete#custom#source('javacomplete2', 'mark', '')
+    let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['omni'])
+    call deoplete#custom#source('javacomplete2', 'mark', '')
 else
-  let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['javacomplete2', 'around', 'member'])
-  call deoplete#custom#source('omni', 'mark', '')
-  call deoplete#custom#source('omni', 'rank', 9999)
+    let g:deoplete#ignore_sources.java = get(g:deoplete#ignore_sources, 'java', ['javacomplete2', 'around', 'member'])
+    call deoplete#custom#source('omni', 'mark', '')
+    call deoplete#custom#source('omni', 'rank', 9999)
 endif
 
 " sh
@@ -42,10 +42,10 @@ let g:deoplete#ignore_sources.markdown = get(g:deoplete#ignore_sources, 'markdow
 
 " perl
 let g:deoplete#omni#input_patterns.perl = get(g:deoplete#omni#input_patterns, 'perl', [
-      \'[^. \t0-9]\.\w*',
-      \'[^. \t0-9]\->\w*',
-      \'[^. \t0-9]\::\w*',
-      \])
+            \'[^. \t0-9]\.\w*',
+            \'[^. \t0-9]\->\w*',
+            \'[^. \t0-9]\::\w*',
+            \])
 
 " javascript
 "let g:deoplete#omni#input_patterns.javascript = get(g:deoplete#omni#input_patterns, 'javascript', ['[^. \t0-9]\.\w*'])
@@ -61,26 +61,26 @@ call deoplete#custom#source('typescript', 'rank', 9999)
 " php two types, 1. phpcd (default)  2. lsp
 "if SpaceVim#layers#lsp#check_filetype('php')
 if 0
-  if has('nvim')
-    let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['omni', 'around', 'member'])
-  else
-    let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['around', 'member'])
-  endif
+    if has('nvim')
+        let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['omni', 'around', 'member'])
+    else
+        let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['around', 'member'])
+    endif
 else
-  let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['phpcd', 'around', 'member'])
-  "call deoplete#custom#source('phpcd', 'mark', '')
-  "call deoplete#custom#source('phpcd', 'input_pattern', '\w*|[^. \t]->\w*|\w*::\w*')
+    let g:deoplete#ignore_sources.php = get(g:deoplete#ignore_sources, 'php', ['phpcd', 'around', 'member'])
+    "call deoplete#custom#source('phpcd', 'mark', '')
+    "call deoplete#custom#source('phpcd', 'input_pattern', '\w*|[^. \t]->\w*|\w*::\w*')
 endif
 let g:deoplete#omni#input_patterns.php = get(g:deoplete#omni#input_patterns, 'php', [
-      \'[^. \t0-9]\.\w*',
-      \'[^. \t0-9]\->\w*',
-      \'[^. \t0-9]\::\w*',
-      \])
+            \'[^. \t0-9]\.\w*',
+            \'[^. \t0-9]\->\w*',
+            \'[^. \t0-9]\::\w*',
+            \])
 
 " gitcommit
 let g:deoplete#omni#input_patterns.gitcommit = get(g:deoplete#omni#input_patterns, 'gitcommit', [
-      \'[ ]#[ 0-9a-zA-Z]*',
-      \])
+            \'[ ]#[ 0-9a-zA-Z]*',
+            \])
 
 let g:deoplete#ignore_sources.gitcommit = get(g:deoplete#ignore_sources, 'gitcommit', ['neosnippet'])
 
@@ -109,12 +109,10 @@ let g:deoplete#ignore_sources.ocaml = ['buffer', 'around', 'omni']
 "call deoplete#custom#source('file/include', 'matchers', ['matcher_head'])
 let g:deoplete#ignore_sources._ = get(g:deoplete#ignore_sources, '_', ['around', 'LanguageClient'])
 for key in keys(g:deoplete#ignore_sources)
-  if key != '_' && index(keys(get(g:, 'LanguageClient_serverCommands', {})), key) == -1
-    let g:deoplete#ignore_sources[key] = g:deoplete#ignore_sources[key] + ['around', 'LanguageClient']
-  endif
+    if key != '_' && index(keys(get(g:, 'LanguageClient_serverCommands', {})), key) == -1
+        let g:deoplete#ignore_sources[key] = g:deoplete#ignore_sources[key] + ['around', 'LanguageClient']
+    endif
 endfor
 inoremap <expr><C-h> deoplete#mappings#smart_close_popup()."\<C-h>"
 inoremap <expr><BS> deoplete#mappings#smart_close_popup()."\<C-h>"
 set isfname-==
-
-" vim:set et sw=2:

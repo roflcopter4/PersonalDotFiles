@@ -201,12 +201,13 @@ case "$SYSID" in
         mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
         mkalias -s emr='emerge'
-        mkalias -s empr='emerge --pretend'
+        mkalias -s emp='emerge --pretend'
         mkalias -s ema='emerge --ask'
-        mkalias -s emp='emerge --ask --buildpkg'
+        mkalias -s empd='emerge --pretend --depclean -Dv'
+        mkalias -s empk='emerge --ask --buildpkg'
         mkalias -s emupdate='emerge --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude "chromium"'
         mkalias -s emupdateP='emerge --pretend --update --deep --newuse --with-bdeps=y @world'
-        mkalias -s emupdateF='emerge --update --deep --newuse --with-bdeps=y @world'
+        mkalias -s emupdateF='emerge --update --deep --newuse --with-bdeps=y --keep-going @world'
         mkalias -TS ufed='ufed'
         mkalias -TS euse='euse' 
         ;;
@@ -286,16 +287,16 @@ gitc() {
     [ "$1" ] && TWO=$1 && shift
     case "$ONE" in
         '-gs')
-            git clone --recursive 'https://github.com/'"$TWO" "$@" --depth 1
+            git clone --recursive --depth 1 "https://github.com/${TWO}" "$@"
             ;;
         '-gd')
-            git clone --recursive 'https://github.com/'"$TWO" "$@"
+            git clone --recursive "https://github.com/${TWO}" "$@"
             ;;
         '-d')
             git clone --recursive "$TWO" "$@"
             ;;
         *)
-            git clone --recursive "$ONE" "$@" --depth 1
+            git clone --recursive --depth 1 "$ONE" "$TWO" "$@"
             ;;
     esac
 }
@@ -343,38 +344,43 @@ Exists 'emacs' && {
 }
 
 
-Exists 'eovim' && \
-eov() {
-    (
-        NoExtChars='True'; export NoExtChars
-        eovim -g '125x55' "$@" > /dev/null 2>&1 &
-    )
+Exists 'eovim' && {
+    eov() {
+        (
+            NoExtChars='True'; export NoExtChars
+            eovim -g '125x55' "$@" > /dev/null 2>&1 &
+        )
+    }
 }
 
-Exists 'nvim-qt' && \
-gvi() {
-    (
-        export NVIM_QT='true'
-        nvim-qt --geometry 850x880 "$@" >/dev/null 2>&1
-    )
-}
-
-
-Exists 'fzf' && \
-cdfzf() {
-    cd "$(dirname "$(fzf "$@")")"
+Exists 'nvim-qt' && {
+    gvi() {
+        (
+            export NVIM_QT='true'
+            nvim-qt --geometry 900x900 --no-ext-tabline "$@" >/dev/null 2>&1
+        )
+    }
 }
 
 
-[ "$IS_CYGWIN" ] && \
-tab() {
-    mintty.exe -i /Cygwin.ico -e /bin/xhere /bin/bash.exe
+Exists 'fzf' && {
+    cdfzf() {
+        cd "$(dirname "$(fzf "$@")")"
+    }
 }
 
 
-Exists 'J7Z.sh' && \
-j7z() {
-    J7Z.sh "$@" >/dev/null 2>&1 &
+[ "$IS_CYGWIN" ] && {
+    tab() {
+        mintty.exe -i /Cygwin.ico -e /bin/xhere /bin/bash.exe
+    }
+}
+
+
+Exists 'J7Z.sh' && {
+    j7z() {
+        J7Z.sh "$@" >/dev/null 2>&1 &
+    }
 }
 
 

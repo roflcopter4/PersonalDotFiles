@@ -215,7 +215,7 @@ esac
 
 
 # Linux Aliases
-if [ "$(uname)" != 'DragonFly' ] && [ "$(uname)" != 'OpenBSD' ] && [ "$(uname -o)" = 'GNU/Linux' ]; then
+if [ "$(uname)" = 'Linux' ]; then
     if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
         mkalias -s pacs='\pacman --color=always -S' 

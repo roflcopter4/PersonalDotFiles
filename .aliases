@@ -357,7 +357,9 @@ Exists 'nvim-qt' && {
     gvi() {
         (
             export NVIM_QT='true'
-            nvim-qt --geometry 900x900 --no-ext-tabline "$@" >/dev/null 2>&1
+            # nvim-qt --geometry 900x950 --no-ext-tabline "$@" >/dev/null 2>&1
+            # nvim-qt --maximized --no-ext-tabline "$@" >/dev/null 2>&1
+            nvim-qt --geometry 900x925 --maximized --no-ext-tabline "$@" >/dev/null 2>&1
         )
     }
 }

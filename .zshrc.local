@@ -111,6 +111,7 @@ bind2maps       viins       -- -s '^w'   backward-kill-word
 
 export IS_ZSH='true'
 SourceIfExist "${HOME}/.aliases"
+compdef _directories smartcd
 
 #[[ "$(command -v ag)" ]] && export FZF_DEFAULT_COMMAND='ag --hidden -u --ignore .git --ignore .vimbackup --ignore .vimviews --ignore .vimundo -g ""'
 #[[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"

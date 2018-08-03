@@ -37,6 +37,9 @@ AlwaysBreakAfterReturnType: AllDefinitions
 # IndentPPDirectives: AfterHash
 MaxEmptyLinesToKeep: 2
 
+BreakBeforeBinaryOperators: None
+PenaltyBreakAssignment: 1000
+PenaltyExcessCharacter: 1
 BreakStringLiterals: true
 PointerAlignment: Right
 ReflowComments: true
@@ -53,7 +56,7 @@ UseTab: Never
 ColumnLimit: 80
 
 ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F',
-                'foreach_FC', 'foreach_DL', 'foreach_DLC', 'LL_FOREACH_F', 'LL_FOREACH_B']
+                'foreach_FC', 'foreach_DL', 'foreach_DLC', 'LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH']
 
 # ##Custom##
 #BreakBeforeBraces: Custom

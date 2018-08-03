@@ -709,6 +709,7 @@ nnoremap <leader>QA :qa!<CR>
 
 nnoremap <leader>buf :buffers<CR>
 command Config e $MYVIMRC
+command Plugins :execute 'e '.expand("~/.vimplugins")
 
 nnoremap <leader>nl :call ToggleList()<CR>
 nnoremap <leader>jj :pc<CR>
@@ -744,6 +745,13 @@ command! -nargs=1 -complete=help Vhelp :vert help <args>
 command! -nargs=* -complete=customlist,man#complete Vman :vert Man <args>
 cmap vhelp Vhelp
 cmap vman Vman
+
+" ================================================================================================================
+
+highlight link perlStringStartEnd	perlQuoteSE
+" highlight link perlStatementRegexp	perlQuoteSE
+" highlight link perlMatchStartEnd	perlQuoteSE
+highlight link perlMatchStartEnd	perlMatchSE
 
 " ================================================================================================================
 
@@ -827,3 +835,10 @@ endif
 augroup CMakeSyntaxFix
     autocmd BufReadPost CMake* :syntax enable
 augroup END
+
+" syntax match arsehole "\%(ass\|fuck\)"
+" syntax match arsehole "\v%(ass|fuck)"
+
+
+let g:huge_number = (-(4294967295 * 2))
+

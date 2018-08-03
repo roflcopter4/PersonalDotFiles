@@ -42,10 +42,12 @@ if dein#load_state(expand(g:load_path))
     call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
     call dein#add('roflcopter4/vim-perl',  {'merged': 0})
     call dein#add('roflcopter4/vim-cpp-enhanced-highlight')
-    if has('nvim')
-        call dein#add('roflcopter4/mytags', {'merged': 0})
-        " call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
-    endif
+
+    call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
+    " call dein#add('roflcopter4/mytags', {'merged': 0})
+    " if has('nvim')
+    "     call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
+    " endif
 
     " General ---------
     call dein#add('MarcWeber/vim-addon-mw-utils')
@@ -137,6 +139,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('gentoo/gentoo-syntax')
     call dein#add('rsmenon/vim-mathematica')
     call dein#add('rust-lang/rust.vim')
+    call dein#add('fatih/vim-go')
 
 
     " Misc ----------
@@ -455,9 +458,10 @@ if IsSourced('rainbow') || 1
         "\        },
         "        \            'parentheses': ['start=/(/ end=/)/ fold',
         "        \                            'start=/{/ end=/}/ fold'],
+        "\    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'firebrick1', 'orchid2'],
 
     let g:rainbow_conf = {
-        \    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'firebrick1', 'orchid2'],
+        \    'guifgs': ['Tomato', 'Cyan3', 'HotPink1', 'PeachPuff2'],
         \    'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
         \    'operators': '',
         \    'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
@@ -491,9 +495,18 @@ if IsSourced('rainbow') || 1
         \        'css': 0
         \    }
     \}
+
+    " \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2', 'orange'],
+                " \ 'guifgs': ['orangered', 'MediumOrchid2', 'darkorange2', 'DeepPink2'],
     " let g:rainbow_conf['c'] = {
+                " \ 'guifgs': ['Tomato', 'Cyan3', 'VioletRed1', 'PeachPuff2'],
     call extend(g:rainbow_conf['separately'], { 'c': {
-                \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
+                \ 'guifgs': ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
+                \ 'parentheses': ['start=/(/ end=/)/ fold',
+                \                 'start=/{/ end=/}/ fold'],
+                \ } })
+    call extend(g:rainbow_conf['separately'], { 'go': {
+                \ 'guifgs': ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
                 \ 'parentheses': ['start=/(/ end=/)/ fold',
                 \                 'start=/{/ end=/}/ fold'],
                 \ } })
@@ -711,10 +724,14 @@ if IsSourced('ale')
         let b:ale_linters_perl = {'perl': ['perl']}
         let g:ale_perl_perlcritic_options = '-4'
 
+    "# Go {
+        let b:ale_linters_go = {'go': ['go vet', 'gofmt']}
+
     let g:ale_linters =  {}
     call extend(g:ale_linters, b:ale_linters_c)
     call extend(g:ale_linters, b:ale_linters_py)
     call extend(g:ale_linters, b:ale_linters_perl)
+    call extend(g:ale_linters, b:ale_linters_go)
 
     augroup CloseLoclistWindowGroup
         autocmd!
@@ -786,7 +803,8 @@ if IsSourced('deoplete.nvim')
         return deoplete#close_popup() . "\<CR>"
     endfunction
 
-    let s:libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
+    " let s:libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
+    let s:libclang_path = '/usr/lib64/llvm/6/lib64/libclang.so'
 
     if IsSourced('zchee/deoplete-clang')
         g:deoplete#sources#clang#libclang_path = s:libclang_path
@@ -1042,20 +1060,22 @@ if IsSourced('mytags')
     let g:mytags#enabled = 1
     let g:mytags#highlight = 1
     let g:mytags#run_ctags = 1
-    let g:mytags#verbose = 0
+    let g:mytags#verbose = 1
     let g:mytags#recursive = 1
     let g:mytags#no_autoconf = 1
     let g:mytags#use_binary = 1
     let g:mytags#strip_comments = 1
-    if LINUX() || WINDOWS()
-        let g:mytags#compression_type = 'lzma'
-    elseif BSD() || CYGWIN()
-        let g:mytags#compression_type = 'gzip'
-    else
-        echom 'Setup your damn compression settings you moron!'
-    endif
+    " if LINUX() || WINDOWS()
+    "     let g:mytags#compression_type = 'lzma'
+    " elseif BSD() || CYGWIN()
+    "     let g:mytags#compression_type = 'gzip'
+    " else
+    "     echom 'Setup your damn compression settings you moron!'
+    " endif
 
-    let g:mytags#c#order = 'guesdftmv'
+    let g:mytags#compression_type = 'gzip'
+
+    let g:mytags#c#order = 'guesfdtmv'
 
     highlight link mytags_EnumTag	Enum
     highlight link mytags_FunctionTag	CFuncTag
@@ -1089,6 +1109,60 @@ if IsSourced('mytags')
                 \ }
 
     nmap <leader>mag :MytagsToggle<CR>
+endif
+
+
+if IsSourced('tag-highlight.nvim')
+    let g:tag_highlight#enabled = 1
+    let g:tag_highlight#highlight = 1
+    let g:tag_highlight#run_ctags = 1
+    let g:tag_highlight#verbose = 0
+    let g:tag_highlight#recursive = 1
+    let g:tag_highlight#no_autoconf = 1
+    let g:tag_highlight#use_binary = 1
+    let g:tag_highlight#strip_comments = 1
+    let g:tag_highlight#compression_type = 'lzma'
+    " let g:tag_highlight#compression_type = 'gzip'
+    " let g:tag_highlight#compression_type = 'none'
+    let g:tag_highlight#compression_level = 9
+
+    let g:tag_highlight#c#order = 'guesfdmvt'
+    " let g:tag_highlight#c#order = 'guesfdmt'
+    " let g:tag_highlight#c#order = 'tvmdfseug'
+
+
+    let g:tag_highlight#norecurse_dirs = [
+                        \     $HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include',
+                        \     '/usr/local/share', '/tmp', '/usr/src', '/usr/ports', '/usr/dports',
+                        \     expand('~/personaldotfiles'),  expand('~/random'),    expand('~/random/Code'),
+                        \     expand('~/random/school'),     expand('~/Downloads'), expand('~/documents'),
+                        \ ]
+
+    let g:tag_highlight#ignored_tags = {
+                \   'c': ['xmalloc', 'xcalloc', 'xrealloc', 'xreallocarray', 'nmalloc', 'nrealloc', '_Bool', 'static_assert',
+                \         'malloc', 'calloc', 'realloc', 'reallocarray', 'free', 'xfree', '__attribute__', 'TRUE', 'FALSE']
+                \ }
+
+    let g:tag_highlight#ignored_tags['cpp'] = g:tag_highlight#ignored_tags['c']
+
+    let g:tag_highlight#restored_groups = {
+                \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cExtraConstants',
+                \             'cAnsiFunction', 'cStatement', 'cPosixFunction', 'cExtraTypes', 'cGNUAutoType'],
+                \     'cpp': ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType',
+                \             'cppStorageClass', 'cppType', 'cppAuto'],
+                \ }
+
+    set tags=tags,../tags
+
+    highlight link tag_highlight_EnumTag	Enum
+    highlight link tag_highlight_FunctionTag	CFuncTag
+    highlight link tag_highlight_MemberTag	CMember
+    " highlight link mytags_GlobalVarTag	CMember
+    highlight link tag_highlight_GlobalVarTag	GlobalVarTag
+
+    highlight link goConstantTag	Enum
+    highlight link pythonGlobalVarTag	Constant
+
 endif
 
 
@@ -1199,5 +1273,13 @@ endif
 
 
 if IsSourced('clang_complete')
-    let g:clang_library_path = '/usr/lib64/llvm/7/lib64/libclang.so.7'
+    " let g:clang_library_path = '/usr/lib64/llvm/7/lib64/libclang.so.7'
+    let g:clang_library_path = '/usr/lib64/llvm/6/lib64/libclang.so'
+endif
+
+
+if IsSourced('vim-go')
+    let g:go_highlight_format_strings = 1
+    let g:go_highlight_extra_types = 1
+    let g:go_highlight_operators = 1
 endif

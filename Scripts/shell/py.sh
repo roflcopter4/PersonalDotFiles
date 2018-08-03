@@ -268,7 +268,7 @@ elif [ -x "/usr/bin/${2}" ]; then
 elif [ -x "/usr/local/bin/${2}" ]; then
     file="/usr/local/bin/${2}"
 else
-    file=$(command -v "${2}")
+    file=`command -v "${2}"`
 fi
 shift 2
 

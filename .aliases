@@ -388,18 +388,31 @@ Exists 'J7Z.sh' && {
 
 if Exists 'fzy'; then
     ffzy() {
-        local _fzlen_ _cd_ _cmd_ _smartness_ _extra_ _statement_
+        local _fzlen_ _cd_ _cmd_ _smartness_ _extra_ _statement_ _hidden_ __opts
         _fzlen=30
         _cd_=false
+        _hidden_=true
         _cmd_='find'
+        __opts='cl:rgu:S:n'
+
+        if Exists 'fd'; then
+            _cmd_='fd'
+            _extra_='-a'
+        fi
+
         OPTIND=1
-        while getopts 'cl:rgu:S:' ARG; do
+        while getopts "$__opts" ARG; do
             case "$ARG" in
-                c)
-                    _cd_=true
+                c) _cd_=true ;;
+                l) _fzlen=$OPTARG ;;
+                n) _hidden_=false ;;
+                f) 
+                    _cmd_='find'
+                    _extra_=''
                     ;;
-                l)
-                    _fzlen=$OPTARG
+                d)
+                    _cmd_='fd'
+                    _extra_='-a'
                     ;;
                 r)
                     _cmd_='rg'
@@ -411,8 +424,6 @@ if Exists 'fzy'; then
                     ;;
                 u)
                     case "$_cmd_" in
-                        'find')
-                            ;;
                         'rg')
                             case "$OPTARG" in
                                 0) _smartness_=       ;;
@@ -431,12 +442,16 @@ if Exists 'fzy'; then
                             esac ;;
                     esac
                     ;;
-                S)
-                    _smartness_="$OPTARG"
+                h)
+                    echo "Wrapper for fzy. Options: \"${__opts}\"" >&2
+                    echo '-r: rg, -g: ag, -f: find, -d: fd' >&2
+                    echo '-l: set fzy length' >&2
+                    echo '-n -> no hidden files (fd only)' >&2
+                    echo '-u N -> smartness level (0 to 3, ag and rg only)' >&2
+                    return 0
                     ;;
-                *)
-                    echo 'Fatal, exiting.' >&2
-                    ;;
+                S) _smartness_="$OPTARG" ;;
+                *) echo 'Fatal, exiting.' >&2 ;;
             esac
         done
         shift $((OPTIND - 1))

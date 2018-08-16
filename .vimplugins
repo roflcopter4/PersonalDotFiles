@@ -6,6 +6,24 @@
 " ======================================================================================================
 " ======================================================================================================
 
+if CYGWIN()
+    let s:VimUsesjowerline = 0
+    let s:NeVimUsesPowerline = 0
+else
+    let s:VimUsesPowerline = 0
+    let s:NeoVimUsesPowerline = 0
+endif
+
+if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowerline == 1)
+    let s:UsePowerline = 1
+endif
+
+let g:use_ale = 1
+let g:use_deoplete = 1
+let b:use_language_client = 0
+let s:vim_ale = 1
+
+
 filetype off
 
 function! IsSourced(name)
@@ -43,7 +61,9 @@ if dein#load_state(expand(g:load_path))
     call dein#add('roflcopter4/vim-perl',  {'merged': 0})
     call dein#add('roflcopter4/vim-cpp-enhanced-highlight')
 
-    call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
+    if has('nvim')
+        call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
+    endif
     " call dein#add('roflcopter4/mytags', {'merged': 0})
     " if has('nvim')
     "     call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
@@ -201,7 +221,7 @@ if dein#load_state(expand(g:load_path))
             call dein#add('rdnetto/YCM-Generator')
         endif
     else
-        if s:vim_ale == 1
+        if exists('s:vim_ale') && s:vim_ale == 1
             call dein#add('w0rp/ale')
             call dein#add('Shougo/neco-vim')
             call dein#add('artur-shaik/vim-javacomplete2')
@@ -672,6 +692,9 @@ if IsSourced('ale')
     let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
     let g:ale_c_parse_makefile = 0
+
+    " No stupid popup windows
+    let g:ale_loclist_msg_format = ''
 
     let g:ale_c_make_command = 'fmake -n'
 
@@ -1161,6 +1184,8 @@ if IsSourced('tag-highlight.nvim')
     highlight link tag_highlight_GlobalVarTag	GlobalVarTag
 
     highlight link goConstantTag	Enum
+    highlight link goGlobalVarTag	GlobalVarTag
+    " highlight link goPackageTag		GlobalVarTag
     highlight link pythonGlobalVarTag	Constant
 
 endif

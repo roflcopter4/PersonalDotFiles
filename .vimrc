@@ -89,23 +89,6 @@ let g:cpp_no_function_highlight = 1
 " ======================================================================================================
 " Some general config stuff
 
-if CYGWIN()
-    let s:VimUsesPowerline = 0
-    let s:NeVimUsesPowerline = 0
-else
-    let s:VimUsesPowerline = 0
-    let s:NeoVimUsesPowerline = 0
-endif
-
-if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowerline == 1)
-    let s:UsePowerline = 1
-endif
-
-let g:use_ale = 1
-let g:use_deoplete = 1
-let b:use_language_client = 0
-let s:vim_ale = 1
-
 let g:mapleader = ' '
 
 

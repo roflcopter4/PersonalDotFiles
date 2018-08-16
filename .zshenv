@@ -80,10 +80,8 @@ case "$SYSID" in
         [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
         #[[ -d "${HOME}/.local/lib/node_modules/.bin" ]] && adtl_path+="${HOME}/.local/lib/node_modules/.bin"
 
-        export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /usr/sbin /usr/bin /sbin /bin )
+        export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
         export PT=/var/tmp/portage
-        export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
-        alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
         ;;
     FreeBSD)
         export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
@@ -93,6 +91,13 @@ case "$SYSID" in
         ;;
     ArchLinux|Artix)
         export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
+        ;;
+esac
+
+case "$SYSID" in
+    gentoo|laptop-gentoo|ArchLinux|Artix)
+        export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
+        alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
         ;;
 esac
 

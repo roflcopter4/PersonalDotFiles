@@ -30,10 +30,10 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Inline
 
 SpaceBeforeAssignmentOperators: true
-AlwaysBreakAfterReturnType: AllDefinitions
+AlwaysBreakAfterReturnType: TopLevelDefinitions
 # IndentPPDirectives: AfterHash
 MaxEmptyLinesToKeep: 2
 
@@ -44,6 +44,8 @@ BreakStringLiterals: true
 PointerAlignment: Right
 ReflowComments: true
 SortIncludes: true
+
+# NamespaceIndentation: Inner
 
 # ##Linux##
 BreakBeforeBraces: Linux
@@ -65,16 +67,17 @@ ForEachMacros: ['FOREACH', 'DFOREACH', 'foreach_L', 'foreach_LC', 'foreach_F',
 #  AfterControlStatement: false
 #  AfterEnum:             false
 #  AfterFunction:         true
-#  AfterNamespace:        true
+#  AfterNamespace:        false
 #  AfterObjCDeclaration:  false
 #  AfterStruct:           false
 #  AfterUnion:            false
-#  AfterExternBlock:      false
 #  BeforeCatch:           false
-#  BeforeElse:            true
+#  BeforeElse:            false
 #  IndentBraces:          false
-#  SplitEmptyFunction:    true
-#  SplitEmptyRecord:      true
-#  SplitEmptyNamespace:   true
+#  SplitEmptyFunction:    false
+#  SplitEmptyRecord:      false
+#  SplitEmptyNamespace:   false
 ##
 # ##END##
+#  AfterExternBlock:      false
+

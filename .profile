@@ -1,7 +1,17 @@
+{
+    __get_first_component_only() {
+        echo "$1"
+    }
+    ps_cmd=$(ps --no-headers -ocmd -p$$)
+    cmdnam=$(__get_first_component_only $ps_cmd)
 
-if [ "$(basename $(ps -o comm= $$))" = 'dash' ] || \
-   [ "$(basename $(ps -o comm= $$))" = 'sh' ]; then
-    if [ -f ""$HOME"/.aliases" ]; then
-        . ""$HOME"/.aliases"
+    if { [ "$cmdnam" = 'dash' ] || \
+         [ "$cmdnam" = 'sh' ]; }
+    then
+        if [ -e "${HOME}/.aliases" ]; then
+            . "${HOME}/.aliases"
+        fi
+        set -E
     fi
-fi
+    unset ps_cmd cmdnam
+}

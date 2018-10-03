@@ -98,7 +98,7 @@ EOF
 sub sayG
 {
     my $str = shift or confess('Invalid usage.');
-    say "\033[1m\033[36m" . $str . "\033[0m";
+    say "\033[1;36m" . $str . "\033[0m";
 }
 
 
@@ -241,8 +241,12 @@ for ($type)
                       "-mmt=${UseCores}", "-mx=${lev9}", $tmp );
     }
     elsif (/^(zpaq|zq|zp)$/n) {
-        if ($notar) { $basetype = 'zpaq' }
-        else        { $basetype = 'tzpaq' }
+        # if ($notar) { $basetype = 'zpaq' }
+        # else        { $basetype = 'tzpaq' }
+        $basetype = 'zpaq';
+    }
+    elsif (/^(tzpaq|tzq|tzp)$/n) {
+        $basetype = 'tzpaq';
     }
     else {
         say STDERR "Filetype '$type' not recognized.";

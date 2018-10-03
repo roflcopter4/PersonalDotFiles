@@ -1,12 +1,21 @@
 " NOTE: This file is ignored by gonvim!
 
-if WINDOWS()
-    GuiFont Dina:h8
-"elseif $QT == 'true'
+if exists('g:GtkGuiLoaded')
+    call rpcnotify(1, 'Gui', 'Font', 'dina 7')
+    call rpcnotify(1, 'Gui', 'Linespace', '1')
+    call rpcnotify(1, 'Gui', 'Option', 'Tabline', 0)
+    " call rpcnotify(1, 'Gui', 'Option', 'Popupmenu', 0)
+    " call rpcnotify(1, 'Gui', 'Option', 'Cmdline', 0)
 else
-    " GuiFont DinaPowerline:h8
-    GuiFont Dina:h7
-    GuiLinespace 1
+    if WINDOWS()
+        GuiFont Dina:h8
+    "elseif $QT == 'true'
+    else
+        " GuiFont DinaPowerline:h8
+        GuiFont Dina:h7
+        " GuiFont Droid\ Sans\ Mono:h10
+        GuiLinespace 1
+    endif
 endif
 
 

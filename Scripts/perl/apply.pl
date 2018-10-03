@@ -168,7 +168,6 @@ sub run ( $options, $cmd, @cmd_args )
         else {
             print "\n" if $options->{sep}
         }
-
         if ( not $options->{dryrun} ) {
             system("@$cmd @cmd_args");
         }

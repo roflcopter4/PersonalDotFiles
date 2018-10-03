@@ -696,6 +696,7 @@ command Plugins :execute 'e '.expand("~/.vimplugins")
 
 nnoremap <leader>nl :call ToggleList()<CR>
 nnoremap <leader>jj :pc<CR>
+nnoremap <leader>k :pc<CR>
 
 " ================================================================================================================
 " Neovim Terminal Config
@@ -779,8 +780,10 @@ nnoremap <leader>::<space> q:
 nnoremap q: :
 
 if has('nvim') && !WIN_OR_CYG()
-    let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
-    let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
+    " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
+    " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
+    let g:python_host_prog  = 'python2'
+    let g:python3_host_prog = 'python3'
 else
     let g:python_host_prog  = 'python2'
     let g:python3_host_prog = 'python3'
@@ -806,6 +809,18 @@ func! BracesBeGone()
 endf
 nnoremap <silent> <leader>ab :call BracesBeGone()<CR>
 
+" let g:clipboard = {
+"             \   'name': 'myXselWrap',
+"             \   'copy': {
+"             \      '+': 'xsel -i',
+"             \      '*': 'xsel -i',
+"             \    },
+"             \   'paste': {
+"             \      '+': 'xsel -o',
+"             \      '*': 'xsel -o',
+"             \   },
+"             \   'cache_enabled': 1,
+"             \ }
 
 if has('clipboard')
     if has('unnamedplus')
@@ -818,10 +833,28 @@ endif
 augroup CMakeSyntaxFix
     autocmd BufReadPost CMake* :syntax enable
 augroup END
+augroup AssemblySettings
+    autocmd Filetype asm,nasm setlocal sw=0 sts=0 noexpandtab
+augroup END
 
 " syntax match arsehole "\%(ass\|fuck\)"
 " syntax match arsehole "\v%(ass|fuck)"
 
 
 let g:huge_number = (-(4294967295 * 2))
+let g:nasm_ctx_outside_macro = 1
+let g:nasm_loose_syntax = 1
 
+command! -range FixClangStars <line1>,<line2>s/\v([*&]+)(\s*)(\S)/\2\1\3/g
+
+function! Fuckmehard()
+    TaghighlightStop
+    redir @a
+    TaghighlightInit
+endfunction
+function! Dieinfire()
+    TaghighlightStop
+    redir END
+endfunction
+
+" '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

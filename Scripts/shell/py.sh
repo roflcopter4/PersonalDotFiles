@@ -58,6 +58,9 @@ id_exe() {
             *3)
                 EXE='python3'
                 ;;
+            *3.7|*3_7|*37)
+                EXE='python3.7'
+                ;;
             *3.6|*3_6|*36)
                 EXE='python3.6'
                 ;;
@@ -235,7 +238,7 @@ do
             ;;
     esac
 done
-$GnuGetopt || shift `expr $OPTIND '-' 1`
+$GnuGetopt || shift "`expr $OPTIND '-' 1`"
 
 [ $# -ge 2 ] || { printf 'ERROR: Wrong number of paramaters.\n\n' >&2; ShowUsage 2; }
 

@@ -45,4 +45,4 @@ if ! [ -d "${HOME}/random" ]; then
     command -v 'git' >/dev/null 2>&1 && git clone 'https://github.com/roflcopter4/random' "${HOME}/random"
 fi
 
-ln -sf "${HOME}/random/code/perl/xtar/Xtar-41.pl" "${HOME}/.local/bin/xtar"
+# ln -sf "${HOME}/random/code/perl/xtar/Xtar-41.pl" "${HOME}/.local/bin/xtar"

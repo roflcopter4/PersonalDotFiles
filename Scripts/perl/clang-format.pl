@@ -90,6 +90,7 @@ GetOptions(
 ) or die;
 
 my $data = '{';
+if (defined $opt{file}) { $file = $opt{file} }
 
 # This routine does most of the work, including checking for styles
 slurp_file( \$data, $file, $opt{style} );

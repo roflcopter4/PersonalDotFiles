@@ -21,6 +21,7 @@ make_link() {
     ln -sf "$file" "$target"
 }
 
+is_oneoff=false
 
 # Some basic error checking
 if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
@@ -31,8 +32,12 @@ elif [ $# -eq 1 ]; then
     ShowUsage 1
 
 elif [ $# -gt 3 ]; then
-    printf 'ERROR: Too many paramaters.\n\n'
-    ShowUsage 2
+    if [ "$1" = '-1' ]; then
+        is_oneoff=true
+    else
+        printf 'ERROR: Too many paramaters.\n\n'
+        ShowUsage 2
+    fi
 fi
 
 srcDir=$(realpath "$1")
@@ -40,7 +45,7 @@ destDir=$(realpath "$2")
 RELPATH="${HOME}/personaldotfiles/Scripts/shell/relpath.sh"
 
 # Some more basic error checking
-if ! [ -d "$srcDir" ]; then
+if ! [ -d "$srcDir" ] && ! $is_oneoff; then
     printf 'ERROR: srcdir does not exist or is not a directory.\n\n'
     ShowUsage 3
 
@@ -54,17 +59,26 @@ elif ! [ -w "$destDir" ] && ! [ "$DryRun" ]; then
 fi
 
 
-for file in "${srcDir}/"*; do
-    if   echo "$file" | grep -q '\.sh$'; then
+handle_file() {
+    [ $# -eq 1 ] || return 1
+    if   echo "$1" | grep -q '\.sh$'; then
         make_link 'sh' 'shell'
-    elif echo "$file" | grep -q '\.pl$'; then
+    elif echo "$1" | grep -q '\.pl$'; then
         make_link 'pl' 'perl'
-    elif echo "$file" | grep -q '\.py$'; then
+    elif echo "$1" | grep -q '\.py$'; then
         make_link 'py' 'python'
-    elif echo "$file" | grep -q '\.zsh$'; then
+    elif echo "$1" | grep -q '\.zsh$'; then
         make_link 'zsh' 'zsh'
     else
-        echo "File ${file} is not a known script type, skipping..."
+        echo "1 ${1} is not a known script type, skipping..."
     fi
-done
+}
 
+
+if $is_oneoff; then
+    handle_file "$2"
+else
+    for file in "${srcDir}/"*; do
+        handle_file "$file"
+    done
+fi

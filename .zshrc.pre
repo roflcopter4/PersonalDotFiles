@@ -21,6 +21,8 @@ ENABLE_CORRECTION="false"
 #zplug "robbyrussell/oh-my-zsh", use:"lib/*.zsh"
 zplug  "robbyrussell/oh-my-zsh", use:"lib/{completion,misc,key-binding}.zsh"
 
+zplug "zdharma/fast-syntax-highlighting"
+
 # Github Plugins
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-completions"
@@ -30,7 +32,7 @@ zplug 'srijanshetty/zsh-pandoc-completion'
 zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
 # Set the priority (If the defer tag is given 2 or above, run after compinit command)
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
+# zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
 # Oh-My-Zsh plugins
 zplug "plugins/compleat",             from:oh-my-zsh

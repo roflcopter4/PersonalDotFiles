@@ -3,6 +3,7 @@
   inactive_color_offset = 1.0
   scroll_tabbar = True
 [keybindings]
+  help = <Primary><Shift><Alt>F1
   next_tab = <Primary>Page_Up
   prev_tab = <Primary>Page_Down
 [layouts]

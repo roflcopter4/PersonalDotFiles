@@ -243,7 +243,8 @@ sub extract_tar( $CMD, $flags, $file, $options )
     my $command       = substitute_cmd( $CMD, $flags, $file, $options );
     my $short_command = substitute_cmd( $CMD, $flags, $shortname, $options );
 
-    sayC( $cmd_color, qq($short_command | $options->{TAR} -xf -) ) unless $Q;
+    sayC( $cmd_color, qq($short_command | $options->{TAR} -xf -) ) unless $Q || $DEBUG;
+    sayC( $cmd_color, qq($command | $options->{TAR} -xf -) ) if $DEBUG;
 
     my ( $CmdPipe, $TarPipe );
     open $CmdPipe, '-|', qq($command);
@@ -270,11 +271,13 @@ sub extract_else( $CMD, $flags, $stdout, $file, $options )
 
     if ($stdout) {
         my $dst = shell_quote($CWD/$shortname);
-        sayC( $cmd_color, qq($short_command > "$CWD/") ) unless $Q;
+        sayC( $cmd_color, qq($short_command > "$CWD/") ) unless $Q || $DEBUG;
+        sayC( $cmd_color, qq($command > $dst) ) if $DEBUG;
         system qq($command > $dst);
     }
     else {
-        sayC( $cmd_color, qq($short_command) ) unless $Q;
+        sayC( $cmd_color, qq($short_command) ) unless $Q || $DEBUG;
+        sayC( $cmd_color, qq($command) ) if $DEBUG;
         system qq($command);
     }
 

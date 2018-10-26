@@ -16,8 +16,7 @@ use Scalar::Util qw( looks_like_number );
 use Try::Tiny;
 use String::ShellQuote;
 
-use lib ".";
-use lib "..";
+use lib rel2abs('..');
 use xtar::Colors;
 use xtar::Utils;
 

@@ -180,6 +180,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('tpope/vim-markdown')
     call dein#add('vim-scripts/Vimball')
     call dein#add('mokkun/twine.vim')
+    call dein#add('AndrewRadev/sideways.vim')
 
     " Refactoring tools and such
     call dein#add('uplus/vim-clang-rename')
@@ -216,7 +217,7 @@ if dein#load_state(expand(g:load_path))
             call dein#add('Shougo/neco-vim')
             call dein#add('artur-shaik/vim-javacomplete2')
             call dein#add('zchee/deoplete-clang')
-            call dein#add('zchee/deoplete-go', {'build': 'make'})
+            call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': 0})
             call dein#add('zchee/deoplete-jedi')
         else
             call dein#add('Valloric/YouCompleteMe',
@@ -715,7 +716,8 @@ if IsSourced('ale')
                                       \ '-hicpp-signed-bitwise',
                                       \ '-*disabled-macro-expansion',
                                       \ '-*c++98-compat',
-                                      \ '-*avoid-magic-numbers', '-*readability-magic-numbers'
+                                      \ '-*avoid-magic-numbers', '-*readability-magic-numbers',
+                                      \ '-*pro-type-union-access',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -926,7 +928,7 @@ endif
 if IsSourced('vim-autoformat')
     augroup c_formatting
         autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
-        autocmd FileType go setlocal cindent sw=8 sts=8 ts=8 noexpandtab
+        autocmd FileType go setlocal cindent sw=6 sts=6 ts=6 noexpandtab
     augroup END
     let g:__c__shiftwidth = 8
 
@@ -1147,7 +1149,7 @@ endif
 
 if IsSourced('vim-cpp-enhanced-highlight')
     " let g:cpp_member_variable_highlight = 1
-    " let g:cpp_class_scope_highlight = 1
+    let g:cpp_class_scope_highlight = 0
     " let g:cpp_class_decl_highlight = 1
     " let g:cpp_member_variable_highlight = 1
     " let g:cpp_experimental_simple_template_highlight = 1
@@ -1304,7 +1306,8 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#c#order = 'guesfdmvt'
     " let g:tag_highlight#c#order = 'guesfdmt'
     " let g:tag_highlight#c#order = 'tvmdfseug'
-
+    " let g:tag_highlight#cpp#order = 'vncgstuedfm'
+        " let g:tag_highlight#cpp#order = 'Tncgstuedfm'
 
     let g:tag_highlight#norecurse_dirs = [
                         \     $HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include',
@@ -1345,7 +1348,8 @@ if IsSourced('tag-highlight.nvim')
     " highlight link goPackageTag		GlobalVarTag
     " highlight link pythonGlobalVarTag	Constant
     highlight link pythonGlobalVarTag	Enum
-    highlight link tag_highlight_ClassTag		newClassColor
+    highlight link tag_highlight_ClassTag	newClassColor
+    highlight link tag_highlight_TemplateTag	newTemplateColor
     highlight link rustMacroTag newClassColor
     highlight link tag_highlight_ClassTag newClassColor
 

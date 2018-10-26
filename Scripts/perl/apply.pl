@@ -1,12 +1,11 @@
 #!/usr/bin/env perl
-use strict;
-use warnings;
-use v5.24;
+use strict; use warnings; use v5.24;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use Carp;
 use Clone qw( clone );
 use File::Basename;
+use File::Slurp;
 use Getopt::Long qw(:config gnu_compat bundling no_getopt_compat
     require_order auto_version no_ignore_case);
 
@@ -14,13 +13,21 @@ $main::VERSION = v0.2;
 our $DEBUG;
 my $progname = basename $0;
 
-main(@_);
+sub main        : prototype();
+sub run         : prototype(\%\@@);
+sub cmdarg      : prototype(\%\@$);
+sub filearg     : prototype(\%\@$);
+sub handle_fail : prototype(\%$);
+sub msg         : prototype($;$$);
+sub show_usage  : prototype(;$);
+
+main();
 
 ###############################################################################
 # MAIN
 ###############################################################################
 
-sub main
+sub main : prototype()
 {
     my %options = ( keep_going => 0 );
 
@@ -33,6 +40,7 @@ sub main
         'c|script=s'    => \$options{script},
         's|shell=s'     => \$options{shell},
         'S|sep'         => \$options{sep},
+        'p|pipe|stdin|' => \$options{pipe},
         'D|debug'       => \$DEBUG,
     ) or ( print STDERR "\n" && show_usage(1) );
 
@@ -63,13 +71,13 @@ sub main
         my $arg = shift @ARGV;
 
         if ($init) {
-            $init = cmdarg( \@cmd_args, $arg, \%options );
+            $init = cmdarg %options, @cmd_args, $arg ;
             if ( $init == 2 ) {
-                filearg( \@files, $arg, \%options );
+                filearg %options, @files, $arg;
             }
         }
         else {
-            filearg( \@files, $arg, \%options );
+            filearg %options, @files, $arg;
         }
     }
 
@@ -84,11 +92,11 @@ sub main
 
         if ( $options{sub} ) {
             eval qq(map { s/--\\?/$file_ref/ } \@cmd_args_cpy);
-            run( \%options, \@cmd, @cmd_args_cpy );
+            run %options, @cmd, @cmd_args_cpy ;
         }
         else {
             eval qq/push \@cmd_args_cpy, $file_ref/;
-            run( \%options, \@cmd, @cmd_args_cpy );
+            run %options, @cmd, @cmd_args_cpy ;
         }
     }
 }
@@ -97,7 +105,7 @@ sub main
 # Subroutines
 ###############################################################################
 
-sub cmdarg ( $cmd_args, $arg, $options )
+sub cmdarg ( $options, $cmd_args, $arg ) : prototype(\%\@$)
 {
     my $init = 1;
 
@@ -127,7 +135,7 @@ sub cmdarg ( $cmd_args, $arg, $options )
     return $init;
 }
 
-sub filearg ( $files, $arg, $options )
+sub filearg ( $options, $files, $arg ) : prototype(\%\@$)
 {
     if ( $options->{diff} ) {
         if ( $arg eq '--' ) { push @{$files}, [] }
@@ -138,7 +146,7 @@ sub filearg ( $files, $arg, $options )
     }
 }
 
-sub run ( $options, $cmd, @cmd_args )
+sub run ( $options, $cmd, @cmd_args ) : prototype(\%\@@)
 {
     if ( $options->{script} ) {
         if ( $DEBUG or $options->{dryrun} ) {
@@ -175,11 +183,11 @@ sub run ( $options, $cmd, @cmd_args )
 
     my $ret = $? >> 8;
     if ( $ret != 0 ) {
-        handle_fail( $ret, $options );
+        handle_fail( %$options, $ret );
     }
 }
 
-sub handle_fail ( $ret, $options )
+sub handle_fail ( $options, $ret ) : prototype(\%$)
 {
     msg( "Command failed with status $ret", 1 );
 
@@ -193,62 +201,75 @@ sub handle_fail ( $ret, $options )
     }
 }
 
-sub msg ( $message, $nl = 0, $name = 1 )
+sub msg ( $message, $nl=0, $name=1 ) : prototype($;$$)
 {
     print STDERR "\n" if $nl;
     if   ($name) { say STDERR "${progname}: ${message}" }
     else         { say STDERR "${message}" }
+}
 
+sub getstdin
+{
+    my @lines = read_file( \*STDIN );
 }
 
 ###############################################################################
 # USAGE
 ###############################################################################
 
-sub show_usage($status=0)
+sub show_usage($status=0) : prototype(;$)
 {
     print << "EOF";
 Usage: $progname [options] command [command options] -- fileA fileB ... fileN
+OR:    $progname -d [options] command [command options] -- fileA -- fileB ... -- fileN
 EOF
     exit $status unless ( $status == 0 );
 
     print << "EOF";
 
-Applies the given command with arguments to each given file. Standard arguments
-(that use a `-' as a switch) can be given without fuss, however if the program
-requires any bare arguments, or arguments that require options are given with a
-space (eg. `-ofoo' rather than `-ofoo', or `--out foo' rather than `--out=foo')
-then the files must be placed after `--' in order to disambiguate them from the
-command and options. Due to the nature of this program, its own options must
-appear before the command.
+Applies the given command with arguments to each given file. Stops execution
+should any command fail (return non-zero) unless the `-k' flag is given.
 
-A special mode can be invoked with the -d flag in which each file may recieve
-additional arguments that apply only to it. In this mode options given before
-the now compulsory `--' apply to all files. Thereafter, essentially any
-commandline may be entered, involving as many or as few options or files as
-desired, so long as each is separated by `--'.
-For example:
+Normally, the first non flag argument is taken to be the command and everything
+thereafter until `--' is encountered are taken to be arguments which will be
+given on each invocation. Even if no arguments are specified, `--' must appear
+before the first filename. The command is then applied to all following
+arguments. Any of this program's own options must appear before the command.
 
-$progname -d cc -c -Wall -- -O2 foo.c -- bar.c -obaz.o -- foo.o baz.o -o qux
+By quoting the `file' arguments, it is possible to in fact give unique flags for
+each file, or possibly multiple files for one invocation.
 
-Note that this is not make(1); things are done sequentially, not in parallel,
-which is in general a limitation but does allow the above example to work - it
-would fail if not done left to right!
+For example, this command will will run gcc for each of the three files:
+    $progname gcc -O2 -Wall -c -- foo.c bar.c baz.r
+
+This will also run gcc 3 times in the order specified; a poor man's make(1).
+    $progname gcc -c -Wall -- '-O2 foo.c' 'bar.c -obaz.o' 'foo.o baz.o -o qux'
+
+If desired, the -d flag will activate a second mode of rather dubious
+usefullness in which each `file' argument must be separated by `--', allowing
+the above to be possible without needing to quote the arguments. It's probably
+almost never easier to do it this way, but the feature exists anyway.
+
+The above command in the `-d' mode:
+    $progname -d gcc -c -Wall -- -O2 foo.c -- bar.c -obaz.o -- foo.o baz.o -o qux
+
+Finally, with the `-c' flag one may give a shell script to be executed in place
+of a program. The script must be the argument to this option, and must therefore
+must be carefully quoted (awk style). File arguments will be correctly passed to
+the script and accessed through the numbered variables as usual.
 
 OPTIONS:
   -h, --help         Show this help and exit.
   -v, --version      Print version information and exit.
+  -D, --debug        Be (much) more verbose.
+  -s, --shell        Specify the shell used to launch commands (default: /bin/sh).
+  -S, --sep          Output an addtional newline after each invocation
   -k, --keep-going   Don't stop if a command fails.
   -i, --interactive  Prompt the user after a failure whether or not to continue.
   -d, --diff         Activate the mode described above.
-  -s, --shell        Specify the shell to use with -c (default: /bin/sh).
   -n, --dry-run      Don't run any commands, just display what would be done.
-  -D, --debug        Be (much) more verbose.
-  -c, --script       Give a shell script to be executed in place of a program.
-                     The script must be the argument to this option, and
-                     therefore must be carefully quoted (awk style). File
-                     arguments will be correctly passed to the script and
-                     accessed through the numbered variables as usual.
+  -c, --script       Give a shell script to be executed instead of a command.
+  -p, --pipe|stdin   Read additional filenames from stdin, like xargs(1).
 EOF
     exit $status;
 }

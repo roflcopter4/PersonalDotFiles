@@ -13,16 +13,19 @@ use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 use Try::Tiny;
 
 BEGIN {
-    my $lib_location = rel2abs((splitpath(readlink(rel2abs("$0"))))[1]);
-    eval 'use lib $lib_location;';
-    try {
-        require xtar;
-        require xtar::Colors;
-        require xtar::Utils;
-        xtar->import();
-        xtar::Colors->import();
-        xtar::Utils->import();
-    }
+    my $lib_location = (splitpath(readlink(rel2abs("$0"))))[1];
+    eval 'use lib "$lib_location"'; 
+    eval 'use xtar;';
+    eval 'use xtar::Colors;';
+    eval 'use xtar::Utils;';
+    # try {
+    #     require xtar;
+    #     require xtar::Colors;
+    #     require xtar::Utils;
+    #     xtar->import();
+    #     xtar::Colors->import();
+    #     xtar::Utils->import();
+    # }
 }
 
 ###############################################################################

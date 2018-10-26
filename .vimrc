@@ -847,14 +847,4 @@ let g:nasm_loose_syntax = 1
 
 command! -range FixClangStars <line1>,<line2>s/\v([*&]+)(\s*)(\S)/\2\1\3/g
 
-function! Fuckmehard()
-    TaghighlightStop
-    redir @a
-    TaghighlightInit
-endfunction
-function! Dieinfire()
-    TaghighlightStop
-    redir END
-endfunction
-
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

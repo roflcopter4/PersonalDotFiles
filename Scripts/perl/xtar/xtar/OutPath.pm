@@ -9,8 +9,7 @@ use constant false => 0;
 use Carp;
 use File::Spec::Functions qw( rel2abs catdir );
 
-use lib ".";
-use lib "..";
+use lib rel2abs('..');
 use xtar::Utils;
 
 ###############################################################################

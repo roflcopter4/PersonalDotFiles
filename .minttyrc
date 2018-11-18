@@ -31,3 +31,4 @@ BoldBlue=96,96,255
 BoldMagenta=255,64,255
 BoldCyan=64,255,255
 BoldWhite=255,255,255
+ScrollbackLines=1000

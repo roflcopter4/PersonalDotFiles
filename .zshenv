@@ -50,24 +50,16 @@ if [[ -x /usr/bin/id ]] ; then
     [[ $LOGNAME == LOGIN ]] && LOGNAME=$(/usr/bin/id -un)
 fi
 
-if [[ -o interactive ]]; then
-    typeset -a lp; lp=( ${^path}/lesspipe(N) )
-    if (( $#lp > 0 )) && [[ -x $lp[1] ]] ; then
-        export LESSOPEN="|lesspipe %s"
-    elif [[ -x /usr/bin/lesspipe.sh ]] ; then
-        export LESSOPEN="|lesspipe.sh %s"
-    fi
-    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=molokai"
-    unset lp
-    export READNULLCMD=${PAGER:-/usr/bin/pager}
-    # MAKEDEV should be usable on udev as well by default:
-    export WRITE_ON_UDEV=yes
-fi
-
 
 # if [[ "$(uname)" == 'Linux' ]]; then
 #     export MALLOC_PERTURB_=$(( (RANDOM % 255) + 1 ))
 # fi
+
+__split_path_return=()
+__split_path() {
+    local IFS=':'
+    __split_path_return=($=1)
+}
 
 
 case "$SYSID" in
@@ -92,7 +84,36 @@ case "$SYSID" in
     ArchLinux|Artix)
         export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
         ;;
+    msys2)
+        __mingw_fix_path() {
+            export path=( "${HOME}/.local/bin" /mingw64/bin /c/Vim/Neovim/bin $path /d/libs/bin )
+            for ((i = 1; i <= $#path; ++i)); do
+                [[ $path[$i] == '/bin' ]] && path[$i]=()
+            done
+            echo $PATH
+        }
+        export PATH=$(__mingw_fix_path)
+        __split_path "$WINPATH"
+        export WINPATH="$ORIGINAL_PATH"
+        export winpath=($__split_path_return)
+        ;;
 esac
+
+if [[ -o interactive ]]; then
+    typeset -a lp; lp=( ${^path}/lesspipe(N) )
+    if [[ -x "${HOME}/.local/bin/lesspipe.sh" ]]; then
+        export LESSOPEN="|${HOME}/.local/bin/lesspipe.sh %s"
+    elif (( $#lp > 0 )) && [[ -x $lp[1] ]]; then
+        export LESSOPEN="|lesspipe %s"
+    elif [[ -x /usr/bin/lesspipe.sh ]]; then
+        export LESSOPEN="|lesspipe.sh %s"
+    fi
+    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -l -t8 --out-format=truecolor --force --style=molokai"
+    unset lp
+    export READNULLCMD=${PAGER:-/usr/bin/pager}
+    # MAKEDEV should be usable on udev as well by default:
+    export WRITE_ON_UDEV=yes
+fi
 
 case "$SYSID" in
     gentoo|laptop-gentoo|ArchLinux|Artix)
@@ -111,6 +132,7 @@ esac
 
 export GOPATH=/opt/go
 export path=( $path /opt/go/bin )
+unset __split_path_return
 
 setopt no_global_rcs
 

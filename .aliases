@@ -229,6 +229,7 @@ alias ln='ln -s'
 alias dmesg='dmesg --color=always'
 alias dmesgl='dmesg | \less -r'
 alias suvi='sudoedit'
+alias free='free -wh'
 
 # God I am lazy
 mkalias -A 'CO' '/usr/libexec/cw/configure' './configure'
@@ -254,6 +255,7 @@ mkalias -T ari='aria2c'
 mkalias -T par='par-format'
 mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
 mkalias -S parted='parted'
+mkalias -T rg='rg -S'
 
 mkalias -T wolf='wolframscript'
 

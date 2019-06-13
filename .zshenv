@@ -72,8 +72,10 @@ case "$SYSID" in
         [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
         #[[ -d "${HOME}/.local/lib/node_modules/.bin" ]] && adtl_path+="${HOME}/.local/lib/node_modules/.bin"
 
-        export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
+        export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
         export PT=/var/tmp/portage
+        export RUSTUP_HOME=/opt/rust/rustup
+        export CARGO_HOME=/opt/rust/cargo
         ;;
     FreeBSD)
         export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
@@ -108,7 +110,7 @@ if [[ -o interactive ]]; then
     elif [[ -x /usr/bin/lesspipe.sh ]]; then
         export LESSOPEN="|lesspipe.sh %s"
     fi
-    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -l -t8 --out-format=truecolor --force --style=molokai"
+    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -l -t8 --out-format=truecolor --force --style=myMolokai"
     unset lp
     export READNULLCMD=${PAGER:-/usr/bin/pager}
     # MAKEDEV should be usable on udev as well by default:

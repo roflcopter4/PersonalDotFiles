@@ -15,3 +15,5 @@
     fi
     unset ps_cmd cmdnam
 }
+
+export PATH="$HOME/.cargo/bin:$PATH"

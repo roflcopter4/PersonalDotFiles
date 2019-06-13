@@ -20,7 +20,7 @@ endif
 
 let g:use_ale = 1
 let g:use_deoplete = 1
-let b:use_language_client = 1
+" let b:use_language_client = 1
 let s:vim_ale = 1
 
 
@@ -159,6 +159,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('gentoo/gentoo-syntax')
     call dein#add('rsmenon/vim-mathematica')
     call dein#add('rust-lang/rust.vim')
+    call dein#add('dylon/vim-antlr.git', {'merged': 0})
 
     " Misc ----------
     call dein#add('Chiel92/vim-autoformat')
@@ -181,11 +182,12 @@ if dein#load_state(expand(g:load_path))
     call dein#add('vim-scripts/Vimball')
     call dein#add('mokkun/twine.vim')
     call dein#add('AndrewRadev/sideways.vim')
+    call dein#add('gf3/peg.vim')
 
     " Refactoring tools and such
     call dein#add('uplus/vim-clang-rename')
 
-    if !WINDOWS() && b:use_language_client
+    if !WINDOWS() "&& b:use_language_client
         call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     call dein#add('Shougo/neosnippet.vim')
@@ -718,6 +720,8 @@ if IsSourced('ale')
                                       \ '-*c++98-compat',
                                       \ '-*avoid-magic-numbers', '-*readability-magic-numbers',
                                       \ '-*pro-type-union-access',
+                                      \ '-*uppercase-literal-suffix',
+                                      \ '-*gnu-zero-variadic-macro-arguments',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -1080,6 +1084,7 @@ if IsSourced('neotags.nvim')
                 \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cAnsiFunction'],
                 \     'cpp': ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType',
                 \             'cppStorageClass', 'cppType', 'cppAuto'],
+                \     'go':  ['goExtraConstants', 'goStdlibFuncs']
                 \ }
 
     nmap <leader>tag :NeotagsToggle<CR>
@@ -1184,34 +1189,36 @@ endif
 
 if IsSourced('LanguageClient-neovim')
     let g:LanguageClient_serverCommands = {
-          \     'cpp': ['/opt/cquery_debug/bin/cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
-          \     'c':   ['/opt/cquery_debug/bin/cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
+          \     'cpp': ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
+          \     'c':   ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
           \     'rust': ['rustup', 'run', 'nightly', 'rls'],
           \     'python': ['/usr/local/bin/pyls'],
           \     'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
           \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
           \ }
 
-    let g:LanguageClient_diagnosticsEnable = 0
+    " let g:LanguageClient_diagnosticsEnable = 1
     " let g:LanguageClient_trace = 'verbose'
     let g:LanguageClient_autoStart = 1
     let g:LanguageClient_changeThrottle = 1.0
     let g:LanguageClient_hoverPreview = 'Never'
+    " let g:LanguageClient_loggingLevel = 'DEBUG'
+    " let g:LanguageClient_loggingFile = expand('~/lang_client.log')
 
     " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
     " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
     " set completefunc=LanguageClient#complete
     " set formatexpr=LanguageClient_textDocument_rangeFormatting()
 
-    augroup LanguageClient_config
-        au!
-        au BufEnter * let b:Plugin_LanguageClient_started = 0
-        au User LanguageClientStarted setl signcolumn=yes
-        au User LanguageClientStarted let b:Plugin_LanguageClient_started = 1
-        au User LanguageClientStopped setl signcolumn=auto
-        au User LanguageClientStopped let b:Plugin_LanguageClient_stopped = 0
-        au CursorMoved * if b:Plugin_LanguageClient_started | call LanguageClient_textDocument_hover() | endif
-    augroup END
+    " augroup MyLanguageClientConfig
+    "     au BufEnter * let b:Plugin_LanguageClient_started = 0
+    "     au User LanguageClientStarted setl signcolumn=yes
+    "     au User LanguageClientStarted let b:Plugin_LanguageClient_started = 1
+    "     au User LanguageClientStopped setl signcolumn=auto
+    "     au User LanguageClientStopped let b:Plugin_LanguageClient_stopped = 0
+    "     au CursorMoved * if b:Plugin_LanguageClient_started | call LanguageClient_textDocument_hover() | endif
+    "     au BufNew,BufAdd,BufCreate *.[ch] :LanguageClientStart<CR>
+    " augroup END
 
     nn <silent> <M-.> :call LanguageClient_textDocument_definition()<cr>
     nn <silent> <M-,> :call LanguageClient_textDocument_references()<cr>
@@ -1298,16 +1305,10 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#no_autoconf = 1
     let g:tag_highlight#use_binary = 1
     let g:tag_highlight#strip_comments = 1
-    " let g:tag_highlight#compression_type = 'lzma'
-    let g:tag_highlight#compression_type = 'gzip'
-    " let g:tag_highlight#compression_type = 'none'
+    let g:tag_highlight#compression_type = 'lzma'
+    " let g:tag_highlight#compression_type = 'gzip'
     let g:tag_highlight#compression_level = 9
-
     let g:tag_highlight#c#order = 'guesfdmvt'
-    " let g:tag_highlight#c#order = 'guesfdmt'
-    " let g:tag_highlight#c#order = 'tvmdfseug'
-    " let g:tag_highlight#cpp#order = 'vncgstuedfm'
-        " let g:tag_highlight#cpp#order = 'Tncgstuedfm'
 
     let g:tag_highlight#norecurse_dirs = [
                         \     $HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include',
@@ -1328,7 +1329,8 @@ if IsSourced('tag-highlight.nvim')
                 \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cExtraConstants',
                 \             'cAnsiFunction', 'cStatement', 'cPosixFunction', 'cExtraTypes', 'cGNUAutoType',
                 \             'cExtentionFunc', 'cAssertion', 'cLinuxFunction', 'cAnsiName', 'cExtraOther',
-                \             'cExtraNonStandard', 'cC11Function'],
+                \             'cExtraNonStandard', 'cC11Function', 'arduinoConstant', 'arduinoFunc'],
+                \     'go':  ['goExtraConstants', 'goStdlibFuncs', 'goBoolean']
                 \ }
 
     let s:tmp_cpp_lst = copy(g:tag_highlight#restored_groups['c'])
@@ -1344,6 +1346,7 @@ if IsSourced('tag-highlight.nvim')
     highlight link tag_highlight_GlobalVarTag	GlobalVarTag
 
     highlight link goConstantTag	Enum
+    highlight link goInterfaceTag	tag_highlight_ClassTag
     highlight link goGlobalVarTag	GlobalVarTag
     " highlight link goPackageTag		GlobalVarTag
     " highlight link pythonGlobalVarTag	Constant
@@ -1353,7 +1356,6 @@ if IsSourced('tag-highlight.nvim')
     highlight link rustMacroTag newClassColor
     highlight link tag_highlight_ClassTag newClassColor
 
-    " nnoremap <leader>tag :TaghighlightUpdate<CR>
     nnoremap <leader>tag :THLUpdate<CR>
 endif
 

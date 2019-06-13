@@ -118,7 +118,7 @@ let g:myNova_BG = '#1B1D1E'
 " Whitelisted filetypes for operator highlighting.
 
 " Set the following to avoid loading the plugin
-let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go' ]
+let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c' ]
 
 "let g:ophigh_highlight_link_group = 'Operator'
 let g:ophigh_highlight_link_group = 'OperatorChars'
@@ -782,12 +782,14 @@ nnoremap q: :
 if has('nvim') && !WIN_OR_CYG()
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
-    let g:python_host_prog  = 'python2'
-    let g:python3_host_prog = 'python3'
+    " let g:python_host_prog  = 'python2'
+    " let g:python3_host_prog = 'python3'
+    let g:python_host_prog  = '/usr/bin/python2'
+    let g:python3_host_prog = '/usr/bin/python3'
 else
-    let g:python_host_prog  = 'python2'
-    let g:python3_host_prog = 'python3'
-    let g:python_host_prog = 'python2'
+    let g:python_host_prog  = '/usr/bin/python2'
+    let g:python3_host_prog = '/usr/bin/python3'
+    " let g:python_host_prog = 'python2'
 endif
 
 
@@ -824,7 +826,7 @@ nnoremap <silent> <leader>ab :call BracesBeGone()<CR>
 
 if has('clipboard')
     if has('unnamedplus')
-        set clipboard=unnamed,unnamedplus
+        set clipboard=unnamed,unnamedplus,""
     else
         set clipboard=unnamed
     endif
@@ -839,7 +841,6 @@ augroup END
 
 " syntax match arsehole "\%(ass\|fuck\)"
 " syntax match arsehole "\v%(ass|fuck)"
-
 
 let g:huge_number = (-(4294967295 * 2))
 let g:nasm_ctx_outside_macro = 1

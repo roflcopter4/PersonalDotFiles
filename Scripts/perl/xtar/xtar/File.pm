@@ -329,10 +329,10 @@ sub move_zqaq($self)
 sub determine_decompressor($self, $type)
 {
     my ( $CMD, $TFlags, $EFlags, $Stdout );
-
     my $V     = $self->Options->{verbose};
-    my $v7z   = ( $V ) ? '' : '-bso0 -bsp0';
-    my $vzpaq = ( $V ) ? '' : ' >/dev/null';
+    my $Q     = $self->Options->{quiet};
+    my $v7z   = ( $Q ) ? '-bso0 -bsp0' : '';
+    my $vzpaq = ( $V ) ? ''            : ' >/dev/null';
 
     $TFlags = $EFlags = '';
     $_ = $type;

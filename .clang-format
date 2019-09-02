@@ -14,39 +14,52 @@ BasedOnStyle: LLVM
 #IndentWidth: 8
 # ##END##
 
-AllowAllParametersOfDeclarationOnNextLine: true
-AlwaysBreakTemplateDeclarations: true
+
 BinPackParameters: false
 BinPackArguments: true
 
+# AlignConsecutiveMacros: true
 AlignAfterOpenBracket: Align
-AlignEscapedNewlines: Left
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AlignTrailingComments: true
+AlignEscapedNewlines: Left
 AlignOperands: true
+AlignTrailingComments: true
 
 # AllowShortCaseLabelsOnASingleLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
+# AllowShortFunctionsOnASingleLine: All
 
-SpaceBeforeAssignmentOperators: true
 AlwaysBreakAfterReturnType: TopLevelDefinitions
-# IndentPPDirectives: AfterHash
-MaxEmptyLinesToKeep: 2
-
+# AlwaysBreakAfterReturnType: AllDefinitions
+AlwaysBreakTemplateDeclarations: true
 BreakBeforeBinaryOperators: None
-PenaltyBreakAssignment: 1000
-PenaltyExcessCharacter: 1
 BreakStringLiterals: true
+
+# PenaltyBreakAssignment: 1000
+PenaltyExcessCharacter: 3
+PenaltyBreakBeforeFirstCallParameter: 500
+
+# NamespaceIndentation: Inner
+# IndentPPDirectives: AfterHash
+# IndentWrappedFunctionNames: true
+
+# AccessModifierOffset: 0
+MaxEmptyLinesToKeep: 2
 PointerAlignment: Right
 ReflowComments: true
 SortIncludes: true
+SpaceBeforeAssignmentOperators: true
 
-# NamespaceIndentation: Inner
+ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH',
+                'P99_PARALLEL_FOR', 'P99_PARALLEL_DO', 'GENLIST_FOREACH', 'foreach']
+
+
 
 # ##Linux##
 BreakBeforeBraces: Linux
@@ -57,9 +70,6 @@ IndentWidth: 8
 
 UseTab: Never
 ColumnLimit: 80
-
-ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH',
-                'P99_PARALLEL_FOR', 'P99_PARALLEL_DO', 'GENLIST_FOREACH']
 
 # ##Custom##
 #BreakBeforeBraces: Custom

@@ -19,12 +19,13 @@ use File::Copy::Recursive 'dircopy';
 use File::Spec::Functions qw( rel2abs splitpath catfile );
 use Scalar::Util qw( looks_like_number );
 
-use lib rel2abs('.');
-use xtar::File;
-use xtar::OutPath;
-use xtar::Colors;
-use xtar::Utils;
-
+BEGIN {
+    eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
+    eval 'use xtar::File;';
+    eval 'use xtar::OutPath;';
+    eval 'use xtar::Colors;';
+    eval 'use xtar::Utils;';
+}
 
 ###############################################################################
 

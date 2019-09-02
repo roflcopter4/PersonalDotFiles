@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.24;
+use warnings; use strict; use v5.28;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -13,19 +13,19 @@ use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 use Try::Tiny;
 
 BEGIN {
-    my $lib_location = (splitpath(readlink(rel2abs("$0"))))[1];
-    eval 'use lib "$lib_location"'; 
+    # my $lib_location = (splitpath(rel2abs("$0")))[1];
+    # { local $/ = '/'; chomp $lib_location; }
+    # say "lib_location == '$lib_location'";
+
+    # eval 'use lib "$lib_location"'; 
+    # eval 'use xtar;';
+    # eval 'use xtar::Colors;';
+    # eval 'use xtar::Utils;';
+
+    eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
     eval 'use xtar;';
     eval 'use xtar::Colors;';
     eval 'use xtar::Utils;';
-    # try {
-    #     require xtar;
-    #     require xtar::Colors;
-    #     require xtar::Utils;
-    #     xtar->import();
-    #     xtar::Colors->import();
-    #     xtar::Utils->import();
-    # }
 }
 
 ###############################################################################

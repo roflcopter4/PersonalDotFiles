@@ -84,7 +84,7 @@ case "$SYSID" in
         export path=( "${HOME}/.local/bin" /opt/bin /opt/clang-bin /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/games /sbin /bin )
         ;;
     ArchLinux|Artix)
-        export path=( "${HOME}/.local/bin" "/usr/local/bin" $path "${HOME}/.gem/ruby/2.4.0/bin" )
+        export path=( "${HOME}/.local/bin" /usr/lib/ccache/bin /opt/bin /usr/local/bin $path )
         ;;
     msys2)
         __mingw_fix_path() {

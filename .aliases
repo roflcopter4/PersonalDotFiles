@@ -237,6 +237,7 @@ alias CH='./configure --help'
 alias CMK='mkdir build && cd build'
 
 # Yet more git aliases.
+mkalias -T gits='git status'
 alias gcred='git config credential.helper store'
 alias glgs="git log --graph --pretty='
 %Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --shortstat"
@@ -294,14 +295,17 @@ esac
 if [ "${_UNAME}" = 'Linux' ]; then
     if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
-        mkalias -s pacs='\pacman --color=always -S' 
+        mkalias -s pacs='\pacman --color=always -S --needed' 
         mkalias -s pacup='\pacman --color=always -Syu' 
         alias      pacss='\pacman --color=always -Ss' 
         alias      paci='\pacman --color=always -Si' 
-        alias      pac='\pacman --color=always' 
+        alias      pac='\pacman --color=always'
     fi
     mkalias -T pacaur='pacaur --color=always' 
     mkalias -T pacg='pacget -s' 
+    mkalias -T yays='yay -S'
+    mkalias -T yayss='yay -Ss'
+    mkalias -T yayi='yay -Si'
 
     mkalias -s stl='systemctl'
     mkalias -T n.='nemo . >/dev/null 2>&1 &' 
@@ -310,6 +314,8 @@ if [ "${_UNAME}" = 'Linux' ]; then
 
     mkalias -TS ualt='update-alternatives' 
     mkalias -TS apt='apt' 
+
+    alias make='make --no-print-directory'
 
 elif [ "${_UNAME}" = 'FreeBSD' ] || [ "${_UNAME}" = 'DragonFly' ]; then
     mkalias -S pkg='pkg'

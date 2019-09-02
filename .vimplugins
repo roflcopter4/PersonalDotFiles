@@ -188,7 +188,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('uplus/vim-clang-rename')
 
     if !WINDOWS() "&& b:use_language_client
-        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+        " call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -722,6 +722,9 @@ if IsSourced('ale')
                                       \ '-*pro-type-union-access',
                                       \ '-*uppercase-literal-suffix',
                                       \ '-*gnu-zero-variadic-macro-arguments',
+                                      \ '-*gnu-statement-expression',
+                                      \ '-*isolate-declaration',
+                                      \ '-*narrowing-conversions',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -1320,7 +1323,7 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#ignored_tags = {
                 \   'c': ['static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \         '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__', 'fork',
-                \         'alignof', 'alignas', 'Auto']
+                \         'alignof', 'alignas', 'Auto', 'main',]
                 \ }
 
     let g:tag_highlight#ignored_tags['cpp'] = g:tag_highlight#ignored_tags['c']
@@ -1334,7 +1337,11 @@ if IsSourced('tag-highlight.nvim')
                 \ }
 
     let s:tmp_cpp_lst = copy(g:tag_highlight#restored_groups['c'])
-    call extend(s:tmp_cpp_lst, ['cppStorageClass', 'cppType', 'cppAuto'])
+    call extend(s:tmp_cpp_lst,
+                \   [
+                \        'cppStorageClass', 'cppType', 'cppAuto',
+                \   ])
+                " \        'cppSTLfunction', 'cppSTLconstant', 'cppSTLfunctional'
     let g:tag_highlight#restored_groups['cpp'] = s:tmp_cpp_lst
 
     set tags=tags,../tags

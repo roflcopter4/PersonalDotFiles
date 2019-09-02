@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use strict; use warnings; use v5.24;
+use strict; use warnings; use v5.28;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use Carp;
@@ -13,13 +13,15 @@ $main::VERSION = v0.2;
 our $DEBUG;
 my $progname = basename $0;
 
-sub main        : prototype();
-sub run         : prototype(\%\@@);
-sub cmdarg      : prototype(\%\@$);
-sub filearg     : prototype(\%\@$);
-sub handle_fail : prototype(\%$);
-sub msg         : prototype($;$$);
-sub show_usage  : prototype(;$);
+sub main        :prototype();
+sub run         :prototype(\%\@@);
+sub cmdarg      :prototype(\%\@$);
+sub filearg     :prototype(\%\@$);
+sub handle_fail :prototype(\%$);
+sub diag        :prototype($;$);
+sub msg         :prototype($;$$);
+sub getstdin    :prototype();
+sub show_usage  :prototype(;$);
 
 main();
 
@@ -27,7 +29,7 @@ main();
 # MAIN
 ###############################################################################
 
-sub main : prototype()
+sub main :prototype()
 {
     my %options = ( keep_going => 0 );
 
@@ -46,7 +48,7 @@ sub main : prototype()
 
     if ( $options{help} ) { show_usage() }
     if ( @ARGV < ( $options{script} ? 1 : 2 ) ) {
-        msg("Insufficient paramaters.");
+        diag("Insufficient paramaters.");
         show_usage(2);
     }
 
@@ -105,7 +107,7 @@ sub main : prototype()
 # Subroutines
 ###############################################################################
 
-sub cmdarg ( $options, $cmd_args, $arg ) : prototype(\%\@$)
+sub cmdarg :prototype(\%\@$) ($options, $cmd_args, $arg)
 {
     my $init = 1;
 
@@ -122,7 +124,7 @@ sub cmdarg ( $options, $cmd_args, $arg ) : prototype(\%\@$)
         }
         else {
             if ( grep( /--/, @ARGV ) ) {
-                msg("Allowing spaces!") if $DEBUG;
+                diag("Allowing spaces!") if $DEBUG;
                 $options->{allow_spaces} = 1;
                 push @{$cmd_args}, $arg;
             }
@@ -135,7 +137,7 @@ sub cmdarg ( $options, $cmd_args, $arg ) : prototype(\%\@$)
     return $init;
 }
 
-sub filearg ( $options, $files, $arg ) : prototype(\%\@$)
+sub filearg :prototype(\%\@$) ($options, $files, $arg)
 {
     if ( $options->{diff} ) {
         if ( $arg eq '--' ) { push @{$files}, [] }
@@ -146,16 +148,16 @@ sub filearg ( $options, $files, $arg ) : prototype(\%\@$)
     }
 }
 
-sub run ( $options, $cmd, @cmd_args ) : prototype(\%\@@)
+sub run :prototype(\%\@@) ($options, $cmd, @cmd_args)
 {
     if ( $options->{script} ) {
         if ( $DEBUG or $options->{dryrun} ) {
             my $post = @$cmd[$#$cmd];
             $post .= ' ' if ( $post !~ /\n$/ );
 
-            msg("\033[0;32msystem( \033[1;36m@$cmd[0..($#$cmd-1)] "
-              . "\033[0;33m@{cmd_args} \033[0;36m$post\033[0;32m)\033[0m",
-                !$options->{dryrun} || $options->{sep}, 0
+            msg(  "\033[0;32msystem( \033[1;36m@$cmd[0..($#$cmd-1)] "
+                . "\033[0;33m@{cmd_args} \033[0;36m$post\033[0;32m)\033[0m",
+                !$options->{dryrun} || $options->{sep}
             );
         }
         else {
@@ -168,9 +170,11 @@ sub run ( $options, $cmd, @cmd_args ) : prototype(\%\@@)
     }
     else {
         if ( $DEBUG or $options->{dryrun} ) {
-            msg("\033[0;32msystem( \033[1;36m@$cmd "
-              . "\033[0;33m@{cmd_args}\033[0;32m )\033[0m",
-                !$options->{dryrun} || $options->{sep}, 0
+            msg(($options->{sep} ? "\033[1;34m" . '-'x40 . "\033[0m\n\033[1;34m==>\033[0m  " : "")
+                . "\033[0;32msystem( \033[1;36m@$cmd "
+                . "\033[0;33m@{cmd_args}\033[0;32m )\033[0m"
+                . ($options->{sep} ? "\n\033[1;34m" . '-'x40 . "\033[0m\n" : ""),
+                !$options->{dryrun} || $options->{sep}
             );
         }
         else {
@@ -187,28 +191,33 @@ sub run ( $options, $cmd, @cmd_args ) : prototype(\%\@@)
     }
 }
 
-sub handle_fail ( $options, $ret ) : prototype(\%$)
+sub handle_fail :prototype(\%$) ($options, $ret)
 {
-    msg( "Command failed with status $ret", 1 );
+    diag( "Command failed with status $ret", 1 );
 
     if ( $options->{interactive} ) {
-        msg("Continue?");
+        diag("Continue?");
         unless ( <> =~ /y|yes/i ) { exit $ret }
     }
     elsif ( not $options->{keep_going} ) {
-        msg("Exiting due to previous failures.");
+        diag("Exiting due to previous failures.");
         exit $ret;
     }
 }
 
-sub msg ( $message, $nl=0, $name=1 ) : prototype($;$$)
+sub diag :prototype($;$) ($message, $nl=0)
+{
+    msg($message, $nl, 1);
+}
+
+sub msg :prototype($;$$) ($message, $nl=0, $name=0)
 {
     print STDERR "\n" if $nl;
-    if   ($name) { say STDERR "${progname}: ${message}" }
+    if   ($name) { say STDERR "\033[1;36m${progname}:\033[0m ${message}" }
     else         { say STDERR "${message}" }
 }
 
-sub getstdin
+sub getstdin :prototype() ()
 {
     my @lines = read_file( \*STDIN );
 }
@@ -217,7 +226,7 @@ sub getstdin
 # USAGE
 ###############################################################################
 
-sub show_usage($status=0) : prototype(;$)
+sub show_usage :prototype(;$) ($status=0)
 {
     print << "EOF";
 Usage: $progname [options] command [command options] -- fileA fileB ... fileN

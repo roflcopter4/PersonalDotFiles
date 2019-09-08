@@ -14,6 +14,16 @@ use xtar::Utils;
 
 ###############################################################################
 
+sub init            :prototype($$);
+sub analyze_output  :prototype($$);
+sub get_odir        :prototype($);
+sub __get_odir      :prototype($);
+sub handle_conflict :prototype($$);
+sub glob_all        :prototype();
+sub descend         :prototype($);
+
+###############################################################################
+
 has 'CWD'         => ( is => 'ro', isa => 'Str' );
 has 'Options'     => ( is => 'ro', isa => 'HashRef' );
 has 'NumArchives' => ( is => 'ro', isa => 'Int' );
@@ -31,7 +41,7 @@ has 'file'        => ( is => 'rw', isa => 'Object' );
 ###############################################################################
 
 
-sub init( $self, $archive )
+sub init :prototype($$) ($self, $archive)
 {
     $self->file( $archive );
     my $msg = "output directory is not writable. Aborting.";
@@ -68,7 +78,7 @@ sub init( $self, $archive )
 ###############################################################################
 
 
-sub analyze_output( $self, $tmpdir )
+sub analyze_output :prototype($$) ($self, $tmpdir)
 {
     my ( $bottom, $lonefile ) = descend($tmpdir);
     chdir $self->CWD;
@@ -81,7 +91,7 @@ sub analyze_output( $self, $tmpdir )
 }
 
 
-sub get_odir($self)
+sub get_odir :prototype($) ($self)
 {
     if ($self->Options->{combine}
         or (    $self->Options->{odir}
@@ -97,7 +107,7 @@ sub get_odir($self)
 }
 
 
-sub __get_odir($self)
+sub __get_odir :prototype($) ($self)
 {
     my $oname;
 
@@ -120,7 +130,7 @@ sub __get_odir($self)
 ###############################################################################
 
 
-sub handle_conflict( $path, $name )
+sub handle_conflict :prototype($$) ($path, $name)
 {
     my $TimeStamp = time;
     my $new_name  = "${path}/${name}-${TimeStamp}";
@@ -135,7 +145,7 @@ sub handle_conflict( $path, $name )
 }
 
 
-sub glob_all()
+sub glob_all :prototype() ()
 {
     my @files = glob('* .*');
     my @filter;
@@ -149,7 +159,7 @@ sub glob_all()
 }
 
 
-sub descend($dir)
+sub descend :prototype($) ($dir)
 {
     chdir $dir;
     my @files = glob_all();

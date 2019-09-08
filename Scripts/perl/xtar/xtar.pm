@@ -7,17 +7,18 @@ no warnings 'experimental::signatures';
 use constant true  => 1;
 use constant false => 0;
 use Carp;
-use Clone qw( clone );
-use Cwd qw( getcwd );
+use Carp  'verbose';
+use Clone 'clone';
+use Cwd   'getcwd';
 use File::Which;
 use Data::Dumper;
 use String::ShellQuote;
-use File::Copy qw( mv cp );
-use File::Path qw( make_path );
-use File::Temp qw( tempdir cleanup );
+use File::Copy qw{mv cp};
+use File::Path qw{make_path};
+use File::Temp qw{tempdir cleanup};
+use File::Spec::Functions qw{rel2abs splitpath catfile};
 use File::Copy::Recursive 'dircopy';
-use File::Spec::Functions qw( rel2abs splitpath catfile );
-use Scalar::Util qw( looks_like_number );
+use Scalar::Util 'looks_like_number';
 
 use lib rel2abs('.');
 use xtar::File;
@@ -25,6 +26,21 @@ use xtar::OutPath;
 use xtar::Colors;
 use xtar::Utils;
 
+###############################################################################
+
+sub init_outpath       :prototype($);
+sub init_archive       :prototype($$;$);
+sub extract            :prototype($);
+sub _get_tempdir       :prototype($);
+sub try_extractions    :prototype($);
+sub _do_try_extraction :prototype($$$$);
+sub _extraction_failed :prototype($$$);
+sub do_extraction      :prototype($$$$);
+sub extract_tar        :prototype($$$$);
+sub extract_else       :prototype($$$$$);
+sub substitute_cmd     :prototype($$$$);
+sub safe_make_path     :prototype($);
+sub force_extract      :prototype($$);
 
 ###############################################################################
 
@@ -43,7 +59,7 @@ our $DEBUG;
 ###############################################################################
 
 
-sub init_outpath($self)
+sub init_outpath :prototype($) ($self)
 {
     $self->out(
         xtar::OutPath->new(
@@ -56,29 +72,26 @@ sub init_outpath($self)
 }
 
 
-sub init_archive( $self, $filename, $second_try=false )
+sub init_archive :prototype($$;$) ($self, $filename, $second_try=false)
 {
     if ($second_try) {
         $self->Options->{force} = false;
-        if ($DEBUG) {
-            esayC( 'RED', 'This is the second go.' )
-        }
-        else {
-            $self->Options->{verbose} = false;
-            $self->Options->{quiet}   = true;
-        }
+        esayC('RED', 'This is the second go.') if $DEBUG;
     }
 
-    $self->file( xtar::File->new( $filename, $self->Options ) );
-    $self->file->analysis();
+    $self->file( xtar::File->new( $filename, $self->Options, $second_try ) );
+    if ( not $self->file->analysis() ) {
+        return 0;
+    }
     $self->out->init( $self->file );
+    return 1;
 }
 
 
 ###############################################################################
 
 
-sub extract($self)
+sub extract :prototype($) ($self)
 {
     my $lonefile;
     my $orig_options = clone $self->Options;
@@ -94,36 +107,66 @@ sub extract($self)
         if ( Basename($lonefile) eq $self->file->filename )
         {
             my $new = catfile( $self->tmpdir, $self->file->bname );
+
             err( "Rename '$lonefile' -> '$new'" ) if $DEBUG;
-            rename $lonefile, $new or croak "$!";
-            last;
+            if ( -d $new ) {
+                my $tdir = $new;
+                $new .= '_';
+                rename $lonefile, $new or croak qq{Failed to rename file "$lonefile" -- $!};
+                rmdir $tdir or croak qq{Failed to remove directory "$tdir" -- $!};
+                rename $new, $tdir or croak qq{Failed to rename file "$new" -- $!};
+                $lonefile = $tdir;
+            }
+            else {
+                rename $lonefile, $new or croak qq{Failed to rename file "$lonefile" -- $!};
+                $lonefile = $new;
+            }
         }
 
-        esayC( 'bRED', 'The output contains only a single file.',
-               "It could be a sub-archive. Attempting to extract.\n" );
 
-        $self->init_archive( $lonefile, true );
+        if ( $self->init_archive( $lonefile, true ) ) {
+            esayC( 'bRED', 'The output contains only a single file.',
+                   "It could be a sub-archive. Attempting to extract." );
+            unless ( $self->try_extractions() ) {
+                $self->Options( $orig_options );
+                err "Extraction failed, returning." if $DEBUG;
+                return false;
+            }
+        }
+        elsif ( not -d $lonefile ) {
+            last;
+        }
     }
 
     $self->Options( $orig_options );
 
-    # What a mess of a command follows here.
-    safe_make_path( $self->out->top_dir );
+    my $out_file = ($lonefile) ? $lonefile : $self->out->bottom;
 
-    mv( $self->out->bottom, $self->out->odir )
-        or ( $DEBUG && err("Resorting to dircopy") or true )
-           && dircopy( $self->out->bottom, $self->out->odir )
-        or confess("Dircopy failed. Aborting. - $!");
+    if ( -d $out_file ) {
+        # What a mess of a command follows here.
+        safe_make_path( $self->out->top_dir );
+
+        mv( $out_file, $self->out->odir )
+            or ( $DEBUG && err("Resorting to dircopy") or true )
+               && dircopy( $out_file, $self->out->odir )
+            or croak("Dircopy failed. Aborting. - $!");
+    }
+    else {
+        my $odir = $self->out->odir;
+        croak("File exists somehow?!") if ( -e $odir );
+        mv( $out_file, $self->out->odir ) or croak(qq{Failed to move "$out_file" to $odir $!});
+    }
 
     my $CWD    = $self->CWD;
-    my $reldir = $self->out->odir =~ s|${CWD}/(.*)|$1|r;
     my $odir   = $self->out->odir;
+    my $reldir = $odir =~ s|${CWD}/(.*)|$1|r;
+    my $otype  = ( -d $odir ) ? 'directory' : 'file';
 
-    sayC( 'bGREEN', "Extracted to $reldir" ) unless $self->Options->{quiet};
+    sayC( 'bGREEN', "Extracted to $otype $reldir" ) unless $self->Options->{quiet};
 }
 
 
-sub _get_tempdir($self)
+sub _get_tempdir :prototype($) ($self)
 {
     my @odir_info = stat $self->out->top_exist;
     my $C = 1;
@@ -152,7 +195,7 @@ sub _get_tempdir($self)
 
 ###############################################################################
 
-sub try_extractions($self)
+sub try_extractions :prototype($) ($self)
 {
     my $success = false;
     my $tmpdir;
@@ -169,43 +212,43 @@ sub try_extractions($self)
     return $success;
 }
 
-sub _do_try_extraction($self, $try, $success, $tmpdir)
+sub _do_try_extraction :prototype($$$$) ($self, $try, $success, $tmpdir)
 {
-    my $cmd    = eval qq( \$self->file->${try}_cmd );
-    my $is_tar = eval qq( \$self->file->${try}_tar );
+    my $cmd    = eval qq{ \$self->file->${try}_cmd };
+    my $is_tar = eval qq{ \$self->file->${try}_tar };
 
-    next unless ( $cmd->{CMD} );
+    next unless ($cmd->{CMD});
 
-    $$tmpdir = $self->_get_tempdir();
+    $$tmpdir = $self->_get_tempdir;
     chdir $$tmpdir;
 
     $$success = do_extraction( $self->file->fullpath,
                                $cmd, $is_tar, $self->Options );
 
-    if ( $$success ) {
+    if ($$success) {
         if ( $self->Options->{verbose} ) {
-            esayC( 'GREEN', 'Operation appears successful.' );
+            esayC 'GREEN', 'Operation appears successful.';
         }
         return true;
     }
-    elsif ( not $self->Options->{quiet} ) {
-        esayC( 'bRED', "Operation failed.\n" )
+    elsif (not $self->Options->{quiet}) {
+        esayC 'bRED', "Operation failed.\n"
     }
 
     chdir $self->CWD;
     return false;
 }
 
-sub _extraction_failed($self, $success, $tmpdir)
+sub _extraction_failed :prototype($$$) ($self, $success, $tmpdir)
 {
-    if ( not $self->file->ID_Failure ) {
-        esayC( 'bRED', 'All identified programs have failed.' )
+    if ( not $self->file->ID_Failure and not $self->notfirst ) {
+        esayC 'bRED', 'All identified programs have failed.'
     }
-    if ( $self->Options->{force} ) {
-        $$tmpdir = $self->_get_tempdir();
+    if ($self->Options->{force}) {
+        $$tmpdir = $self->_get_tempdir;
         chdir $$tmpdir;
 
-        $$success = force_extract( $self->file->fullpath, $self->Options->{TAR} );
+        $$success = force_extract $self->file->fullpath, $self->Options->{TAR};
     }
 }
 
@@ -213,7 +256,7 @@ sub _extraction_failed($self, $success, $tmpdir)
 ###############################################################################
 
 
-sub do_extraction( $archive, $cmd, $is_tar, $options )
+sub do_extraction :prototype($$$$) ($archive, $cmd, $is_tar, $options)
 {
     if ( $cmd->{CMD} eq 'FAIL' ) {
         return false
@@ -235,7 +278,7 @@ sub do_extraction( $archive, $cmd, $is_tar, $options )
 }
 
 
-sub extract_tar( $CMD, $flags, $file, $options )
+sub extract_tar :prototype($$$$) ($CMD, $flags, $file, $options)
 {
     my $Q             = $options->{quiet};
     my $ret           = true;
@@ -243,12 +286,12 @@ sub extract_tar( $CMD, $flags, $file, $options )
     my $command       = substitute_cmd( $CMD, $flags, $file, $options );
     my $short_command = substitute_cmd( $CMD, $flags, $shortname, $options );
 
-    sayC( $cmd_color, qq($short_command | $options->{TAR} -xf -) ) unless $Q || $DEBUG;
-    sayC( $cmd_color, qq($command | $options->{TAR} -xf -) ) if $DEBUG;
+    sayC( $cmd_color, qq{$short_command | $options->{TAR} -xf -} ) unless $Q || $DEBUG;
+    sayC( $cmd_color, qq{$command | $options->{TAR} -xf -} ) if $DEBUG;
 
     my ( $CmdPipe, $TarPipe );
-    open $CmdPipe, '-|', qq($command);
-    open $TarPipe, '|-', qq($options->{TAR} -xf -);
+    open $CmdPipe, '-|', qq{$command};
+    open $TarPipe, '|-', qq{$options->{TAR} -xf -};
 
     # We just act like a filter between the commands.
     while (<$CmdPipe>) { print $TarPipe $_ }
@@ -261,7 +304,7 @@ sub extract_tar( $CMD, $flags, $file, $options )
 }
 
 
-sub extract_else( $CMD, $flags, $stdout, $file, $options )
+sub extract_else :prototype($$$$$) ($CMD, $flags, $stdout, $file, $options)
 {
     my $Q             = $options->{quiet};
     my $shortname     = Basename($file);
@@ -270,15 +313,15 @@ sub extract_else( $CMD, $flags, $stdout, $file, $options )
     my $short_command = substitute_cmd( $CMD, $flags, $shortname, $options );
 
     if ($stdout) {
-        my $dst = shell_quote($CWD/$shortname);
-        sayC( $cmd_color, qq($short_command > "$CWD/") ) unless $Q || $DEBUG;
-        sayC( $cmd_color, qq($command > $dst) ) if $DEBUG;
-        system qq($command > $dst);
+        my $dst = shell_quote(catfile($CWD, $shortname));
+        sayC( $cmd_color, qq{$short_command > "$CWD/"} ) unless $Q || $DEBUG;
+        sayC( $cmd_color, qq{$command > $dst} ) if $DEBUG;
+        system qq{$command > $dst};
     }
     else {
-        sayC( $cmd_color, qq($short_command) ) unless $Q || $DEBUG;
-        sayC( $cmd_color, qq($command) ) if $DEBUG;
-        system qq($command);
+        sayC( $cmd_color, qq{$short_command} ) unless $Q || $DEBUG;
+        sayC( $cmd_color, qq{$command} ) if $DEBUG;
+        system qq{$command};
     }
 
     return $? == 0;
@@ -288,7 +331,7 @@ sub extract_else( $CMD, $flags, $stdout, $file, $options )
 ###############################################################################
 
 
-sub substitute_cmd( $CMD, $flags, $file, $options )
+sub substitute_cmd :prototype($$$$) ($CMD, $flags, $file, $options)
 {
     my $TAR = $options->{TAR};
     $CMD =~ s/TAR/$TAR/;
@@ -300,7 +343,7 @@ sub substitute_cmd( $CMD, $flags, $file, $options )
 }
 
 
-sub safe_make_path($top_dir)
+sub safe_make_path :prototype($) ($top_dir)
 {
     my $dir = Dirname($top_dir);
     make_path($dir) unless ( -e $dir );
@@ -310,47 +353,44 @@ sub safe_make_path($top_dir)
 ###############################################################################
 
 
-sub force_extract( $archive, $TAR )
+sub force_extract :prototype($$) ($archive, $TAR)
 {
-    esayC( 'bRED', "Attempting to force extract.\n" );
-    my $index = 1;
+    esayC 'bRED', "Attempting to force extract.\n";
     my $color = 'bYELLOW';
 
-    while (true) {
+    for (my $index = 1; ; ++$index) {
         if ( $index == 1 ) {
-            esayC( $color, "Trying tar" );
-            system qq($TAR -xf "$archive");
+            esayC $color, "Trying tar";
+            system qq{$TAR -xf "$archive"};
             last if ( $? == 0 );
         }
         elsif ( $index == 2 and which('patool') ) {
-            esayC( $color, "\nTrying patool" );
-            system qq(patool extract "$archive");
+            esayC $color, "\nTrying patool";
+            system qq{patool extract "$archive"};
             last if ( $? == 0 );
         }
         elsif ( $index == 3 and which('atool') ) {
-            esayC( $color, "\nTrying patool" );
-            system qq(atool -x "$archive");
+            esayC $color, "\nTrying atool";
+            system qq{atool -x "$archive"};
             last if ( $? == 0 );
         }
         elsif ( $index == 4 and which('7z') ) {
-            esayC( $color, "\nTrying 7zip" );
-            system qq(7z x "$archive");
+            esayC $color, "\nTrying 7zip";
+            system qq{7z x "$archive"};
             last if ( $? == 0 );
         }
         elsif ( $index == 5 and which('zpaq') ) {
-            esayC( $color, "\nTrying zpaq" );
-            system qq(zpaq x "$archive" -to tmp);
+            esayC $color, "\nTrying zpaq";
+            system qq{zpaq x "$archive" -to tmp};
             last if ( $? == 0 );
         }
         elsif ( $index == 6 ) {
-            esayC( 'bRED', "\n\nTotal failure. Giving up" );
+            esayC 'bRED', "\n\nTotal failure. Giving up";
             return false;
         }
-
-        ++$index;
     }
 
-    esayC( 'bGREEN', 'Success!' );
+    esayC 'bGREEN', 'Success!';
     return true;
 }
 

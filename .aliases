@@ -21,6 +21,15 @@ Exists() {
     return $?
 }
 
+__get_base_name() {
+    ret=$(echo "$1" | sed -E "s/[^=]*=['\"]?\\?([[:alnum:][:punct:]/]*).*['\"]?/\\1/")
+    if echo "$ret" | grep -q '^\\'; then
+        ret=$(echo "$ret" | sed -E 's/^\\//')
+    fi
+    echo "$ret"
+    unset ret
+}
+
 
 # -g  -> Soft global alias - add global flag if shell is zsh.
 # -G  -> Hard global alias - same as above but don't make alias at all unless zsh.
@@ -62,17 +71,37 @@ mkalias() {
 
 
     if $do_alt; then
-        TEMP=$(echo "$2" | sed 's/\([[:alnum:][:punct:]]*\).*/\1/')
-        if Exists "$TEMP"; then
-            alias_cmd_tmp="${1}=${2}"
-        else
-            alias_cmd_tmp="${1}=${3}"
-        fi
+        local arg_1
+        arg_1="${1}"
+        shift
+
+        for param in "$@"; do
+            # [ "$param" ] || return 1
+            TEMP=$(echo "$param" | sed -E 's/([[:alnum:][:punct:]]*).*/\1/')
+            # TEMP=$(__get_base_name "$param")
+            # TEMP=$(echo "$param" | sed -E "s/[^=]*=['\"]?([[:alnum:][:punct:]/]*).*['\"]?/\\1/")
+            if echo "$TEMP" | grep -q '^\\'; then
+                TEMP=$(echo "$TEMP" | sed 's/^\\//')
+            fi
+
+            if Exists "$TEMP"; then
+                alias_cmd_tmp="${arg_1}=${param}"
+                break
+            fi
+        done
+
+        [ "${alias_cmd_tmp}" ] || return 2
+
+        #if Exists "$TEMP"; then
+        #    alias_cmd_tmp="${1}=${2}"
+        #else
+        #    alias_cmd_tmp="${1}=${3}"
+        #fi
 
     elif $do_test; then
         TEMP=$(echo "$1" | sed -E "s/[^=]*=['\"]?([[:alnum:][:punct:]/]*).*['\"]?/\\1/")
         if echo "$TEMP" | grep -q '^\\'; then
-            TEMP=$(echo "TEMP" | sed -E 's/^\\//')
+            TEMP=$(echo "$TEMP" | sed -E 's/^\\//')
         fi
         Exists "$TEMP" || return 1
         alias_cmd_tmp=$1
@@ -237,11 +266,12 @@ alias CH='./configure --help'
 alias CMK='mkdir build && cd build'
 
 # Yet more git aliases.
-alias gcred='git config credential.helper store'
-alias glgs="git log --graph --pretty='
+mkalias -T gcred='git config credential.helper store'
+mkalias -T glgs="git log --graph --pretty='
 %Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --shortstat"
-alias glgsa="git log --graph --pretty='
+mkalias -T glgsa="git log --graph --pretty='
 %Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --stat"
+mkalias -T gits='git status'
 
 # The rest.
 mkalias -Tg clformat='clang-format-3.6' 
@@ -260,10 +290,10 @@ mkalias -T rg='rg -S'
 mkalias -T wolf='wolframscript'
 
 # Bat
-mkalias -eT bat='bat --paging=never'
-mkalias -eT batl='bat --paging=never --language'
-mkalias -eT batp='bat --paging=auto'
-mkalias -eT batlp='bat --paging=auto --language'
+mkalias -eT bat='bat --paging=auto'
+mkalias -eT batl='bat --paging=auto --language'
+mkalias -eT batp='bat --paging=never'
+mkalias -eT batlp='bat --paging=never --language'
 
 # Force less to take raw characters (color).
 [ "$LESS" ] || alias less='less -r'
@@ -273,19 +303,27 @@ if [ "$SYSID" = 'laptop-gentoo' ]; then
 fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
+        local EMERGE='emerge'
         mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
-        mkalias -s emr='emerge'
-        mkalias -s emp='emerge --pretend'
-        mkalias -s ema='emerge --ask'
-        mkalias -s empd='emerge --pretend --depclean -Dv'
-        mkalias -s empk='emerge --ask --buildpkg'
-        mkalias -s emupdate='emerge --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude "chromium"'
-        mkalias -s emupdateP='emerge --pretend --update --deep --newuse --with-bdeps=y @world'
-        mkalias -s emupdateF='emerge --update --deep --newuse --with-bdeps=y --keep-going @world'
+        mkalias -s emr="${EMERGE}"
+        mkalias -s emp="${EMERGE} --pretend"
+        mkalias -s ema="${EMERGE} --ask"
+        mkalias -s empd="${EMERGE} --pretend --depclean -Dv"
+        mkalias -s empk="${EMERGE} --ask --buildpkg"
+        mkalias -s embd="${EMERGE} --ask --deep"
+        mkalias -s emupdate="${EMERGE} -aDNu --keep-going @world -j6"
+        # mkalias -s emupdate="${EMERGE} --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude \"chromium\""
+        # mkalias -s emupdateP="${EMERGE} --pretend --update --deep --newuse --with-bdeps=y @world"
+        # mkalias -s emupdateF="${EMERGE} --update --deep --newuse --with-bdeps=y --keep-going @world"
+        mkalias emi="${EMERGE} --info"
+
         mkalias -TS ufed='ufed'
         mkalias -TS euse='euse' 
-        mkalias emi='emerge --info'
+        mkalias -TS repm='repoman manifest'
+        alias watchfetch='tail -f /var/log/emerge-fetch.log'
+
+        mkalias -A 'gvi' 'nvim-gtk --' 'nvim-qt'
         ;;
 esac
 
@@ -618,6 +656,7 @@ case "$SYSID" in
             cd /etc/portage || return 1
         }
         wut() { 
+            [ $# -eq 1 -a -d "$1" ] || return 1
             ag --nofilename 'DESCRIPTION=' "${1}/" | sort -u | perl -pe 's/^\n//'
         }
         ;;

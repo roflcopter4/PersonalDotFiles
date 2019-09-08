@@ -7,18 +7,39 @@ no warnings 'experimental::signatures';
 use constant true  => 1;
 use constant false => 0;
 use constant MAXKIND => 4;
+
 use Carp qw( carp croak cluck confess );
-use File::Basename;
-use File::Copy qw( mv );
-use File::Spec::Functions qw( rel2abs );
-use File::Which;
 use Scalar::Util qw( looks_like_number );
-use Try::Tiny;
+use File::Spec::Functions qw( rel2abs );
+use File::Copy qw( mv );
+use File::Basename;
+use File::Which;
 use String::ShellQuote;
+use Try::Tiny;
 
 use lib rel2abs('..');
 use xtar::Colors;
 use xtar::Utils;
+
+our $found_file_unpack = false;
+try {
+    $xtar::File::found_file_unpack = true;
+    require File::Unpack and File::Unpack->import();
+}
+catch {
+    $xtar::File::found_file_unpack = false;
+};
+
+##############################################################################
+
+sub analysis               :prototype($);
+sub extention_analysis     :prototype($);
+sub _check_short_tar       :prototype($);
+sub mimetype_analysis      :prototype($);
+sub find_mimetype          :prototype($\$);
+sub finalize_analysis      :prototype($);
+sub _normalize_type        :prototype($);
+sub determine_decompressor :prototype($$);
 
 ##############################################################################
 
@@ -45,6 +66,12 @@ has 'likely_type' => ( is => 'rw', isa => 'Str' );
 has 'likely_tar'  => ( is => 'rw', isa => 'Bool' );
 has 'likely_cmd'  => ( is => 'rw', isa => 'HashRef' );
 
+has 'notfirst'    => ( is => 'ro', isa => 'Bool' );
+
+###############################################################################
+
+sub find_mimetype :prototype($\$);
+
 ###############################################################################
 
 
@@ -53,15 +80,16 @@ around BUILDARGS => sub
     my $orig  = shift;
     my $class = shift;
 
-    if ( @_ == 2 && !ref( $_[0] ) ) {
+    if ( @_ == 3 && !ref( $_[0] ) ) {
         my $filename = $_[0];
-        confess("File doesn't exist.") unless ( -e $filename );
+        confess(qq/File "$filename" doesn't exist./) unless ( -e $filename );
         croak("Error: File is a directory.") if ( -d $filename );
 
         my $fullpath  = rel2abs($filename);
         my $basepath  = Dirname($fullpath);
         my $extention = $filename =~ s/.*\.(.*)/$1/r;
         my $Options   = $_[1];
+        my $notfirst  = $_[2];
 
         return $class->$orig(
             'filename'   => Basename($filename),
@@ -69,7 +97,8 @@ around BUILDARGS => sub
             'basepath'   => $basepath,
             'quotedname' => shell_quote($fullpath),
             'extention'  => $extention,
-            'Options'    => $Options
+            'Options'    => $Options,
+            'notfirst'   => $notfirst
         );
     }
     else {
@@ -78,18 +107,19 @@ around BUILDARGS => sub
 };
 
 
-sub analysis($self)
+sub analysis :prototype($) ($self)
 {
     $self->extention_analysis();
     $self->mimetype_analysis();
     $self->finalize_analysis();
+    return not $self->ID_Failure;
 }
 
 
 ###############################################################################
 
 
-sub extention_analysis($self)
+sub extention_analysis :prototype($) ($self)
 {
     my ( $ext_tar, $bname );
 
@@ -110,7 +140,7 @@ sub extention_analysis($self)
 }
 
 
-sub _check_short_tar($extention)
+sub _check_short_tar :prototype($) ($extention)
 {
     my $ret = '';
     for ($extention) {
@@ -128,20 +158,18 @@ sub _check_short_tar($extention)
 ###############################################################################
 
 
-sub mimetype_analysis($self)
+sub mimetype_analysis :prototype($) ($self)
 {
-    my @done;
-    my $counter = 0;
-    my ( $app, $mimekind );
+    my ( $app, $mimekind, $dbg_kind ) = (0,0,0);
 
 RETRY:
-    ( $app, $mimekind ) = $self->find_mimetype( \$counter );
+    $app  = $self->find_mimetype( \$mimekind );
 
     while ( looks_like_number($app) and $app == 0 and $mimekind <= MAXKIND )
     {
-        esayC( 'b', "Mimetype number $mimekind failed." ) if $xtar::DEBUG;
-        push @done, $mimekind;
-        ( $app, $mimekind ) = $self->find_mimetype( \$counter, @done );
+        esayC( 'b', "Mimetype number $dbg_kind failed." ) if $xtar::DEBUG;
+        $dbg_kind = $mimekind;
+        $app = $self->find_mimetype( \$mimekind );
     }
 
     unless ($app) {
@@ -204,57 +232,52 @@ RETRY:
 }
 
 
-sub find_mimetype ( $self, $counter, @skip )
+sub find_mimetype :prototype($\$) ($self, $counter)
 {
     my ($filename, $qnam) = ($self->fullpath, $self->quotedname);
-    my ( $app, $kind );
+    my $app;
 
-    if ( not( grep( /1/, @skip ) and grep( /2/, @skip ) ) ) {
-        my $tmp = true;
-        err 'Using File::Unpack' if $xtar::DEBUG;
-        ++${$counter};
+    if ($$counter < 2) {
+        if ( $found_file_unpack == true ) {
+            err 'Using File::Unpack' if $xtar::DEBUG;
 
-        $kind = ${$counter};
-
-        try   { require File::Unpack and File::Unpack->import() }
-        catch { $tmp = false };
-
-        if ($tmp) {
             my $unpack = File::Unpack->new();
             my $m      = $unpack->mime( file => $self->fullpath );
-            my $index  = ( ${$counter} == 1 ) ? 0 : 2;
+            my $index  = ( $$counter++ == 1 ) ? 0 : 2;
             $app = $m->[$index];
+        } else {
+            err 'No File::Unpack' if $xtar::DEBUG;
+            $$counter = 2;
         }
-        else {
-            $app = false;
-        }
-    }
-    # Resort to using the `file` command, with a GNU option.
-    elsif ( which('file') and not grep( /3/, @skip ) ) {
-        $app = `file --mime-type $qnam` or ($? <<= 8 && confess("$! - $?"));
-        $kind = 3;
-        chomp $app;
-    }
-    # Resort to using `file` with no options. Last gasp.
-    elsif ( which('file') and not grep( /4/, @skip ) ) {
-        $app = `file $qnam` or confess "$! - $?";
-        $kind = 4;
-        chomp $app;
     }
     else {
-        eprintC( 'bRED', 'Error: ' );
-        print STDERR <<'EOF';
+        # Resort to using the `file` command, with a GNU option.
+        if ( $$counter == 2 ) {
+            err 'Attempting to use GNU file(1)' if $xtar::DEBUG;
+            $app = `file --mime-type $qnam` or ($? <<= 8 && confess("$! - $?"));
+            chomp $app;
+        }
+        # Resort to using `file` with no options. Last gasp.
+        elsif ( $$counter == 3 ) {
+            err 'Attempting to use generic file(1)' if $xtar::DEBUG;
+            $app = `file $qnam` or confess "$! - $?";
+            chomp $app;
+        }
+        else {
+            eprintC( 'bRED', 'Error: ' );
+            print STDERR <<'EOF';
 No mimetype tools found. If using a *nix system, check whether the `file(1)'
 utility is properly installed (it should be). Otherwise, please install the
 package `File::Unpack' from cpan or your local package manager if available. I
 will attempt to extract using only file extention information. This will fail if
 the extention is not accurate or if the file lacks one entirely.
 EOF
-        return ( false, 0 );
+        }
+
+        ++$$counter;
     }
 
-    $app = lc $app;
-    return ( $app, $kind );
+    return defined($app) ? lc $app : 0;
 }
 
 
@@ -264,18 +287,18 @@ EOF
 # If the mimetype analysis produced any results, use them. If it produced
 # nothing then we're forced to go by the file suffix. If that also produced
 # nothing then either die or resort to random guessing.
-sub finalize_analysis($self)
+sub finalize_analysis :prototype($) ($self)
 {
-    if    ( $self->mime_type ) { $self->likely_type( $self->mime_type ) }
-    elsif ( $self->ext_type )  { $self->likely_type( $self->ext_type ) }
+    if    ($self->mime_type) { $self->likely_type( $self->mime_type ) }
+    elsif ($self->ext_type)  { $self->likely_type( $self->ext_type ) }
     else {
-        if ( $self->Options->{force} ) {
-            esayC( 'RED', 'Warning: No type identified.' );
+        if ($self->notfirst or $self->Options->{force}) {
             $self->ID_Failure( true );
+            esayC('RED', 'Warning: No type identified.') if $self->Options->{force};
             return;
         }
         else {
-            esayC( 'bRED', <<'EOF' );
+            esayC 'bRED', <<'EOF';
 Error: No type identified at all. If you are sure that this is an archive of
 some kind, re-run this program with the -f/--force flag to attempt to extract
 it with every known program until something works.
@@ -292,7 +315,7 @@ EOF
 ###############################################################################
 
 
-sub _normalize_type($extention)
+sub _normalize_type :prototype($) ($extention)
 {
     my $type = '';
     $_ = $extention;
@@ -314,7 +337,7 @@ sub _normalize_type($extention)
 }
 
 
-sub move_zqaq($self)
+sub move_zqaq ($self)
 {
     mv( $self->fullpath, $self->fullpath . '.zpaq' );
     $self->fullpath( $self->fullpath . '.zpaq' );
@@ -326,7 +349,7 @@ sub move_zqaq($self)
 ###############################################################################
 
 
-sub determine_decompressor($self, $type)
+sub determine_decompressor :prototype($$) ($self, $type)
 {
     my ( $CMD, $TFlags, $EFlags, $Stdout );
     my $V     = $self->Options->{verbose};

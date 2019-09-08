@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.24;
+use warnings; use strict; use v5.30;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -10,29 +10,27 @@ use Cwd 'getcwd';
 use File::Which;
 use File::Spec::Functions qw( rel2abs splitpath );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
-use Try::Tiny;
 
 BEGIN {
-    my $lib_location = (splitpath(readlink(rel2abs("$0"))))[1];
-    eval 'use lib "$lib_location"'; 
-    eval 'use xtar;';
-    eval 'use xtar::Colors;';
-    eval 'use xtar::Utils;';
-    # try {
-    #     require xtar;
-    #     require xtar::Colors;
-    #     require xtar::Utils;
-    #     xtar->import();
-    #     xtar::Colors->import();
-    #     xtar::Utils->import();
-    # }
+    my $lib_location = ( splitpath(readlink rel2abs("$0")) )[1];
+    if (-e $lib_location) {
+        $lib_location =~ s|/$||;
+    } else {
+        $lib_location = rel2abs('.');
+    }
+    eval 'use lib "$lib_location";';
 }
+use xtar;
+use xtar::Colors;
+use xtar::Utils;
 
 ###############################################################################
 # Main
 
-my ( %options, $TAR );
+sub find_tar   :prototype($);
+sub show_usage :prototype(;$);
 
+my ( %options, $TAR );
 my $default_tar = 'tar';
 
 GetOptions(
@@ -50,14 +48,14 @@ GetOptions(
     'd|debug'     => \$options{Debug},
     'q|quiet'     => \$options{quiet},
     'Q|shutup'    => \$options{shutup}
-) or show_usage(1);
+) or show_usage 1;
 
-if ( $options{help} )    { show_usage(0) }
-if ( $options{version} ) { say 'xtar version 4.0.0 (perl)' and exit 0 }
+show_usage if $options{help};
+say STDERR 'xtar version 4.1.0 (perl)' and exit 0 if $options{version};
 
 unless (@ARGV) {
     print STDERR "Error: No input files.\n\n";
-    show_usage(1);
+    show_usage 1;
 }
 
 if    ( defined $options{tar} ) { $TAR = find_tar( $options{tar} ) }
@@ -73,15 +71,7 @@ elsif ( $options{verbose} ) { $options{quiet}   = false }
 elsif ( $options{quiet} )   { $options{verbose} = false }
 else                        { $options{verbose} = $options{quiet} = false }
 
-sub find_tar($binary) {
-    return (which $binary) ? $binary : 'tar';
-    # if   ( which($binary) ) { return $binary }
-    # else                    { return 'tar' }
-}
-
-
 ###############################################################################
-
 
 my $xtar = xtar->new(
     Options => {
@@ -125,12 +115,17 @@ while (@ARGV) {
 ###############################################################################
 #-----------------------------------------------------------------------------
 
+sub find_tar :prototype($) ($binary)
+{
+    return (which $binary) ? $binary : 'tar';
+}
 
-sub show_usage($status) {
+sub show_usage :prototype(;$) ($status=0)
+{
     my $THIS = Basename $0;
     if ( $status == 0 ) {
-        print "Usage: ${THIS} [options] archive(s)\n\n";
-        print << 'EOF';
+        print STDERR "Usage: ${THIS} [options] archive(s)\n\n";
+        print STDERR << 'EOF';
 Extract an archive safely to a unique directory, ensuring no irritating
 single sub-directories or lots of loose files are created. See the manual for
 more detailed information.

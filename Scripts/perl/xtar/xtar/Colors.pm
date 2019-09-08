@@ -19,35 +19,44 @@ my %color_hash = (
     CYAN    => 36
 );
 
+sub esayC       :prototype($@);
+sub fsayC       :prototype(*$@);
+sub esayC       :prototype($@);
+sub printC      :prototype($@);
+sub fprintC     :prototype(*$@);
+sub eprintC     :prototype($@);
+sub _get_string :prototype($@);
+sub _get_escape :prototype($$);
 
-sub sayC( $color, @strings ) {
+###############################################################################
+
+sub sayC :prototype($@) ($color, @strings) {
     say _get_string( $color, @strings );
 }
 
-sub fsayC( $FH, $color, @strings ) {
+sub fsayC :prototype(*$@) ($FH, $color, @strings) {
     say $FH _get_string( $color, @strings );
 }
 
-sub esayC( $color, @strings ) {
+sub esayC :prototype($@) ($color, @strings) {
     say STDERR _get_string( $color, @strings );
 }
 
-sub printC( $color, @strings ) {
+sub printC :prototype($@) ($color, @strings) {
     print _get_string( $color, @strings );
 }
 
-sub fprintC( $FH, $color, @strings ) {
+sub fprintC :prototype(*$@) ($FH, $color, @strings) {
     print $FH _get_string( $color, @strings );
 }
 
-sub eprintC( $color, @strings ) {
+sub eprintC :prototype($@) ($color, @strings) {
     print STDERR _get_string( $color, @strings );
 }
 
 ###############################################################################
 
-
-sub _get_string( $color, @strings )
+sub _get_string :prototype($@) ($color, @strings)
 {
     my ( $isbold, $esc );
 
@@ -61,8 +70,7 @@ sub _get_string( $color, @strings )
     return $esc . "@strings" . "\033[0m";
 }
 
-
-sub _get_escape( $num, $isbold )
+sub _get_escape :prototype($$) ($num, $isbold)
 {
     my $bold = ($isbold) ? 1 : 0;
 

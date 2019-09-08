@@ -23,11 +23,13 @@ MiscDefaultWorkingDir=
 MiscRewrapOnResize=TRUE
 MiscUseShiftArrowsToScroll=FALSE
 MiscSlimTabs=FALSE
-FontName=DinaPowerline 10
+FontName=Dina 7
 ScrollingUnlimited=TRUE
 ScrollingOnOutput=FALSE
 Encoding=UTF-8
 ColorPalette=rgb(0,0,0);rgb(205,0,0);rgb(0,205,0);rgb(205,205,0);rgb(0,117,255);rgb(205,0,205);rgb(0,205,205);rgb(229,229,229);rgb(127,127,127);rgb(255,0,0);rgb(0,255,0);rgb(255,255,0);rgb(0,117,255);rgb(255,0,255);rgb(0,255,255);rgb(255,255,255)
 ColorCursor=#ffffffffffff
 CommandLoginShell=TRUE
+MiscShowRelaunchDialog=TRUE
+MiscNewTabAdjacent=FALSE
 

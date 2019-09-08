@@ -2,7 +2,7 @@
 
 " ======================================================================================================
 " ======================================================================================================
-" =====  Plugin Setup
+" =====  Plugin Setup =====  
 " ======================================================================================================
 " ======================================================================================================
 
@@ -22,7 +22,6 @@ let g:use_ale = 1
 let g:use_deoplete = 1
 " let b:use_language_client = 1
 let s:vim_ale = 1
-
 
 filetype off
 
@@ -52,24 +51,21 @@ if dein#load_state(expand(g:load_path))
         call dein#add('/usr/share/vim/vimfiles')
     endif
 
-    " if executable('ag') || executable('ack-grep') || executable('ack')
-    "     call dein#add('mileszs/ack.vim')
-    " endif
-
-    " My own stuff should be first!
+    "----------  My own stuff ---------- 
     call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
     call dein#add('roflcopter4/vim-perl',  {'merged': 0})
     call dein#add('roflcopter4/vim-cpp-enhanced-highlight')
 
     if has('nvim')
         call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
-        " call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
-        " call dein#add('roflcopter4/mytags', {'merged': 0})
-        " call dein#add('blahgeek/neovim-colorcoder', {'merged': 0})
-        " call dein#add('arakashic/chromatica.nvim', {'merged': 0})
+        call dein#add('roflcopter4/lnvim', {'merged': 0})
+        "call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
+        "call dein#add('roflcopter4/mytags', {'merged': 0})
+        "call dein#add('blahgeek/neovim-colorcoder', {'merged': 0})
+        "call dein#add('arakashic/chromatica.nvim', {'merged': 0})
     endif
 
-    " General ---------
+    "----------  General ---------
     call dein#add('MarcWeber/vim-addon-mw-utils')
     call dein#add('ctrlpvim/ctrlp.vim')
     call dein#add('easymotion/vim-easymotion')
@@ -79,7 +75,8 @@ if dein#load_state(expand(g:load_path))
     call dein#add('jistr/vim-nerdtree-tabs')
     call dein#add('kana/vim-textobj-indent')
     call dein#add('kana/vim-textobj-user')
-    " call dein#add('mbbill/undotree')
+    " Undotree is a bit broken
+    "call dein#add('mbbill/undotree')
     call dein#add('osyo-manga/vim-over')
     call dein#add('powerline/fonts')
     call dein#add('rhysd/conflict-marker.vim')
@@ -102,7 +99,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('vim-pandoc/vim-pandoc')
     call dein#add('vim-pandoc/vim-pandoc-syntax')
 
-    " General Programming -----
+    "----------  General Programming -----
     call dein#add('godlygeek/tabular')
     call dein#add('junegunn/vim-easy-align')
     call dein#add('majutsushi/tagbar')
@@ -112,30 +109,30 @@ if dein#load_state(expand(g:load_path))
     call dein#add('vim-pandoc/vim-pandoc-syntax')
     call dein#add('tpope/vim-fugitive')
 
-    " PHP --------
+    "---------- PHP --------
     call dein#add('arnaud-lb/vim-php-namespace')
     call dein#add('beyondwords/vim-twig')
     call dein#add('spf13/PIV')
 
-    " Python ---------
+    "---------- Python ---------
     call dein#add('klen/python-mode')
     call dein#add('vim-scripts/python_match.vim')
     call dein#add('vim-scripts/pythoncomplete')
     call dein#add('yssource/python.vim')
 
-    " Javascript ----------
+    "---------- Javascript ----------
     call dein#add('briancollins/vim-jst')
     call dein#add('elzr/vim-json')
     call dein#add('groenewege/vim-less')
     call dein#add('kchmck/vim-coffee-script')
     call dein#add('pangloss/vim-javascript')
 
-    " Scala ---------
+    "----------  Scala ---------
     call dein#add('derekwyatt/vim-sbt')
     call dein#add('derekwyatt/vim-scala')
     call dein#add('vim-scripts/xptemplate')
 
-    " Haskell ----------
+    "----------  Haskell ----------
     call dein#add('Twinside/vim-haskellConceal')
     call dein#add('Twinside/vim-haskellFold')
     call dein#add('adinapoli/cumino')
@@ -146,12 +143,12 @@ if dein#load_state(expand(g:load_path))
     call dein#add('lukerandall/haskellmode-vim')
     call dein#add('travitch/hasksyn')
 
-    " HTML ---------
+    "----------  HTML ---------
     call dein#add('gorodinskiy/vim-coloresque')
     call dein#add('hail2u/vim-css3-syntax')
     call dein#add('tpope/vim-haml')
 
-    " Moar Languages ------
+    "---------- Moar Languages ------
     call dein#add('chaimleib/vim-renpy')
     call dein#add('dag/vim-fish')
     call dein#add('fatih/vim-go')
@@ -161,7 +158,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('rust-lang/rust.vim')
     call dein#add('dylon/vim-antlr.git', {'merged': 0})
 
-    " Misc ----------
+    "---------- Misc ----------
     call dein#add('Chiel92/vim-autoformat')
     call dein#add('PProvost/vim-ps1')
     call dein#add('carlosgaldino/elixir-snippets')
@@ -184,11 +181,11 @@ if dein#load_state(expand(g:load_path))
     call dein#add('AndrewRadev/sideways.vim')
     call dein#add('gf3/peg.vim')
 
-    " Refactoring tools and such
+    "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
     if !WINDOWS() "&& b:use_language_client
-        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0, 'build': 'make release'})
+        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -255,7 +252,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('Shougo/unite.vim')
 
 
-    " Colour Schemes ----------------
+    "---------- Colour Schemes ----------------
     call dein#add('KeitaNakamura/neodark.vim')
     call dein#add('MaxSt/FlatColor')
     call dein#add('Valloric/vim-valloric-colorscheme')
@@ -722,6 +719,8 @@ if IsSourced('ale')
                                       \ '-*pro-type-union-access',
                                       \ '-*uppercase-literal-suffix',
                                       \ '-*gnu-zero-variadic-macro-arguments',
+                                      \ '-*narrowing-conversions',
+                                      \ '-*gnu-statement-expression',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -1360,3 +1359,6 @@ if IsSourced('tag-highlight.nvim')
 endif
 
 
+if IsSourced('vim-perl')
+    let g:perl_string_as_statement = 1
+endif

@@ -1,5 +1,6 @@
 [global_config]
   always_split_with_profile = True
+  geometry_hinting = True
   inactive_color_offset = 1.0
   scroll_tabbar = True
 [keybindings]
@@ -23,23 +24,22 @@
     [[[terminal1]]]
       order = 0
       parent = child0
-      profile = Balls
+      profile = default
       type = Terminal
       uuid = cb1920fd-39cc-442b-af89-5b23a3029e88
 [plugins]
 [profiles]
   [[default]]
-    cursor_blink = False
     cursor_color = "#ffffff"
-    delete_binding = ascii-del
-    font = DinaPowerline 10
+    delete_binding = automatic
+    font = Dina TTF 8
     foreground_color = "#ffffff"
     palette = "#000000:#cd0000:#00cd00:#cdcd00:#0075ff:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
     scrollback_infinite = True
     use_system_font = False
   [[Balls]]
     cursor_color = "#ffffff"
-    font = Dina 8
+    font = xos4 Terminess Powerline 8
     foreground_color = "#ffffff"
     palette = "#000000:#cd0000:#00cd00:#cdcd00:#0075ff:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
     scrollback_infinite = True

@@ -19,7 +19,7 @@ fi
 CASE_SENSITIVE="true"
 ENABLE_CORRECTION="false"
 #zplug "robbyrussell/oh-my-zsh", use:"lib/*.zsh"
-zplug  "robbyrussell/oh-my-zsh", use:"lib/{completion,misc,key-binding}.zsh"
+zplug  "robbyrussell/oh-my-zsh", use:"lib/{functions,completion,misc,key-binding}.zsh"
 
 zplug "zdharma/fast-syntax-highlighting"
 

@@ -13,22 +13,22 @@ else
     let g:_platform = 'OTHER'
 endif
 
-func! LINUX()      
-    return (has('unix') && !has('macunix') && g:_platform ==# 'Linux') 
+func! LINUX()
+    return (has('unix') && !has('macunix') && g:_platform ==# 'Linux')
 endf
-func! WINDOWS()   
-    return (has('win16') || has('win32') || has('win64'))             
+func! WINDOWS()
+    return (has('win16') || has('win32') || has('win64'))
 endf
-func! OSX()       
-    return has('macunix')       
+func! OSX()
+    return has('macunix')
 endf
-func! CYGWIN()    
-    return has('win32unix')     
+func! CYGWIN()
+    return has('win32unix')
 endf
 func! WIN_OR_CYG()
     return WINDOWS() || CYGWIN()
 endf
-func! BSD()       
+func! BSD()
     return g:_platform ==# 'BSD'
 endf
 
@@ -56,11 +56,11 @@ if WINDOWS()
 endif
 
 
-" if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
-"         \ && !has('nvim')
+if !($TERM ==# 'linux' || $TERM ==# 'screen' || ($CONEMUPID && !$NVIM_QT) || $SYSID ==# 'FreeBSD')
+        \ && !has('nvim')
     set encoding=utf-8
     setglobal fileencoding=utf-8
-"endif
+endif
 
 
 " ======================================================================================================
@@ -268,7 +268,7 @@ endif
 "                     \setlocal omnifunc=syntaxcomplete#Complete |
 "                     \endif
 "     endif
-" 
+"
 "     " # Some convenient mappings
 "     "inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
 "     "inoremap <expr> <CR>     pumvisible() ? "\<C-y>" : "\<CR>"
@@ -276,12 +276,12 @@ endif
 "     inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
 "     inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
 "     inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-" 
+"
 "     " Automatically open and close the popup menu / preview window
 "     au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
 "     set completeopt=menu,preview,longest
 " endif
-" 
+"
 " " Normal Vim omni-completion
 " if !exists('g:spf13_no_omni_complete')
 "    " Enable omni-completion.
@@ -316,7 +316,7 @@ augroup END
 "             return 1
 "         endif
 "     endfunction
-" 
+"
 "     augroup resCur
 "         autocmd!
 "         autocmd BufWinEnter * call ResCur()
@@ -452,20 +452,22 @@ set maxmempattern=2000000
 " ================================================================================================================
 
 
-if !exists('g:ONI')
-    set scrolloff=3
-else
-    command! OniConfig e C:/Users/Brendan/.oni/config.js
-    command! EditOniDefaults e C:/Vim/Oni/resources/app/vim/default/bundle/oni-vim-defaults/plugin/init.vim
-    " Some things imported from the official ONI defaults.
-    if g:ONI_HideStatusBar
-        set noshowmode
-        set noruler
-        set laststatus=0
-        set noshowcmd
-        set showtabline=0
-    endif
-endif
+set scrolloff=3
+
+" if !exists('g:ONI')
+"     set scrolloff=3
+" else
+"     command! OniConfig e C:/Users/Brendan/.oni/config.js
+"     command! EditOniDefaults e C:/Vim/Oni/resources/app/vim/default/bundle/oni-vim-defaults/plugin/init.vim
+"     " Some things imported from the official ONI defaults.
+"     if g:ONI_HideStatusBar
+"         set noshowmode
+"         set noruler
+"         set laststatus=0
+"         set noshowcmd
+"         set showtabline=0
+"     endif
+" endif
 
 
 " ================================================================================================================
@@ -624,7 +626,7 @@ else
         set background=dark
     endif
 
-    if has('gui_running')
+    if !has('nvim') && has('gui_running')
         set guifont=DinaPowerline\ 10
         set linespace=1
         set guioptions=agimrLt
@@ -644,7 +646,7 @@ augroup END
 
 augroup PerlFix
     autocmd!
-    autocmd BufReadPost,BufNew,BufEnter *.pl call FixPerl()
+    autocmd BufEnter *.pl setlocal cindent smartindent autoindent indentexpr=
 augroup END
 
 function! FixPerl()
@@ -847,5 +849,16 @@ let g:nasm_ctx_outside_macro = 1
 let g:nasm_loose_syntax = 1
 
 command! -range FixClangStars <line1>,<line2>s/\v([*&]+)(\s*)(\S)/\2\1\3/g
+
+let g:gonvim_draw_statusline = 0
+let g:gonvim_draw_tabline = 0
+let g:gonvim_draw_lint = 0
+
+if exists('g:gnvim') && g:gnvim == 1
+    set guifont=dinaTTF:h10
+    set linespace=0
+    set guioptions=agimrLt
+    set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
+endif
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

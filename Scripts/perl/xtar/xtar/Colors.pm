@@ -1,5 +1,5 @@
 package xtar::Colors;
-use warnings; use strict; use v5.24;
+use 5.26.0; use warnings; use strict;
 use Exporter 'import';
 use feature 'signatures';
 no warnings 'experimental::signatures';

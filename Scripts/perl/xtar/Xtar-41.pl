@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use warnings; use strict; use v5.30;
+use 5.26.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -11,15 +11,30 @@ use File::Which;
 use File::Spec::Functions qw( rel2abs splitpath );
 use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 
-BEGIN {
-    my $lib_location = ( splitpath(readlink rel2abs("$0")) )[1];
-    if (-e $lib_location) {
-        $lib_location =~ s|/$||;
-    } else {
-        $lib_location = rel2abs('.');
-    }
-    eval 'use lib "$lib_location";';
-}
+# BEGIN {
+#     # my $lib_location = ( splitpath(readlink rel2abs("$0")) )[1];
+#     # if (-e $lib_location) {
+#     #     $lib_location =~ s|/$||;
+#     # } else {
+#     $lib_location = rel2abs('.');
+#     # }
+#     eval 'use lib "$lib_location";';
+#     # my $lib_location = (splitpath(rel2abs("$0")))[1];
+#     # { local $/ = '/'; chomp $lib_location; }
+#     # say "lib_location == '$lib_location'";
+# 
+#     # eval 'use lib "$lib_location"'; 
+#     # eval 'use xtar;';
+#     # eval 'use xtar::Colors;';
+#     # eval 'use xtar::Utils;';
+# 
+#     # eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
+#     # eval 'use xtar;';
+#     # eval 'use xtar::Colors;';
+#     # eval 'use xtar::Utils;';
+# }
+
+use lib rel2abs('.');
 use xtar;
 use xtar::Colors;
 use xtar::Utils;

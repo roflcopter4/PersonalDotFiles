@@ -1,5 +1,5 @@
 package xtar;
-use warnings; use strict; use v5.24;
+use 5.26.0; use warnings; use strict;
 use Mouse;
 use feature 'signatures';
 no warnings 'experimental::signatures';
@@ -25,6 +25,14 @@ use xtar::File;
 use xtar::OutPath;
 use xtar::Colors;
 use xtar::Utils;
+
+# BEGIN {
+#     eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
+#     eval 'use xtar::File;';
+#     eval 'use xtar::OutPath;';
+#     eval 'use xtar::Colors;';
+#     eval 'use xtar::Utils;';
+# }
 
 ###############################################################################
 

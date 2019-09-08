@@ -32,13 +32,18 @@
   [[default]]
     cursor_color = "#ffffff"
     delete_binding = automatic
+<<<<<<< HEAD
     font = Dina TTF 8
+=======
+    font = Dina TTF 10
+>>>>>>> 008bcaa465ba194a73ce075ca5e8436eab3bb4ea
     foreground_color = "#ffffff"
     palette = "#000000:#cd0000:#00cd00:#cdcd00:#0075ff:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
     scrollback_infinite = True
     use_system_font = False
   [[Balls]]
     cursor_color = "#ffffff"
+<<<<<<< HEAD
     font = xos4 Terminess Powerline 8
     foreground_color = "#ffffff"
     palette = "#000000:#cd0000:#00cd00:#cdcd00:#0075ff:#cd00cd:#00cdcd:#e5e5e5:#7f7f7f:#ff0000:#00ff00:#ffff00:#0075ff:#ff00ff:#00ffff:#ffffff"
@@ -46,12 +51,14 @@
     use_system_font = False
   [[NormalColors]]
     cursor_color = "#ffffff"
+=======
+>>>>>>> 008bcaa465ba194a73ce075ca5e8436eab3bb4ea
     font = DinaPowerline 10
     foreground_color = "#ffffff"
     palette = "#000000:#aa0000:#00aa00:#aa5500:#0000aa:#aa00aa:#00aaaa:#aaaaaa:#555555:#ff5555:#55ff55:#ffff55:#5555ff:#ff55ff:#55ffff:#ffffff"
     scrollback_infinite = True
     use_system_font = False
-  [[SageColors]]
+  [[NormalColors]]
     background_color = "#d3d7cf"
     cursor_color = "#ffffff"
     font = Dina 8
@@ -59,6 +66,8 @@
     palette = "#282828:#cc241d:#98971a:#d79921:#458588:#b16286:#689d6a:#a89984:#928374:#fb4934:#b8bb26:#fabd2f:#83a598:#d3869b:#8ec07c:#ebdbb2"
     scrollback_infinite = True
     use_system_font = False
+  [[SageColors]]
+    cursor_color = "#aaaaaa"
   [[ShittyProfile]]
     backspace_binding = control-h
     cursor_color = "#ffffff"

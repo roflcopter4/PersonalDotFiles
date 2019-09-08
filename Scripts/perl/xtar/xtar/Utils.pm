@@ -1,5 +1,5 @@
 package xtar::Utils;
-use warnings; use strict; use v5.24;
+use 5.26.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 

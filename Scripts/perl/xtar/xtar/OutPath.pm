@@ -1,6 +1,6 @@
 package xtar::OutPath;
 use 5.26.0; use warnings; use strict;
-use Mouse;
+use Moose;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -189,5 +189,4 @@ sub descend :prototype($) ($dir)
 
 ###############################################################################
 
-no Mouse;
 __PACKAGE__->meta->make_immutable;

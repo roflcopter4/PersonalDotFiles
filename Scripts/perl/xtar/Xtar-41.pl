@@ -34,7 +34,7 @@ use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 #     # eval 'use xtar::Utils;';
 # }
 
-use lib rel2abs('.');
+use lib "/home/bml/personaldotfiles/Scripts/perl/xtar";
 use xtar;
 use xtar::Colors;
 use xtar::Utils;

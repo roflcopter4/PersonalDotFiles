@@ -165,7 +165,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('cespare/vim-toml')
     call dein#add('chrisbra/Colorizer')
     call dein#add('elixir-lang/vim-elixir')
-    call dein#add('equalsraf/neovim-gui-shim')
+    " call dein#add('equalsraf/neovim-gui-shim')
     call dein#add('fidian/hexmode')
     call dein#add('idanarye/vim-vebugger')
     call dein#add('junegunn/fzf', {'merged': 0})
@@ -185,7 +185,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('uplus/vim-clang-rename')
 
     if !WINDOWS() "&& b:use_language_client
-        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0})
+        " call dein#add('autozimu/LanguageClient-neovim', {'merged': 0})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -214,8 +214,9 @@ if dein#load_state(expand(g:load_path))
         if g:use_deoplete == 1
             call dein#add('Shougo/deoplete.nvim')
             call dein#add('Shougo/neco-vim')
+            call dein#add('Shougo/deoplete-clangx')
             call dein#add('artur-shaik/vim-javacomplete2')
-            call dein#add('zchee/deoplete-clang')
+            " call dein#add('zchee/deoplete-clang')
             call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': 0})
             call dein#add('zchee/deoplete-jedi')
         else
@@ -739,10 +740,10 @@ if IsSourced('ale')
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
         " let s:ALE_C = ['clang', 'clangtidy', 'cppcheck']
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
-        let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
+        let s:ALE_C = ['clangtidy', 'cppcheck']
 
         let b:ale_linters_c = {'c': s:ALE_C,
-                             \ 'cpp': ['clang', 'gcc', 'clangtidy', 'cppcheck']
+                             \ 'cpp': ['clangtidy', 'cppcheck']
                              \ }
 
     "# Python {
@@ -824,7 +825,9 @@ if IsSourced('deoplete.nvim')
     " deoplete tab-complete
     inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
     " Use smartcase.
-    let g:deoplete#enable_smart_case = 1
+    " let g:deoplete#enable_smart_case = 1
+
+    call deoplete#custom#option('smart_case', v:true)
 
     " <C-h>, <BS>: close popup and delete backword char.
     inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"

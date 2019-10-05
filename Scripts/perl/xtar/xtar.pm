@@ -1,6 +1,6 @@
 package xtar;
 use 5.26.0; use warnings; use strict;
-use Mouse;
+use Moose;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -213,7 +213,7 @@ sub try_extractions :prototype($) ($self)
             last if $self->_do_try_extraction($try, \$success, \$tmpdir);
         }
     }
-    unless ($success) { self->_extraction_failed(\$success, \$tmpdir) }
+    unless ($success) { $self->_extraction_failed(\$success, \$tmpdir) }
 
     $self->tmpdir( rel2abs($tmpdir) );
     chdir $self->CWD;
@@ -225,7 +225,8 @@ sub _do_try_extraction :prototype($$$$) ($self, $try, $success, $tmpdir)
     my $cmd    = eval qq{ \$self->file->${try}_cmd };
     my $is_tar = eval qq{ \$self->file->${try}_tar };
 
-    next unless ($cmd->{CMD});
+    if (not $cmd->{CMD}) { return 0 }
+    esayC 'bYELLOW', "Using cmd " . $cmd->{CMD};
 
     $$tmpdir = $self->_get_tempdir;
     chdir $$tmpdir;
@@ -237,19 +238,19 @@ sub _do_try_extraction :prototype($$$$) ($self, $try, $success, $tmpdir)
         if ( $self->Options->{verbose} ) {
             esayC 'GREEN', 'Operation appears successful.';
         }
-        return true;
+        return 1;
     }
     elsif (not $self->Options->{quiet}) {
         esayC 'bRED', "Operation failed.\n"
     }
 
     chdir $self->CWD;
-    return false;
+    return 0;
 }
 
 sub _extraction_failed :prototype($$$) ($self, $success, $tmpdir)
 {
-    if ( not $self->file->ID_Failure and not $self->notfirst ) {
+    if ( not $self->file->ID_Failure and $self->file->notfirst ) {
         esayC 'bRED', 'All identified programs have failed.'
     }
     if ($self->Options->{force}) {
@@ -405,5 +406,4 @@ sub force_extract :prototype($$) ($archive, $TAR)
 
 ###############################################################################
 
-no Mouse;
 __PACKAGE__->meta->make_immutable;

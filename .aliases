@@ -309,6 +309,7 @@ case "$SYSID" in
         mkalias -s emr="${EMERGE}"
         mkalias -s emp="${EMERGE} --pretend"
         mkalias -s ema="${EMERGE} --ask"
+        mkalias -s em1="${EMERGE} --ask --oneshot"
         mkalias -s empd="${EMERGE} --pretend --depclean -Dv"
         mkalias -s empk="${EMERGE} --ask --buildpkg"
         mkalias -s embd="${EMERGE} --ask --deep"

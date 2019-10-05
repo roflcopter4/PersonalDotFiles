@@ -1,6 +1,6 @@
 package xtar::File;
 use 5.26.0; use warnings; use strict;
-use Mouse;
+use Moose;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -192,6 +192,11 @@ RETRY:
     elsif ( $orig =~ m/application/ ) {
         if ( $orig =~ m/octet|stream/ ) {
             goto RETRY;
+        }
+        elsif ($orig =~ m{debian}) {
+            $app = 'deb';
+            $self->mime_raw($app);
+            $self->mime_tar(true);        
         }
         else {
             $app =~ s/.*application.(\S+).*/$1/;
@@ -433,5 +438,4 @@ sub determine_decompressor :prototype($$) ($self, $type)
 
 ###############################################################################
 
-no Mouse;
 __PACKAGE__->meta->make_immutable;

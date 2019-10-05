@@ -10,8 +10,8 @@ else
     if WINDOWS()
         GuiFont Dina:h8
     else
-        Guifont Dina:h10
-        GuiLinespace 2
+        Guifont Dina:h7
+        GuiLinespace 1
         " set linespace=2
     endif
 endif

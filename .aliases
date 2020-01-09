@@ -290,10 +290,12 @@ mkalias -T rg='rg -S'
 mkalias -T wolf='wolframscript'
 
 # Bat
-mkalias -eT bat='bat --paging=auto'
-mkalias -eT batl='bat --paging=auto --language'
-mkalias -eT batp='bat --paging=never'
-mkalias -eT batlp='bat --paging=never --language'
+BAT_COMMON="--color=always --pager='less -LR'"
+mkalias -eT bat="bat $BAT_COMMON --paging=always"
+mkalias -eT batl="bat $BAT_COMMON --paging=always --language"
+mkalias -eT batp="bat $BAT_COMMON --paging=never"
+mkalias -eT batlp="bat $BAT_COMMON --paging=never --language"
+unset BAT_COMMON
 
 # Force less to take raw characters (color).
 [ "$LESS" ] || alias less='less -r'

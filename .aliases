@@ -267,11 +267,9 @@ alias CMK='mkdir build && cd build'
 
 # Yet more git aliases.
 mkalias -T gcred='git config credential.helper store'
-mkalias -T glgs="git log --graph --pretty='
-%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --shortstat"
-mkalias -T glgsa="git log --graph --pretty='
-%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --stat"
 mkalias -T gits='git status'
+alias  glgs="git log --graph --pretty=\"%C()\${(l.\$((\${COLUMNS}-8))..─.)}\"'%n%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --shortstat"
+alias glgsa="git log --graph --pretty=\"%C()\${(l.\$((\${COLUMNS}-8))..─.)}\"'%n%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --stat"
 
 # The rest.
 mkalias -Tg clformat='clang-format-3.6' 
@@ -672,3 +670,5 @@ esac
 
 
 unset TEMP alias_cmd do_global do_test do_sudo
+
+# vim: tw=0 sw=4 sts=4 ts=8 ft=sh

@@ -1,6 +1,6 @@
 package xtar::File;
-use 5.26.0; use warnings; use strict;
 use Moose;
+use 5.26.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -257,13 +257,13 @@ sub find_mimetype :prototype($\$) ($self, $counter)
     }
     else {
         # Resort to using the `file` command, with a GNU option.
-        if ( $$counter == 2 ) {
+        if ($$counter == 2) {
             err 'Attempting to use GNU file(1)' if $xtar::DEBUG;
             $app = `file --mime-type $qnam` or ($? <<= 8 && confess("$! - $?"));
             chomp $app;
         }
         # Resort to using `file` with no options. Last gasp.
-        elsif ( $$counter == 3 ) {
+        elsif ($$counter == 3) {
             err 'Attempting to use generic file(1)' if $xtar::DEBUG;
             $app = `file $qnam` or confess "$! - $?";
             chomp $app;
@@ -298,7 +298,7 @@ sub finalize_analysis :prototype($) ($self)
     elsif ($self->ext_type)  { $self->likely_type( $self->ext_type ) }
     else {
         if ($self->notfirst or $self->Options->{force}) {
-            $self->ID_Failure( true );
+            $self->ID_Failure(true);
             esayC('RED', 'Warning: No type identified.') if $self->Options->{force};
             return;
         }
@@ -312,8 +312,8 @@ EOF
         }
     }
 
-    $self->likely_tar( $self->ext_tar or $self->mime_tar );
-    $self->likely_cmd( $self->determine_decompressor( $self->likely_type ) );
+    $self->likely_tar($self->ext_tar or $self->mime_tar);
+    $self->likely_cmd($self->determine_decompressor($self->likely_type));
 }
 
 
@@ -344,85 +344,85 @@ sub _normalize_type :prototype($) ($extention)
 
 sub move_zqaq ($self)
 {
-    mv( $self->fullpath, $self->fullpath . '.zpaq' );
-    $self->fullpath( $self->fullpath . '.zpaq' );
-    $self->filename( Basename($self->fullpath) );
-    $self->extention( 'zpaq' );
+    mv( $self->fullpath, $self->fullpath . '.zpaq');
+    $self->fullpath($self->fullpath . '.zpaq');
+    $self->filename(Basename($self->fullpath));
+    $self->extention('zpaq');
 }
 
 
 ###############################################################################
 
 
-sub determine_decompressor :prototype($$) ($self, $type)
+sub determine_decompressor : prototype($$) ($self, $type)
 {
-    my ( $CMD, $TFlags, $EFlags, $Stdout );
+    my ($CMD, $TFlags, $EFlags, $Stdout);
     my $V     = $self->Options->{verbose};
     my $Q     = $self->Options->{quiet};
-    my $v7z   = ( $Q ) ? '-bso0 -bsp0' : '';
-    my $vzpaq = ( $V ) ? ''            : ' >/dev/null';
+    my $v7z   = ($Q) ? '-bso0 -bsp0' : '';
+    my $vzpaq = ($V) ? '' : ' >/dev/null';
 
     $TFlags = $EFlags = '';
-    $_ = $type;
+    $_      = $type;
 
-    if ( /^(z|compress)$/ni and which('uncompress') ) {
+    if (/^(z|compress)$/ni and which('uncompress')) {
         $CMD    = 'uncompress';
         $TFlags = $EFlags = '-c';
         $Stdout = true;
     }
-    elsif ( /^(gz|z|gzip|compress)$/ni and which('gzip') ) {
+    elsif (/^(gz|z|gzip|compress)$/ni and which('gzip')) {
         $CMD    = 'gzip';
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }
-    elsif ( /^(bz|bz2|bzip[2]?)$/ni and which('bzip2') ) {
+    elsif (/^(bz|bz2|bzip[2]?)$/ni and which('bzip2')) {
         $CMD    = 'bzip2';
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }
-    elsif ( /^(xz|lzma|lz)$/ni and which('xz') ) {
+    elsif (/^(xz|lzma|lz)$/ni and which('xz')) {
         $CMD    = 'xz';
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }
-    elsif ( /^(lz4)$/ni and which('lz4') ) {
+    elsif (/^(lz4)$/ni and which('lz4')) {
         $CMD    = 'lz4';
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }
-    elsif ( /^(tar|cpio)$/ni ) {
+    elsif (/^(tar|cpio)$/ni) {
         $CMD    = 'TAR';
         $TFlags = '-xf -- -O';
         $EFlags = '-xf';
     }
-    elsif ( /^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
-               deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
-               compress|gzip|bzip2?|7[-]?zip)$/nxi
-            and which('7z') )
+    elsif (/^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
+              deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
+              compress|gzip|bzip2?|7[-]?zip)$/nxi
+           and which('7z'))
     {
         $CMD    = '7z';
         $TFlags = "$v7z -so x";
         $EFlags = "$v7z x";
     }
-    elsif ( /^(zpaq)$/ni and which('zpaq') ) {
+    elsif (/^(zpaq)$/ni and which('zpaq')) {
         $CMD    = 'zpaq';
         $TFlags = 'NOTAR';
         $EFlags = "x -- -to tmp" . $vzpaq;
     }
-    elsif ( /^(zip)$/ni and which('unzip') ) {
+    elsif (/^(zip)$/ni and which('unzip')) {
         $CMD    = 'unzip';
         $TFlags = '-p';
     }
-    elsif ( /^(arc)$/ni and which('arc') ) {
+    elsif (/^(arc)$/ni and which('arc')) {
         $CMD    = 'arc';
         $TFlags = 'p';
         $EFlags = 'x';
     }
-    elsif ( /^(ace|winace)$/ni and which('unace') ) {
+    elsif (/^(ace|winace)$/ni and which('unace')) {
         $CMD    = 'unace';
         $TFlags = $EFlags = 'x';
     }
-    elsif ( /^(rar)$/ni and which('unrar') ) {
+    elsif (/^(rar)$/ni and which('unrar')) {
         $CMD    = 'unrar';
         $TFlags = $EFlags = 'x';
     }
@@ -434,7 +434,6 @@ sub determine_decompressor :prototype($$) ($self, $type)
         stdout => $Stdout
     };
 }
-
 
 ###############################################################################
 

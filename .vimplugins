@@ -51,21 +51,21 @@ if dein#load_state(expand(g:load_path))
         call dein#add('/usr/share/vim/vimfiles')
     endif
 
-    "----------  My own stuff ---------- 
+    "----------  My own stuff  ---------- 
     call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
     call dein#add('roflcopter4/vim-perl',  {'merged': 0})
-    call dein#add('roflcopter4/vim-cpp-enhanced-highlight')
+    call dein#add('roflcopter4/vim-cpp-enhanced-highlight', {'merged': 0})
 
     if has('nvim')
         call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
-        call dein#add('roflcopter4/lnvim', {'merged': 0})
+        "call dein#add('roflcopter4/lnvim', {'merged': 0})
         "call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
         "call dein#add('roflcopter4/mytags', {'merged': 0})
         "call dein#add('blahgeek/neovim-colorcoder', {'merged': 0})
         "call dein#add('arakashic/chromatica.nvim', {'merged': 0})
     endif
 
-    "----------  General ---------
+    "----------  General  ---------
     call dein#add('MarcWeber/vim-addon-mw-utils')
     call dein#add('ctrlpvim/ctrlp.vim')
     call dein#add('easymotion/vim-easymotion')
@@ -159,7 +159,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('dylon/vim-antlr.git', {'merged': 0})
 
     "---------- Misc ----------
-    call dein#add('Chiel92/vim-autoformat')
+    call dein#add('Chiel92/vim-autoformat', {'merged': 0})
     call dein#add('PProvost/vim-ps1')
     call dein#add('carlosgaldino/elixir-snippets')
     call dein#add('cespare/vim-toml')
@@ -168,8 +168,8 @@ if dein#load_state(expand(g:load_path))
     " call dein#add('equalsraf/neovim-gui-shim')
     call dein#add('fidian/hexmode')
     call dein#add('idanarye/vim-vebugger')
-    call dein#add('junegunn/fzf', {'merged': 0})
-    call dein#add('junegunn/fzf.vim')
+    " call dein#add('junegunn/fzf', {'merged': 0})
+    " call dein#add('junegunn/fzf.vim')
     call dein#add('mattreduce/vim-mix')
     call dein#add('quentindecock/vim-cucumber-align-pipes')
     call dein#add('rodjek/vim-puppet')
@@ -185,7 +185,7 @@ if dein#load_state(expand(g:load_path))
     call dein#add('uplus/vim-clang-rename')
 
     if !WINDOWS() "&& b:use_language_client
-        " call dein#add('autozimu/LanguageClient-neovim', {'merged': 0})
+        call dein#add('autozimu/LanguageClient-neovim', {'merged': 0})
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -717,12 +717,14 @@ if IsSourced('ale')
                                       \ '-*disabled-macro-expansion',
                                       \ '-*c++98-compat',
                                       \ '-*avoid-magic-numbers', '-*readability-magic-numbers',
-                                      \ '-*pro-type-union-access',
                                       \ '-*uppercase-literal-suffix',
                                       \ '-*gnu-zero-variadic-macro-arguments',
                                       \ '-*gnu-statement-expression',
                                       \ '-*isolate-declaration',
                                       \ '-*narrowing-conversions',
+                                      \ '-*DeprecatedOrUnsafeBufferHandling',
+                                      \ '-*bugprone-sizeof-expression',
+                                      \ '-*todo*',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -734,7 +736,11 @@ if IsSourced('ale')
                     \   '-*fuchsia*',
                     \   '-*implicit-bool*',
                     \   '-*vararg',
-                    \   '-*owning-memory'
+                    \   '-*owning-memory',
+                    \   '-*trailing-return-type',
+                    \   '-*pro-type-union-access',
+                    \   '-*bounds-constant-array-index',
+                    \   '-*no-array-decay', '-*array-to-pointer-decay',
                     \ ])
 
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
@@ -1002,7 +1008,8 @@ if IsSourced('vim-autoformat')
     "# }
 
     "# Perl {
-        let g:formatdef_perltidy = '"perltidy -q --perl-best-practices --format-skipping -sbl"'
+        let g:formatdef_perltidy = "'perltidy -q --perl-best-practices --format-skipping -i='.&shiftwidth.' -l='.&textwidth.' "
+                               \ . " -sbl -pt=2'"
     "# }
     
     "# Python {
@@ -1200,6 +1207,9 @@ if IsSourced('LanguageClient-neovim')
           \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
           \ }
 
+    " let g:LanguageClient_serverCommands['c']   = ['clangd']
+    " let g:LanguageClient_serverCommands['cpp'] = ['clangd']
+
     " let g:LanguageClient_diagnosticsEnable = 1
     " let g:LanguageClient_trace = 'verbose'
     let g:LanguageClient_autoStart = 1
@@ -1281,11 +1291,29 @@ endif
 
 
 if IsSourced('vim-go')
-    let g:go_highlight_format_strings = 1
-    let g:go_highlight_extra_types = 1
-    let g:go_highlight_operators = 1
-    let g:go_metalinter_autosave_enabled = []
-    let g:go_info_mode = 'guru'
+    let g:go_highlight_array_whitespace_error    = 1
+    let g:go_highlight_build_constraints         = 1
+    let g:go_highlight_fields                    = 0
+    let g:go_highlight_format_strings            = 1
+    let g:go_highlight_function_arguments        = 0
+    let g:go_highlight_function_calls            = 0
+    let g:go_highlight_function_parameters       = 0
+    let g:go_highlight_functions                 = 0
+    let g:go_highlight_generate_tags             = 0
+    let g:go_highlight_operators                 = 1
+    let g:go_highlight_space_tab_error           = 1
+    let g:go_highlight_trailing_whitespace_error = 0
+    let g:go_highlight_variable_assignments      = 0
+    let g:go_highlight_variable_declarations     = 0
+
+    let g:go_highlight_extra_types               = 0
+    let g:go_highlight_types                     = 0
+
+    let g:go_fmt_autosave     = 1
+    let g:go_mod_fmt_autosave = 1
+
+    " let g:go_metalinter_autosave_enabled = []
+    " let g:go_info_mode = 'guru'
 endif
 
 
@@ -1323,7 +1351,7 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#ignored_tags = {
                 \   'c': ['static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \         '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__', 'fork',
-                \         'alignof', 'alignas', 'Auto', 'main',]
+                \         'alignof', 'alignas', 'Auto', 'main', 'stat',]
                 \ }
 
     let g:tag_highlight#ignored_tags['cpp'] = g:tag_highlight#ignored_tags['c']

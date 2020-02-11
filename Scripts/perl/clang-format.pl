@@ -89,6 +89,8 @@ GetOptions(
     'S|style=s'          => \$opt{style},
 ) or die;
 
+if (@ARGV and $ARGV[0] eq '--') { shift @ARGV }
+
 my $data = '{';
 if (defined $opt{file}) { $file = $opt{file} }
 

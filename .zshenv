@@ -61,6 +61,12 @@ __split_path() {
     __split_path_return=($=1)
 }
 
+local p5_dir="${HOME}/Perl5"
+local need_path=( "${p5_dir}/bin" )
+export PERL5LIB="${p5_dir}/lib/perl5${PERL5LIB:+:${PERL5LIB}}"
+export PERL_LOCAL_LIB_ROOT="${p5_dir}${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"
+export PERL_MB_OPT="--install_base \"${p5_dir}\""
+export PERL_MM_OPT="INSTALL_BASE=${p5_dir}"
 
 case "$SYSID" in
     slackware)
@@ -70,9 +76,8 @@ case "$SYSID" in
         local adtl_path=( )
         [[ -d '/usr/mnt/bin' ]] && adtl_path+='/usr/mnt/bin'
         [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
-        #[[ -d "${HOME}/.local/lib/node_modules/.bin" ]] && adtl_path+="${HOME}/.local/lib/node_modules/.bin"
 
-        export path=( "${HOME}/.local/bin" /opt/bin "${adtl_path[@]}" /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
+        export path=( "${HOME}/.local/bin" /opt/bin $need_path $adtl_path /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
         export PT=/var/tmp/portage
         export RUSTUP_HOME=/opt/rust/rustup
         export CARGO_HOME=/opt/rust/cargo
@@ -84,7 +89,7 @@ case "$SYSID" in
         export path=( "${HOME}/.local/bin" /opt/bin /opt/clang-bin /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/games /sbin /bin )
         ;;
     ArchLinux|Artix)
-        export path=( "${HOME}/.local/bin" /usr/lib/ccache/bin /opt/bin /usr/local/bin $path )
+        export path=( "${HOME}/.local/bin" $need_path /usr/lib/ccache/bin /opt/bin /usr/local/bin $path )
         ;;
     msys2)
         __mingw_fix_path() {

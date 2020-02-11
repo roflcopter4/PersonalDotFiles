@@ -781,16 +781,18 @@ vnoremap <leader>aa :Autoformat<CR>
 nnoremap <leader>::<space> q:
 nnoremap q: :
 
-if has('nvim') && !WIN_OR_CYG()
+if has('nvim')
+    if WINDOWS()
+        let g:python_host_prog  = 'python2'
+        let g:python3_host_prog = 'python3'
+    else
+        let g:python_host_prog  = '/usr/bin/python2'
+        let g:python3_host_prog = '/usr/bin/python3.8'
+    endif
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
     " let g:python_host_prog  = 'python2'
     " let g:python3_host_prog = 'python3'
-    let g:python_host_prog  = '/usr/bin/python2'
-    let g:python3_host_prog = '/usr/bin/python3'
-else
-    let g:python_host_prog  = '/usr/bin/python2'
-    let g:python3_host_prog = '/usr/bin/python3'
     " let g:python_host_prog = 'python2'
 endif
 
@@ -849,16 +851,25 @@ let g:nasm_ctx_outside_macro = 1
 let g:nasm_loose_syntax = 1
 
 command! -range FixClangStars <line1>,<line2>s/\v([*&]+)(\s*)(\S)/\2\1\3/g
+nnoremap <silent> <leader>cls :FixClangStars<CR>
+vnoremap <silent> <leader>cls :FixClangStars<CR>
 
 let g:gonvim_draw_statusline = 0
 let g:gonvim_draw_tabline = 0
 let g:gonvim_draw_lint = 0
+
+augroup CHeaderType
+    autocmd BufReadPre *.h set ft=cpp
+augroup END
 
 if exists('g:gnvim') && g:gnvim == 1
     set guifont=dinaTTF:h10
     set linespace=0
     set guioptions=agimrLt
     set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
+else
+    set guifont=Dina:h7
+    set linespace=1
 endif
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

@@ -1,23 +1,22 @@
 " NOTE: This file is ignored by gonvim!
 
+let s:linespace = 2
+
 if exists('g:GtkGuiLoaded')
     call rpcnotify(1, 'Gui', 'Font', 'dina ttf 8')
-    call rpcnotify(1, 'Gui', 'Linespace', '1')
+    call rpcnotify(1, 'Gui', 'Linespace', string(s:linespace))
     call rpcnotify(1, 'Gui', 'Option', 'Tabline', 0)
     call rpcnotify(1, 'Gui', 'Option', 'Popupmenu', 0)
     call rpcnotify(1, 'Gui', 'Option', 'Cmdline', 0)
 else
     if WINDOWS()
         GuiFont Dina:h8
+        execute 'GuiLinespace ' . s:linespace
     else
-        " Guifont Dina:h10
-        GuiFont Dina:h7
-        " GuiLinespace 1
-        set linespace=2
+        GuiFont Dina:h10
+        execute 'GuiLinespace ' . s:linespace
     endif
 endif
-
-
 
 
 " GuiLinespace 2

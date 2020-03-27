@@ -45,7 +45,7 @@ use xtar::Utils;
 sub find_tar   :prototype($);
 sub show_usage :prototype(;$);
 
-my ( %options, $TAR );
+my (%options, $TAR);
 my $default_tar = 'tar';
 
 GetOptions(
@@ -73,18 +73,18 @@ unless (@ARGV) {
     show_usage 1;
 }
 
-if    ( defined $options{tar} ) { $TAR = find_tar( $options{tar} ) }
-elsif ( $options{bsdtar} )      { $TAR = find_tar('bsdtar') }
-elsif ( $options{gtar} )        { $TAR = find_tar('gtar') }
-else                            { $TAR = find_tar( $default_tar ) }
+if    (defined $options{tar}) { $TAR = find_tar($options{tar}) }
+elsif ($options{bsdtar})      { $TAR = find_tar('bsdtar') }
+elsif ($options{gtar})        { $TAR = find_tar('gtar') }
+else                          { $TAR = find_tar($default_tar) }
 
-if ( $options{clobber} )    { $options{combine} = true }
+if ($options{clobber})    { $options{combine} = true }
 
-if    ( $options{Debug} )   { $options{verbose} = true;  $options{quiet} = false; }
-elsif ( $options{shutup} )  { $options{verbose} = false; $options{quiet} = true; }
-elsif ( $options{verbose} ) { $options{quiet}   = false }
-elsif ( $options{quiet} )   { $options{verbose} = false }
-else                        { $options{verbose} = $options{quiet} = false }
+if    ($options{Debug})   { $options{verbose} = true;  $options{quiet} = false; }
+elsif ($options{shutup})  { $options{verbose} = false; $options{quiet} = true; }
+elsif ($options{verbose}) { $options{quiet}   = false }
+elsif ($options{quiet})   { $options{verbose} = false }
+else                      { $options{verbose} = $options{quiet} = false }
 
 ###############################################################################
 

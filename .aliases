@@ -1,11 +1,12 @@
 #!/bin/dash
+# The shebang just tells shellcheck to use dash as a base shell for linting
 
 _UNAME=$(uname)
 _UNAME_O=$(uname -o)
 
 ID_SHELL() {                                                     
-    if ! { [ "${_UNAME}" = 'DragonFly' ] || [ "${_UNAME}" = 'OpenBSD' ] || \
-           [ "${_UNAME_O}" = 'Cygwin' ]  || [ "${_UNAME_O}" = 'Msys' ]; }
+    if ! { [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xOpenBSD' ] || \
+           [ "x${_UNAME_O}" = 'xCygwin' ]  || [ "x${_UNAME_O}" = 'xMsys' ]; }
     then
         printf "%s" "$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
@@ -152,27 +153,28 @@ if Exists 'exa'; then
         arg=''
         if [ $# -eq 0 ]; then
             arg='-s date' 
-        elif ! { echo "$1" | \grep -q '^-'; }; then
+        elif ! { printf '%s' "$1" | command grep -q '^-'; }; then
             if ! [ -e "$1" ]; then
                 arg="-s $1"
                 shift
             else
                 arg='-s date'
             fi
-        elif [ $# -ge 1 ] && [ "x$1" = 'x-r' ] && ! { echo "$2" | \grep -q '^-'; }; then
+        elif [ $# -ge 1 ] && [ "x$1" = 'x-r' ] && ! { echo "$2" | command grep -q '^-'; }; then
             arg="-rs date"
         else
             OPTIND=1
-            while getopts '-:rSsDd' OPT; do
+            while getopts 'rSsDdet' OPT; do
                 case "$OPT" in
-                    (-) arg="${arg} -s ${OPTARG}" ;;
                     (s) arg="${arg} -s size"      ;;
                     (S) arg="${arg} -rs size"     ;;
                     (d) arg="${arg} -s date"      ;;
                     (D) arg="${arg} -rs date"     ;;
                     (r) arg="-r ${arg}"           ;;
+                    (e) arg="${arg} -s extension" ;;
+                    (t) arg="${arg} -s type"      ;;
                     (*)
-                        echo 'lls: legal args "rsSdD"' >&2
+                        echo 'lls: legal args "rsSdDet"' >&2
                         return 1
                         ;;
                 esac
@@ -199,7 +201,7 @@ if Exists 'exa'; then
 '*.ogg=0;36:*.ra=0;36:*.wav=0;36:*.oga=0;36:*.opus=0;36:*.spx=0;36:*.xspf=0;36:'
     export EXA_COLORS
 
-elif [ "${_UNAME}" = 'OpenBSD' ] && ! Exists 'gls'; then
+elif [ "x${_UNAME}" = 'xOpenBSD' ] && ! Exists 'gls'; then
     alias ls='ls -F'
     alias la='ls -A'
     alias ll='ls -lh'
@@ -238,7 +240,7 @@ fi
 # ---------------------------------------------------------
 
 # grep with color, from default bashrc.
-if [ "${_UNAME}" != 'OpenBSD' ]; then
+if [ "x${_UNAME}" != 'xOpenBSD' ]; then
     alias grep='\grep --colour=auto'
     alias fgrep='\fgrep --color=auto'
     alias egrep='\egrep --color=auto'
@@ -264,6 +266,7 @@ alias free='free -wh'
 mkalias -A 'CO' '/usr/libexec/cw/configure' './configure'
 alias CH='./configure --help'
 alias CMK='mkdir build && cd build'
+mkalias -T pkgconfig='pkg-config'
 
 # Yet more git aliases.
 mkalias -T gcred='git config credential.helper store'
@@ -295,15 +298,16 @@ mkalias -eT batp="bat $BAT_COMMON --paging=never"
 mkalias -eT batlp="bat $BAT_COMMON --paging=never --language"
 unset BAT_COMMON
 
+
 # Force less to take raw characters (color).
 [ "$LESS" ] || alias less='less -r'
 
-if [ "$SYSID" = 'laptop-gentoo' ]; then
+if [ "x$SYSID" = 'xlaptop-gentoo' ]; then
     alias emerge='emerge -k'
 fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
-        local EMERGE='emerge'
+        EMERGE='emerge'
         mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
         mkalias -s emr="${EMERGE}"
@@ -325,12 +329,14 @@ case "$SYSID" in
         alias watchfetch='tail -f /var/log/emerge-fetch.log'
 
         mkalias -A 'gvi' 'nvim-gtk --' 'nvim-qt'
+
+        unset EMERGE
         ;;
 esac
 
 
 # Linux Aliases
-if [ "${_UNAME}" = 'Linux' ]; then
+if [ "x${_UNAME}" = 'xLinux' ]; then
     if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
         mkalias -s pacs='\pacman --color=always -S --needed' 
@@ -355,7 +361,7 @@ if [ "${_UNAME}" = 'Linux' ]; then
 
     alias make='make --no-print-directory'
 
-elif [ "${_UNAME}" = 'FreeBSD' ] || [ "${_UNAME}" = 'DragonFly' ]; then
+elif [ "x${_UNAME}" = 'xFreeBSD' ] || [ "x${_UNAME}" = 'xDragonFly' ]; then
     mkalias -S pkg='pkg'
     mkalias -S make='make'
     mkalias -T pf='portfind'
@@ -384,22 +390,13 @@ if [ "$IS_WINDOWS" ]; then
     fi
 fi
 
-if [ "$TERM" = 'linux' ]; then
+if [ ".$TERM" = '.linux' ]; then
     mkalias -T vi='vim' 
 fi
 
 
 # ----------------------------------------------------------
 # Functions
-
-
-# # Alias-like functions, pipe ls to less
-# lls() {
-#     ll "$@" | \less -r
-# }
-# las() {
-#     lla "$@" | \less -r
-# }
 
 
 Exists 'git' && {
@@ -437,26 +434,6 @@ Exists 'git' && {
 }
 
 
-# gitc2() {
-#     [ "$1" ] && ONE=$1 && shift || return 1
-#     [ "$1" ] && TWO=$1 && shift
-#     case "$ONE" in
-#         '-gs')
-#             git clone --recursive --depth 1 "https://github.com/${TWO}" "$@"
-#             ;;
-#         '-gd')
-#             git clone --recursive "https://github.com/${TWO}" "$@"
-#             ;;
-#         '-d')
-#             git clone --recursive "$TWO" "$@"
-#             ;;
-#         *)
-#             git clone --recursive --depth 1 "$ONE" "$TWO" "$@"
-#             ;;
-#     esac
-# }
-
-
 perlman () {  
     [ $# -ge 1 ] || return 1
     perldoc -T "$@" >/dev/null || return 2
@@ -464,7 +441,7 @@ perlman () {
 }
 
 
-if [ "${_UNAME}" = 'DragonFly' ] || [ "${_UNAME}" = 'FreeBSD' ]; then
+if [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xFreeBSD' ]; then
     Exists 'gfind' && FIND='gfind'
 else
     FIND='find'
@@ -630,9 +607,9 @@ if Exists 'fzy'; then
             echo "$__file__"
 
             if [ -d "$__file__" ]; then
-                cd "$__file__"
+                cd "$__file__" || return 1
             else
-                cd "$(dirname "$__file__")"
+                cd "$(dirname "$__file__")" || return 1
             fi
         else
             eval "$_statement_"
@@ -662,7 +639,7 @@ case "$SYSID" in
             cd /etc/portage || return 1
         }
         wut() { 
-            [ $# -eq 1 -a -d "$1" ] || return 1
+            { [ $# -eq 1 ] && [ -d "$1" ]; } || return 1
             ag --nofilename 'DESCRIPTION=' "${1}/" | sort -u | perl -pe 's/^\n//'
         }
         ;;

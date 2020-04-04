@@ -656,6 +656,43 @@ cppMacroOnly() { (
 ) }
 
 
+goinstallsub() {
+    local testrun basedir
+    OPTIND=1
+    testrun=false
+    basedir='../../roflcopter4'
+
+    while getopts 'nd:' ARG "$@"; do
+        case "$ARG" in
+            n) testrun=true      ;;
+            d) basedir="$OPTARG" ;;
+            *) echo 'Invalid arg -> '"'$ARG'" >&2 ; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    if ! [ -d "$basedir" ]; then
+        echo "Invalid base directory \`$basedir'" >&2
+        return 1
+    fi
+
+    for f in $(find "$basedir" -type d -path "*/$(basename "$(pwd)")/*" | \
+               sed 's|^\(\.\./\)*||')
+    do
+        if [ "$(find "../../$f" -name '*.go')" ]; then
+            if [ $# -gt 0 ]; then
+                echo "go install" "$@" "$f"
+            else
+                echo "go install $f"
+            fi
+            if ! $testrun; then
+                go install "$@" "$f"
+            fi
+        fi
+    done
+}
+
+
 case "$SYSID" in
     'gentoo'|'gentoo-laptop')
         etcp() {

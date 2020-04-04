@@ -12,8 +12,9 @@ else
     else
         " Guifont Dina:h10
         GuiFont Dina:h7
+        GuiLinespace 2
         " GuiLinespace 1
-        set linespace=2
+        " set linespace=2
     endif
 endif
 

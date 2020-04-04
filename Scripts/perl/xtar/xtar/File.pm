@@ -17,6 +17,8 @@ use File::Which;
 use String::ShellQuote;
 use Try::Tiny;
 
+use Data::Dumper;
+
 use lib rel2abs('..');
 use xtar::Colors;
 use xtar::Utils;
@@ -163,13 +165,13 @@ sub mimetype_analysis :prototype($) ($self)
     my ( $app, $mimekind, $dbg_kind ) = (0,0,0);
 
 RETRY:
-    $app  = $self->find_mimetype( \$mimekind );
+    $app  = $self->find_mimetype(\$mimekind);
 
     while ( looks_like_number($app) and $app == 0 and $mimekind <= MAXKIND )
     {
         esayC( 'b', "Mimetype number $dbg_kind failed." ) if $xtar::DEBUG;
         $dbg_kind = $mimekind;
-        $app = $self->find_mimetype( \$mimekind );
+        $app = $self->find_mimetype(\$mimekind);
     }
 
     unless ($app) {
@@ -182,15 +184,15 @@ RETRY:
     my $orig = $app;
     $app =~ s|.*?/x-(.*)|$1|;
 
-    if ( $app =~ /\+/ ) {
+    if ($app =~ /\+/) {
         my @progs = split /\+/, $app;
         foreach (@progs) {
             if   (/tar/) { $self->mime_tar(true) }
             else         { $self->mime_raw($_) }
         }
     }
-    elsif ( $orig =~ m/application/ ) {
-        if ( $orig =~ m/octet|stream/ ) {
+    elsif ($orig =~ m/application/) {
+        if ($orig =~ m/octet|stream/) {
             goto RETRY;
         }
         elsif ($orig =~ m{debian}) {
@@ -245,11 +247,10 @@ sub find_mimetype :prototype($\$) ($self, $counter)
     if ($$counter < 2) {
         if ( $found_file_unpack == true ) {
             err 'Using File::Unpack' if $xtar::DEBUG;
-
             my $unpack = File::Unpack->new();
             my $m      = $unpack->mime( file => $self->fullpath );
-            my $index  = ( $$counter++ == 1 ) ? 0 : 2;
-            $app = $m->[$index];
+            # my $index  = ((${${counter}})++ == 1) ? 0 : 2;
+            $app = $m->[0];
         } else {
             err 'No File::Unpack' if $xtar::DEBUG;
             $$counter = 2;

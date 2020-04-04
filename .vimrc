@@ -141,7 +141,7 @@ let g:structderef_color_gui = '#42A5F5'
 " ======================================================================================================
 
 
-execute 'source ' . expand('~/.vimplugins')
+execute 'source ' . fnameescape(expand('~/.vimplugins'))
 
 
 " ======================================================================================================
@@ -183,7 +183,7 @@ function! InitializeDirectories()
             echo 'Try: mkdir -p ' . l:directory
         else
             let l:directory = substitute(l:directory, ' ', '\\\\ ', 'g')
-            exec 'set ' . l:settingname . '=' . l:directory
+            execute 'set ' . l:settingname . '=' . fnameescape(l:directory)
         endif
     endfor
 endfunction
@@ -671,7 +671,7 @@ endfunction
 noremap <leader>bg :call ToggleBG()<CR>
 
 " Save changes to a buffer as a diff file, leaving the original file untouched.
-command -nargs=1 Sdiff execute 'w !diff -au "%" - > ' . "<args>"
+command -nargs=1 Sdiff execute 'w !diff -au fnameescape(expand("%:p:S")) - > ' . "<args>"
 
 function! ToggleList()
     if &list == 1
@@ -694,7 +694,7 @@ nnoremap <leader>QA :qa!<CR>
 
 nnoremap <leader>buf :buffers<CR>
 command Config e $MYVIMRC
-command Plugins :execute 'e '.expand("~/.vimplugins")
+command Plugins :execute 'e '. fnameescape(expand("~/.vimplugins"))
 
 nnoremap <leader>nl :call ToggleList()<CR>
 nnoremap <leader>jj :pc<CR>

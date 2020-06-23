@@ -104,6 +104,9 @@ case "$SYSID" in
         export WINPATH="$ORIGINAL_PATH"
         export winpath=($__split_path_return)
         ;;
+    WSL_Ubuntu)
+        export path=( "${HOME}/.local/bin" $need_path /usr/lib/ccache/bin /opt/bin /opt/go/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin $path )
+        ;;
 esac
 
 if [[ -o interactive ]]; then
@@ -123,7 +126,7 @@ if [[ -o interactive ]]; then
 fi
 
 case "$SYSID" in
-    gentoo|laptop-gentoo|ArchLinux|Artix)
+    gentoo|laptop-gentoo|ArchLinux|Artix|WSL_Ubuntu)
         export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
         alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
         ;;

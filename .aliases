@@ -357,7 +357,18 @@ if [ "x${_UNAME}" = 'xLinux' ]; then
     mkalias -T d.='dolphin . >/dev/null 2>&1 &' 
 
     mkalias -TS ualt='update-alternatives' 
-    mkalias -TS apt='apt' 
+
+    if Exists 'apt'; then
+        mkalias -S apt='apt' 
+        alias      apts='command apt search'
+
+        if Exists 'apt-fast'; then
+            mkalias -s aptf='apt-fast'
+            mkalias -s apti='apt-fast install'
+        else
+            mkalias -s apti='apt install'
+        fi
+    fi
 
     alias make='make --no-print-directory'
 

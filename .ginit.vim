@@ -13,7 +13,7 @@ else
         GuiFont Dina:h8
         execute 'GuiLinespace ' . s:linespace
     else
-        GuiFont Dina:h7
+        GuiFont Dina:h10
         execute 'GuiLinespace ' . s:linespace
     endif
 endif

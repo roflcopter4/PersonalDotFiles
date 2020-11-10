@@ -9,8 +9,8 @@ zle-keymap-select() {
 zle -N zle-keymap-select
 
 # This little routine forces the vi mode to be updated for every prompt
-_Get_VI_Mode() {
-    builtin echo -n "$_VI_Mode"
+_PR_Get_VI_Mode() {
+    builtin echo -n "$_PR_VI_Mode"
 }
 
 autoload -R "${HOME}/personaldotfiles/zsh/themes/autoload/precmd"

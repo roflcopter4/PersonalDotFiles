@@ -5,7 +5,7 @@ local TERMWIDTH=0
 local leadersize=${#${(%):---%n-%m--}}
 local pwdmax=0
 (( pwdmax = COLUMNS - leadersize ))
-_pwdStr="%${pwdmax}<…<%~ %<<"
+_PR_pwdStr="%${pwdmax}<…<%~ %<<"
 
 float fPromptWidth=${#${(%):---%n-%m--%~---}}
 float fTermWidth=${COLUMNS}
@@ -15,18 +15,18 @@ local FreeSpace
 (( FreeSpace = COLUMNS - fPromptWidth ))
 
 if [[ $fRatio -lt 0.33333 ]] && [[ $FreeSpace -gt 60 ]]; then
-    _ThirdLine=''
+    _PR_ThirdLine=''
 else
-    _ThirdLine='
+    _PR_ThirdLine='
 '
 fi
 
-_Char="%(!.#.$)"
+_PR_Char="%(!.#.$)"
 
-_Fillbar=""
-_Fillbar="\${(l.${TERMWIDTH}..${_Hbar}.)}"
+_PR_Fillbar=""
+_PR_Fillbar="\${(l.${TERMWIDTH}..${_PR_Hbar}.)}"
 
-if [[ $_Mode_Swap -eq 1 ]]; then
-    _VI_Mode=
-    _Mode_Swap=0
+if [[ $_PR_Mode_Swap -eq 1 ]]; then
+    _PR_VI_Mode=
+    _PR_Mode_Swap=0
 fi

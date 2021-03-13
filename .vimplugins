@@ -254,24 +254,24 @@ if dein#load_state(expand(g:load_path))
 
 
     "---------- Colour Schemes ----------------
-    call dein#add('KeitaNakamura/neodark.vim')
-    call dein#add('MaxSt/FlatColor')
-    call dein#add('Valloric/vim-valloric-colorscheme')
-    call dein#add('benjaminwhite/Benokai')
-    call dein#add('crater2150/vim-theme-chroma')
-    call dein#add('dunckr/vim-monokai-soda')
-    call dein#add('iCyMind/NeoSolarized')
-    call dein#add('jaromero/vim-monokai-refined')
-    call dein#add('joshdick/onedark.vim')
-    call dein#add('lanox/lanox-vim-theme')
-    call dein#add('mhartington/oceanic-next')
-    call dein#add('mhinz/vim-janah')
-    call dein#add('morhetz/gruvbox')
-    call dein#add('ratazzi/blackboard.vim')
-    call dein#add('reewr/vim-monokai-phoenix')
-    call dein#add('tyrannicaltoucan/vim-quantum')
-    call dein#add('vim-scripts/darkspectrum')
-    call dein#add('zanglg/nova.vim')
+    " call dein#add('KeitaNakamura/neodark.vim')
+    " call dein#add('MaxSt/FlatColor')
+    " call dein#add('Valloric/vim-valloric-colorscheme')
+    " call dein#add('benjaminwhite/Benokai')
+    " call dein#add('crater2150/vim-theme-chroma')
+    " call dein#add('dunckr/vim-monokai-soda')
+    " call dein#add('iCyMind/NeoSolarized')
+    " call dein#add('jaromero/vim-monokai-refined')
+    " call dein#add('joshdick/onedark.vim')
+    " call dein#add('lanox/lanox-vim-theme')
+    " call dein#add('mhartington/oceanic-next')
+    " call dein#add('mhinz/vim-janah')
+    " call dein#add('morhetz/gruvbox')
+    " call dein#add('ratazzi/blackboard.vim')
+    " call dein#add('reewr/vim-monokai-phoenix')
+    " call dein#add('tyrannicaltoucan/vim-quantum')
+    " call dein#add('vim-scripts/darkspectrum')
+    " call dein#add('zanglg/nova.vim')
 
     call dein#local(expand('~/.vim/bundles/findent'))
 
@@ -987,7 +987,7 @@ if IsSourced('vim-autoformat')
 
         if exists('s:ClangFile')
             let g:formatdef_clangformat = "'clang-format -SCustom -i'.&shiftwidth.' -l'.ZeroIsOneThousand().' -- "
-                                      \ . "-lines='.a:firstline.':'.a:lastline.' "
+                                      \ . "--lines='.a:firstline.':'.a:lastline.' "
                                       \ . "--assume-filename=\"'.expand('%:p').'\"'"
         endif
     "# }

@@ -20,8 +20,12 @@
 # Global Order: zshenv, zprofile, zshrc, zlogin
 ################################################################################
 
+if [[ -z "${_ZSH_ORIGINAL_PATH}" ]]; then
+    export _ZSH_ORIGINAL_PATH="${PATH}"
+fi
+
 if [[ -o interactive ]]; then
-    [[ -f /etc/profile ]] && source /etc/profile
+    [[ -r /etc/profile ]] && source /etc/profile
     [[ -r /etc/environment ]] && source /etc/environment
 
     # NO FUCKING MANPATHS
@@ -29,14 +33,16 @@ if [[ -o interactive ]]; then
 fi
 
 # Get global operating system ID file. If you didn't make one, then MAKE ONE.
-if [[ -f /etc/SYSID ]]; then
-    export SYSID=$(cat /etc/SYSID)
-elif [[ -f /usr/local/etc/SYSID ]]; then
-    export SYSID=$(cat /usr/local/etc/SYSID)
-elif [[ -f "${HOME}/.SYSID" ]]; then
-    export SYSID=$(cat "${HOME}/.SYSID")
-elif [[ -o interactive ]]; then
-    echo "DEFINE SYSID YOU LAZY PRICK"
+if [[ -z "$SYSID" ]]; then
+    if [[ -r /etc/SYSID ]]; then
+        export SYSID=$(cat /etc/SYSID)
+    elif [[ -r /usr/local/etc/SYSID ]]; then
+        export SYSID=$(cat /usr/local/etc/SYSID)
+    elif [[ -r "${HOME}/.SYSID" ]]; then
+        export SYSID=$(cat "${HOME}/.SYSID")
+    elif [[ -o interactive ]]; then
+        echo "DEFINE SYSID YOU LAZY PRICK" >&2
+    fi
 fi
 
 # set environment variables (important for autologin on tty)
@@ -47,19 +53,18 @@ export EDITOR='nvim'
 # make sure /usr/bin/id is available
 if [[ -x /usr/bin/id ]] ; then
     [[ -z "$USER" ]]          && export USER=$(/usr/bin/id -un)
-    [[ $LOGNAME == LOGIN ]] && LOGNAME=$(/usr/bin/id -un)
+    [[ "$LOGNAME" == LOGIN ]] && LOGNAME=$(/usr/bin/id -un)
 fi
-
 
 # if [[ "$(uname)" == 'Linux' ]]; then
 #     export MALLOC_PERTURB_=$(( (RANDOM % 255) + 1 ))
 # fi
 
 __split_path_return=()
-__split_path() {
+__split_path() {(
     local IFS=':'
     __split_path_return=($=1)
-}
+)}
 
 local p5_dir="${HOME}/Perl5"
 local need_path=( "${p5_dir}/bin" )
@@ -93,7 +98,7 @@ case "$SYSID" in
         ;;
     msys2)
         __mingw_fix_path() {
-            export path=( "${HOME}/.local/bin" /mingw64/bin /c/Vim/Neovim/bin $path /d/libs/bin )
+            export path=( "${HOME}/.local/bin" /mingw64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
             for ((i = 1; i <= $#path; ++i)); do
                 [[ $path[$i] == '/bin' ]] && path[$i]=()
             done
@@ -106,7 +111,7 @@ case "$SYSID" in
         ;;
 esac
 
-if [[ -o interactive ]]; then
+if [[ -o interactive ]] && [[ -z "$_PAGER_OPTS_SET" ]]; then
     typeset -a lp; lp=( ${^path}/lesspipe(N) )
     if [[ -x "${HOME}/.local/bin/lesspipe.sh" ]]; then
         export LESSOPEN="|${HOME}/.local/bin/lesspipe.sh %s"
@@ -120,6 +125,8 @@ if [[ -o interactive ]]; then
     export READNULLCMD=${PAGER:-/usr/bin/pager}
     # MAKEDEV should be usable on udev as well by default:
     export WRITE_ON_UDEV=yes
+    
+    export _PAGER_OPTS_SET='yes'
 fi
 
 case "$SYSID" in

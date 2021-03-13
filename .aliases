@@ -357,7 +357,18 @@ if [ "x${_UNAME}" = 'xLinux' ]; then
     mkalias -T d.='dolphin . >/dev/null 2>&1 &' 
 
     mkalias -TS ualt='update-alternatives' 
-    mkalias -TS apt='apt' 
+
+    if Exists 'apt'; then
+        mkalias -S apt='apt' 
+        alias      apts='command apt search'
+
+        if Exists 'apt-fast'; then
+            mkalias -s aptf='apt-fast'
+            mkalias -s apti='apt-fast install'
+        else
+            mkalias -s apti='apt install'
+        fi
+    fi
 
     alias make='make --no-print-directory'
 
@@ -631,6 +642,43 @@ cppMacroOnly() { (
     [ $# -gt 1 ] && __file="$1" && shift && __CPP="$1" && shift && __ARGS=$*
     perl -pe 's/^#include.*\n//g' "$__file" | $__CPP $__ARGS
 ) }
+
+
+goinstallsub() {
+    local testrun basedir
+    OPTIND=1
+    testrun=false
+    basedir='../../roflcopter4'
+
+    while getopts 'nd:' ARG "$@"; do
+        case "$ARG" in
+            n) testrun=true      ;;
+            d) basedir="$OPTARG" ;;
+            *) echo 'Invalid arg -> '"'$ARG'" >&2 ; return 1 ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    if ! [ -d "$basedir" ]; then
+        echo "Invalid base directory \`$basedir'" >&2
+        return 1
+    fi
+
+    for f in $(find "$basedir" -type d -path "*/$(basename "$(pwd)")/*" | \
+               sed 's|^\(\.\./\)*||')
+    do
+        if [ "$(find "../../$f" -name '*.go')" ]; then
+            if [ $# -gt 0 ]; then
+                echo "go install" "$@" "$f"
+            else
+                echo "go install $f"
+            fi
+            if ! $testrun; then
+                go install "$@" "$f"
+            fi
+        fi
+    done
+}
 
 
 case "$SYSID" in

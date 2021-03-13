@@ -84,8 +84,8 @@ around BUILDARGS => sub
 
     if ( @_ == 3 && !ref( $_[0] ) ) {
         my $filename = $_[0];
-        confess(qq/File "$filename" doesn't exist./) unless ( -e $filename );
-        croak("Error: File is a directory.") if ( -d $filename );
+        die(qq/File "$filename" doesn't exist./) unless ( -e $filename );
+        die("Error: File is a directory.") if ( -d $filename );
 
         my $fullpath  = rel2abs($filename);
         my $basepath  = Dirname($fullpath);
@@ -329,7 +329,8 @@ sub _normalize_type :prototype($) ($extention)
     if    (/^(z|Z)$/ni)          { $type = 'compress' }
     elsif (/^(gz|bzip)$/ni)      { $type = 'gzip' }
     elsif (/^(bz|bz2|bzip2)$/ni) { $type = 'bzip2' }
-    elsif (/^(xz|lzma|lz)$/ni)   { $type = 'xz' }
+    elsif (/^(xz|lzma)$/ni)      { $type = 'xz' }
+    elsif (/^(lz)$/ni)           { $type = 'lzip' }
     elsif (/^(lz4)$/ni)          { $type = 'lz4' }
     elsif (/^(tar|cpio)$/ni)     { $type = 'tar' }
     elsif (/^(7z|7zip|7-zip)/ni) { $type = '7zip' }
@@ -381,8 +382,13 @@ sub determine_decompressor : prototype($$) ($self, $type)
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }
-    elsif (/^(xz|lzma|lz)$/ni and which('xz')) {
+    elsif (/^(xz|lzma)$/ni and which('xz')) {
         $CMD    = 'xz';
+        $TFlags = $EFlags = '-dc';
+        $Stdout = true;
+    }
+    elsif (/^(lz|lzip)$/ni and which('lzip')) {
+        $CMD    = 'lzip';
         $TFlags = $EFlags = '-dc';
         $Stdout = true;
     }

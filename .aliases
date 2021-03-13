@@ -5,15 +5,22 @@ _UNAME=$(uname)
 _UNAME_O=$(uname -o)
 
 ID_SHELL() {                                                     
-    if ! { [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xOpenBSD' ] || \
-           [ "x${_UNAME_O}" = 'xCygwin' ]  || [ "x${_UNAME_O}" = 'xMsys' ]; }
-    then
-        printf "%s" "$(basename "$(ps -o comm= $$)")"
+    local _shname
+    _shname=''
+
+    if ! {
+        [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xOpenBSD' ] || \
+        [ "x${_UNAME_O}" = 'xCygwin' ]  || [ "x${_UNAME_O}" = 'xMsys' ]
+    }; then
+        _shname="$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
-        printf "%s" 'zsh'
+        _shname='zsh'
     else
-        printf "%s" 'OTHER'
+        _shname='OTHER'
     fi
+
+    printf "%s" "${_shname}"
+    unset _shname
 }
 
 
@@ -364,7 +371,7 @@ if [ "x${_UNAME}" = 'xLinux' ]; then
 
         if Exists 'apt-fast'; then
             mkalias -s aptf='apt-fast'
-            mkalias -s apti='apt-fast install'
+            mkalias -s aptfi='apt-fast install'
         else
             mkalias -s apti='apt install'
         fi

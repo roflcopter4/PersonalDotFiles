@@ -168,7 +168,7 @@ my $v7z  = '-bso0 -bsp0';
 # Some sensible defaults
 my $type = 'xz';
 my $lev9 = 9;
-my $lev5 = 5;
+my $lev5 = 4;
 
 my ( $help, $version, $output, $level, $TAR, $gtar, $bsdtar, $notar );
 

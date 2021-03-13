@@ -26,19 +26,19 @@ printf "%s%s" "$(cat << 'EOF'
 define(`NORM',     `[0m')dnl
 define(`BOLD',     `[1m$1'NORM)dnl
 dnl
-define(`RED',      `[0m[31m$1'NORM)dnl
-define(`GREEN',    `[0m[32m$1'NORM)dnl
-define(`YELLOW',   `[0m[33m$1'NORM)dnl
-define(`BLUE',     `[0m[34m$1'NORM)dnl
-define(`MAGENTA',  `[0m[35m$1'NORM)dnl
-define(`CYAN',     `[0m[36m$1'NORM)dnl
+define(`RED',      `[0;31m$1'NORM)dnl
+define(`GREEN',    `[0;32m$1'NORM)dnl
+define(`YELLOW',   `[0;33m$1'NORM)dnl
+define(`BLUE',     `[0;34m$1'NORM)dnl
+define(`MAGENTA',  `[0;35m$1'NORM)dnl
+define(`CYAN',     `[0;36m$1'NORM)dnl
 dnl
-define(`bRED',     `[1m[31m$1'NORM)dnl
-define(`bGREEN',   `[1m[32m$1'NORM)dnl
-define(`bYELLOW',  `[1m[33m$1'NORM)dnl
-define(`bBLUE',    `[1m[34m$1'NORM)dnl
-define(`bMAGENTA', `[1m[35m$1'NORM)dnl
-define(`bCYAN',    `[1m[36m$1'NORM)dnl
+define(`bRED',     `[1;31m$1'NORM)dnl
+define(`bGREEN',   `[1;32m$1'NORM)dnl
+define(`bYELLOW',  `[1;33m$1'NORM)dnl
+define(`bBLUE',    `[1;34m$1'NORM)dnl
+define(`bMAGENTA', `[1;35m$1'NORM)dnl
+define(`bCYAN',    `[1;36m$1'NORM)dnl
 changequote(`<<', `>>')
 EOF
 )" "$(cat "$1")" | m4 && echo

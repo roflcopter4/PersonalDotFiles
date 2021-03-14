@@ -20,7 +20,7 @@ endif
 
 let g:use_ale = 1
 let g:use_deoplete = 1
-let b:use_language_client = 1
+let g:use_language_client = 0
 let s:vim_ale = 1
 
 filetype off
@@ -191,7 +191,7 @@ if dein#load_state(g:load_path)
     "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
-    if !WINDOWS() && b:use_language_client
+    if !WINDOWS() && g:use_language_client
         call dein#add('autozimu/LanguageClient-neovim', 
                     \ {'merged': 0, 'build': 'cargo build'})
     endif
@@ -676,7 +676,7 @@ if IsSourced('ale')
                                       \ '-android*',
                                       \ '-readability-avoid-const-params-in-decls',
                                       \ '-llvm-header-guard',
-                                      \ '-hicpp-signed-bitwise',
+                                      \ '-*-signed-bitwise',
                                       \ '-*c++98-compat',
                                       \ '-*-braces-around-statements',
                                       \ '-*DeprecatedOrUnsafeBufferHandling',
@@ -694,6 +694,7 @@ if IsSourced('ale')
                                       \ '-*redundant-void-arg',
                                       \ '-*todo*',
                                       \ '-*uppercase-literal-suffix',
+                                      \ '-*init-variables',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -712,12 +713,16 @@ if IsSourced('ale')
                     \   '-*no-array-decay', '-*array-to-pointer-decay',
                     \ ])
 
+        " let g:ale_c_clangd_options='--clang-tidy --clang-tidy-checks=clang-diagnostic-*,clang-analyzer-*,*,-android*,-llvm-header-guard,-*c++98-compat,-*-braces-around-statements,-*DeprecatedOrUnsafeBufferHandling,-*avoid-c-arrays,-*avoid-goto,-*avoid-magic-numbers,-*bugprone-sizeof-expression,-*disabled-macro-expansion,-*gnu-statement-expression,-*gnu-zero-variadic-macro-arguments,-*isolate-declaration,-*macro-usage,-*narrowing-conversions,-*readability-magic-numbers,-*redundant-void-arg,-*todo*,-*uppercase-literal-suffix,-*init-variables'
+        " let g:ale_c_clangd_options = '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
+        " let g:ale_cpp_clangd_options = '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
+
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
         " let s:ALE_C = ['clang', 'clangtidy', 'cppcheck']
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
-        let s:ALE_C = ['clangtidy', 'cppcheck']
+        " let s:ALE_C = ['clangtidy', 'cppcheck']
 
-        let b:ale_linters_c = {'c': s:ALE_C,
+        let b:ale_linters_c = {'c': ['clangtidy', 'clangd'],
                              \ 'cpp': ['clangtidy', 'cppcheck']
                              \ }
 
@@ -742,13 +747,15 @@ if IsSourced('ale')
     call extend(g:ale_linters, b:ale_linters_perl)
     call extend(g:ale_linters, b:ale_linters_go)
 
+    " let g:ale_linters_ignore = {'c': ['clangd']}
+
     augroup CloseLoclistWindowGroup
         autocmd!
         autocmd QuitPre * if empty(&buftype) | lclose | endif
     augroup END
 
-
     let g:ale_linter_aliases = {'csh': 'sh'}
+    let g:ale_linter_aliases = {'zsh': 'sh'}
 
     if filereadable(expand('~/personaldotfiles/.Vim/ale.vim'))
         :source ~/personaldotfiles/.Vim/ale.vim
@@ -1077,14 +1084,11 @@ if IsSourced('tag-highlight.nvim')
     highlight link tag_highlight_EnumTag	Enum
     highlight link tag_highlight_FunctionTag	CFuncTag
     highlight link tag_highlight_MemberTag	CMember
-    " highlight link mytags_GlobalVarTag	CMember
     highlight link tag_highlight_GlobalVarTag	GlobalVarTag
 
     highlight link goConstantTag	Enum
     highlight link goInterfaceTag	tag_highlight_ClassTag
     highlight link goGlobalVarTag	GlobalVarTag
-    " highlight link goPackageTag		GlobalVarTag
-    " highlight link pythonGlobalVarTag	Constant
     highlight link pythonGlobalVarTag	Enum
     highlight link tag_highlight_ClassTag	newClassColor
     highlight link tag_highlight_TemplateTag	newTemplateColor
@@ -1136,25 +1140,29 @@ endif
 
 
 if IsSourced('LanguageClient-neovim')
-    let g:LanguageClient_serverCommands = {
-          \     'cpp': ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
-          \     'c':   ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
-          \     'rust': ['rustup', 'run', 'nightly', 'rls'],
-          \     'python': ['/usr/local/bin/pyls'],
-          \     'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
-          \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
-          \ }
+    "let g:LanguageClient_serverCommands = {
+    "      \     'cpp': ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
+    "      \     'c':   ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
+    "      \     'rust': ['rustup', 'run', 'nightly', 'rls'],
+    "      \     'python': ['/usr/local/bin/pyls'],
+    "      \     'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+    "      \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
+    "      \ }
 
+    let g:LanguageClient_serverCommands = {}
+
+    let g:LanguageClient_serverCommands['c']   = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')]
+    let g:LanguageClient_serverCommands['cpp'] = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')]
     " let g:LanguageClient_serverCommands['c']   = ['clangd']
     " let g:LanguageClient_serverCommands['cpp'] = ['clangd']
 
-    " let g:LanguageClient_diagnosticsEnable = 1
-    " let g:LanguageClient_trace = 'verbose'
+    let g:LanguageClient_diagnosticsEnable = 1
+    let g:LanguageClient_trace = 'verbose'
     let g:LanguageClient_autoStart = 1
-    let g:LanguageClient_changeThrottle = 1.0
+    " let g:LanguageClient_changeThrottle = 1.0
     let g:LanguageClient_hoverPreview = 'Never'
-    " let g:LanguageClient_loggingLevel = 'DEBUG'
-    " let g:LanguageClient_loggingFile = expand('~/lang_client.log')
+    let g:LanguageClient_loggingLevel = 'DEBUG'
+    let g:LanguageClient_loggingFile = expand('~/lang_client.log')
 
     " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
     " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')

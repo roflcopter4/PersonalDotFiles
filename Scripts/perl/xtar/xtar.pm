@@ -109,7 +109,8 @@ sub extract :prototype($) ($self)
         if (Basename($lonefile) eq $self->file->filename) {
             my $new = catfile($self->tmpdir, $self->file->bname);
 
-                err ("Rename '$lonefile' -> '$new'") if $DEBUG;
+            err ("Rename '$lonefile' -> '$new'") if $DEBUG;
+
             if (-d $new) {
                 my $tdir = $new;
                 $new .= '_';

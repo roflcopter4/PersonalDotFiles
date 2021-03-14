@@ -730,7 +730,9 @@ endif
 command! -nargs=1 -complete=help Vhelp :vert help <args>
 command! -nargs=* -complete=customlist,man#complete Vman :vert Man <args>
 cmap vhelp Vhelp
+cmap VHelp Vhelp
 cmap vman Vman
+cmap VMan Vman
 
 " ================================================================================================================
 

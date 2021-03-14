@@ -110,7 +110,7 @@ case "$SYSID" in
         export winpath=($__split_path_return)
         ;;
     WSL_Ubuntu)
-        export path=( "${HOME}/.local/bin" $need_path /usr/lib/ccache/bin /opt/bin /opt/clang-bin /opt/gcc-bin /opt/go/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin $path )
+        export path=( "${HOME}/.local/bin" $need_path /usr/lib/ccache/bin /opt/bin /opt/clang-bin /opt/go/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin $path )
         ;;
 esac
 

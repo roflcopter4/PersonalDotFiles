@@ -325,13 +325,14 @@ case "$SYSID" in
         mkalias -s empk="${EMERGE} --ask --buildpkg"
         mkalias -s embd="${EMERGE} --ask --deep"
         mkalias -s emupdate="${EMERGE} -aDNu --keep-going @world -j6"
+        mkalias -s emupdate="${EMERGE} -aDNu --keep-going -j6 --backtrack=100 --with-bdeps=y @world"
         # mkalias -s emupdate="${EMERGE} --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude \"chromium\""
         # mkalias -s emupdateP="${EMERGE} --pretend --update --deep --newuse --with-bdeps=y @world"
         # mkalias -s emupdateF="${EMERGE} --update --deep --newuse --with-bdeps=y --keep-going @world"
         mkalias emi="${EMERGE} --info"
 
         mkalias -TS ufed='ufed'
-        mkalias -TS euse='euse' 
+        #mkalias -TS euse='euse' 
         mkalias -TS repm='repoman manifest'
         alias watchfetch='tail -f /var/log/emerge-fetch.log'
 

@@ -151,7 +151,7 @@ execute 'source ' . fnameescape(expand('~/.vimplugins'))
 " ======================================================================================================
 
 " Initialize directories
-function! InitializeDirectories()
+function! InitializeDirectories(consolidate)
     let l:parent = $HOME
     let l:prefix = 'vim'
     let l:dir_list = {
@@ -163,10 +163,12 @@ function! InitializeDirectories()
         let l:dir_list['undo'] = 'undodir'
     endif
 
-    "# Specify a different directory in which to place the vimbackup vimviews, vimundo, and vimswap
-    "# with:  let g:spf13_consolidated_directory = <full path to desired directory>
-    if exists('g:spf13_consolidated_directory')
-        let l:common_dir = g:spf13_consolidated_directory . l:prefix
+    if a:consolidate !=# ''
+        let l:common_dir = l:parent . '/.' . a:consolidate
+        if !isdirectory(l:common_dir)
+            call mkdir(l:common_dir)
+        endif
+        let l:common_dir .= '/'
     else
         let l:common_dir = l:parent . '/.' . l:prefix
     endif
@@ -187,7 +189,12 @@ function! InitializeDirectories()
         endif
     endfor
 endfunction
-call InitializeDirectories()
+
+if has('nvim')
+    call InitializeDirectories('nvim_cache')
+else
+    call InitializeDirectories('vim_cache')
+endif
 
 " Initialize NERDTree as needed
 function! NERDTreeInitAsNeeded()
@@ -372,15 +379,18 @@ endif
 " ================================================================================================================
 
 
-highlight clear SignColumn    " SignColumn should match background
-highlight clear LineNr        " Current line number row will have same background color in relative mode
+"highlight clear SignColumn    " SignColumn should match background
+"highlight clear LineNr        " Current line number row will have same background color in relative mode
 "highlight clear CursorLineNr " Remove highlight color from current line number
-filetype plugin indent on
-syntax on
 
 "# Better Unix / Windows compatibility. #
 set viewoptions=folds,options,cursor,unix,slash
 set backspace=indent,eol,start
+
+
+augroup LinterConfig
+    autocmd BufEnter,BufNew,BufCreate,BufRead * setl signcolumn=yes
+augroup END
 
 
 set mouse=a                 " Automatically enable mouse usage
@@ -788,8 +798,8 @@ if has('nvim')
         let g:python_host_prog  = 'python2'
         let g:python3_host_prog = 'python3'
     else
-        let g:python_host_prog  = '/usr/bin/python2'
-        let g:python3_host_prog = '/usr/bin/python3.8'
+        let g:python_host_prog  = 'python2'
+        let g:python3_host_prog = 'python3.8'
     endif
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
@@ -873,5 +883,7 @@ else
     set guifont=Dina:h7
     set linespace=1
 endif
+
+let g:yacc_uses_golang = 1
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

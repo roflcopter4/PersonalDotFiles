@@ -82,7 +82,8 @@ case "$SYSID" in
         [[ -d '/usr/mnt/bin' ]] && adtl_path+='/usr/mnt/bin'
         [[ -d '/usr/share/perl6/site/bin' ]] && adtl_path+='/usr/share/perl6/site/bin'
 
-        export path=( "${HOME}/.local/bin" /opt/bin $need_path $adtl_path /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
+        #export path=( "${HOME}/.local/bin" /opt/bin $need_path $adtl_path /usr/lib/ccache/bin /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
+        export path=( "${HOME}/.local/bin" /opt/bin $need_path $adtl_path /usr/local/sbin /usr/local/bin /usr/x86_64-pc-linux-gnu/bin /opt/rust/cargo/bin /opt/clang-bin /opt/go/bin /usr/lib/go/bin /usr/sbin /usr/bin /sbin /bin )
         export PT=/var/tmp/portage
         export RUSTUP_HOME=/opt/rust/rustup
         export CARGO_HOME=/opt/rust/cargo

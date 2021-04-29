@@ -18,8 +18,9 @@ if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowe
     let s:UsePowerline = 1
 endif
 
-let g:use_ale = 1
-let g:use_deoplete = 1
+let s:use_ale = 1
+let s:use_deoplete = 1
+let s:use_async = 0
 let g:use_language_client = 0
 let s:vim_ale = 1
 
@@ -52,17 +53,18 @@ if dein#load_state(g:load_path)
     endif
 
     "----------  My own stuff  ---------- 
-    call dein#add('roflcopter4/PersonalVimStuff', {'merged': 0})
-    call dein#add('roflcopter4/vim-perl',  {'merged': 0})
-    call dein#add('roflcopter4/vim-cpp-enhanced-highlight', {'merged': 0})
+    call dein#add('roflcopter4/PersonalVimStuff', {'merged': v:false})
+    call dein#add('roflcopter4/vim-perl',  {'merged': v:false})
+    call dein#add('roflcopter4/vim-cpp-enhanced-highlight', {'merged': v:false})
+    " call dein#disable('roflcopter4/vim-cpp-enhanced-highlight')
 
     if has('nvim')
-        call dein#add('roflcopter4/tag-highlight.nvim', {'merged': 0})
-        "call dein#add('roflcopter4/lnvim', {'merged': 0})
-        "call dein#add('c0r73x/neotags.nvim', {'merged': 0, 'build': 'make'})
-        "call dein#add('roflcopter4/mytags', {'merged': 0})
-        "call dein#add('blahgeek/neovim-colorcoder', {'merged': 0})
-        "call dein#add('arakashic/chromatica.nvim', {'merged': 0})
+        call dein#add('roflcopter4/tag-highlight.nvim', {'merged': v:false, 'build': 'make'})
+        "call dein#add('roflcopter4/lnvim', {'merged': v:false})
+        "call dein#add('c0r73x/neotags.nvim', {'merged': v:false, 'build': 'make'})
+        "call dein#add('roflcopter4/mytags', {'merged': v:false})
+        "call dein#add('blahgeek/neovim-colorcoder', {'merged': v:false})
+        "call dein#add('arakashic/chromatica.nvim', {'merged': v:false})
     endif
 
     "----------  General  ---------
@@ -151,14 +153,15 @@ if dein#load_state(g:load_path)
     call dein#add('chaimleib/vim-renpy')
     call dein#add('dag/vim-fish')
     call dein#add('fatih/vim-go')
+    " call dein#disable('fatih/vim-go')
     call dein#add('fsharp/vim-fsharp')
     call dein#add('gentoo/gentoo-syntax')
     call dein#add('rsmenon/vim-mathematica')
     call dein#add('rust-lang/rust.vim')
-    call dein#add('dylon/vim-antlr.git', {'merged': 0})
+    call dein#add('dylon/vim-antlr.git', {'merged': v:false})
 
     "---------- Misc ----------
-    call dein#add('Chiel92/vim-autoformat', {'merged': 0})
+    call dein#add('Chiel92/vim-autoformat', {'merged': v:false})
     call dein#add('AndrewRadev/sideways.vim')
     call dein#add('PProvost/vim-ps1')
     call dein#add('carlosgaldino/elixir-snippets')
@@ -181,8 +184,9 @@ if dein#load_state(g:load_path)
 
     " Helpers:
     call dein#add('mileszs/ack.vim')
-    call dein#add('junegunn/fzf.vim')
-        "{'hook_post_source': 'call fzf#install()'}
+    " call dein#add('junegunn/fzf', {'hook_post_source': 'call fzf#install()', 'merged': v:false})
+    call dein#add('junegunn/fzf', {'merged': v:false})
+    call dein#add('junegunn/fzf.vim', {'merged': v:false})
 
     " Organization:
     call dein#add('chimay/wheel')
@@ -191,9 +195,11 @@ if dein#load_state(g:load_path)
     "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
-    if !WINDOWS() && g:use_language_client
-        call dein#add('autozimu/LanguageClient-neovim', 
-                    \ {'merged': 0, 'build': 'cargo build'})
+    if !WINDOWS() && g:use_language_client == 1
+        call dein#add('autozimu/LanguageClient-neovim', {'merged': v:false})
+                    " \ {'merged': v:false, 'build': 'cargo build'})
+    else
+        call dein#disable('autozimu/LanguageClient-neovim')
     endif
     call dein#add('Shougo/neosnippet.vim')
     call dein#add('Shougo/neosnippet-snippets')
@@ -203,8 +209,8 @@ if dein#load_state(g:load_path)
     call dein#add('xolox/vim-misc')
     call dein#add('xolox/vim-shell')
 
-    call dein#add('Shougo/vimproc.vim', {'merged': 0, 'build': 'make'})
-    " call dein#add('vim-perl/vim-perl',  {'merged': 0, 'build': 'make -k contrib_syntax carp try-tiny '
+    call dein#add('Shougo/vimproc.vim', {'merged': v:false, 'build': 'make'})
+    " call dein#add('vim-perl/vim-perl',  {'merged': v:false, 'build': 'make -k contrib_syntax carp try-tiny '
     "                                                         \. 'method-signatures moose test-more'})
 
     if !exists('g:ONI')
@@ -214,22 +220,24 @@ if dein#load_state(g:load_path)
     " call dein#add('Rip-Rip/clang_complete')
 
     if has('nvim')
-        if g:use_ale == 1
-            call dein#add('w0rp/ale', {'merged': 0})
+        if s:use_ale == 1
+            call dein#add('w0rp/ale', {'merged': v:false})
         else
-            call dein#add('neomake/neomake', {'merged': 0})
+            call dein#add('neomake/neomake', {'merged': v:false})
         endif
-        if g:use_deoplete == 1
+        if s:use_deoplete == 1
             call dein#add('Shougo/deoplete.nvim')
             call dein#add('Shougo/neco-vim')
             call dein#add('Shougo/deoplete-clangx')
             call dein#add('artur-shaik/vim-javacomplete2')
             " call dein#add('zchee/deoplete-clang')
-            call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': 0})
+            " call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': v:false})
             call dein#add('zchee/deoplete-jedi')
+        elseif s:use_async == 1
+            call dein#add('prabirshrestha/asyncomplete.vim')
         else
             call dein#add('Valloric/YouCompleteMe',
-                        \ {'merged': 0, 'build': 'python3 install.py --all'})
+                        \ {'merged': v:false, 'build': 'python3 install.py --all'})
             call dein#add('rdnetto/YCM-Generator')
         endif
     else
@@ -242,11 +250,11 @@ if dein#load_state(g:load_path)
         if &encoding ==# 'utf-8'
             if has('python3') || has('nvim')
                 call dein#add('Valloric/YouCompleteMe',
-                            \ {'merged': 0, 'build': 'python3 install.py --all'})
+                            \ {'merged': v:false, 'build': 'python3 install.py --all'})
                 call dein#add('rdnetto/YCM-Generator')
             elseif has('python')
                 call dein#add('Valloric/YouCompleteMe',
-                            \ {'merged': 0, 'build': 'python2 install.py --all'})
+                            \ {'merged': v:false, 'build': 'python2 install.py --all'})
                 call dein#add('rdnetto/YCM-Generator')
             endif
         endif
@@ -258,7 +266,7 @@ if dein#load_state(g:load_path)
     endif
     call dein#add('https://anongit.gentoo.org/git/proj/eselect-syntax.git')
 
-    call dein#add('Shougo/unite.vim')
+    " call dein#add('Shougo/unite.vim')
 
 
     "---------- Colour Schemes ----------------
@@ -336,10 +344,10 @@ endif
 if IsSourced('ack.vim')
     if executable('ag')
         let g:ackprg = 'ag --nogroup --nocolor --column --smart-case'
-        cnoreabbrev ag Ack
-        cnoreabbrev aG Ack
-        cnoreabbrev Ag Ack
-        cnoreabbrev AG Ack
+        "cnoreabbrev ag Ack
+        "cnoreabbrev aG Ack
+        "cnoreabbrev Ag Ack
+        "cnoreabbrev AG Ack
     elseif executable('ack-grep')
         let g:ackprg='ack-grep -H --nocolor --nogroup --column'
     endif
@@ -650,12 +658,17 @@ if IsSourced('ale')
     let g:airline#extensions#ale#enabled = 1
     let g:ale_lint_on_text_changed = 1
     let g:ale_sign_column_always = 1
-    let g:ale_lint_on_insert_leave = 0
+    let g:ale_lint_on_insert_leave = 1
     let g:ale_linters_explicit = 0
     let g:ale_open_list = 0
-    let g:ale_list_window_size = 4
+    " let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
     let g:ale_c_parse_makefile = 0
+
+    " let g:ale_floating_preview = 1
+    " let g:ale_hover_to_floating_preview = 1
+    let g:ale_floating_window_border = []
+    " let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
 
     let g:ale_nasm_nasm_options = '-felf64 "-I./inc/"'
 
@@ -663,6 +676,17 @@ if IsSourced('ale')
     let g:ale_loclist_msg_format = ''
 
     let g:ale_c_make_command = 'fmake -n'
+
+    nnoremap <silent> <Plug(ale_code_action) :ALECodeAction
+
+    nmap <silent><leader>h  <Plug>(ale_hover)
+    nmap <silent><leader>lh <Plug>(ale_hover)
+    nmap <silent><leader>ld <Plug>(ale_go_to_definition)
+    nmap <silent><leader>lr <Plug>(ale_find_references)
+    nmap <silent><leader>la <Plug>(ale_code_action)
+
+    " nmap <silent><leader>li <Plug>(lcn-implementation)
+    " nmap <silent><leader>lg <Plug>(lcn-menu)
 
     function! Find_File_Cwd()
         return fnamemodify(expand('%:p'), ':h')
@@ -672,15 +696,16 @@ if IsSourced('ale')
         let g:ale_c_gcc_options   = '-Wall -Wpedantic -Wextra -Wformat -Iinc -Iinclude -I.. -std=gnu11'
         let g:ale_c_clang_options = g:ale_c_gcc_options . '-Wno-gnu-binary-literal'
         " let g:ale_c_clang_options = '-Wall -Wextra -Iinc -I. -I.. -Iinclude -I/usr/local/include -I../inc -I../include $(bmake -n | ag -o -- ''-I\S+'' | sort -u | perl -pe ''s/\n/ /g'')'
+
+        "\  '-readability-avoid-const-params-in-decls',
+        "\  '-*narrowing-conversions',
         let g:ale_c_clangtidy_checks = ['*',
                                       \ '-android*',
-                                      \ '-readability-avoid-const-params-in-decls',
                                       \ '-llvm-header-guard',
                                       \ '-*-signed-bitwise',
                                       \ '-*c++98-compat',
                                       \ '-*-braces-around-statements',
                                       \ '-*DeprecatedOrUnsafeBufferHandling',
-                                      \ '-*avoid-c-arrays',
                                       \ '-*avoid-goto',
                                       \ '-*avoid-magic-numbers',
                                       \ '-*bugprone-sizeof-expression',
@@ -688,13 +713,13 @@ if IsSourced('ale')
                                       \ '-*gnu-statement-expression',
                                       \ '-*gnu-zero-variadic-macro-arguments',
                                       \ '-*isolate-declaration',
-                                      \ '-*macro-usage',
-                                      \ '-*narrowing-conversions',
                                       \ '-*readability-magic-numbers',
-                                      \ '-*redundant-void-arg',
                                       \ '-*todo*',
                                       \ '-*uppercase-literal-suffix',
                                       \ '-*init-variables',
+                                      \ '-*else-after-return',
+                                      \ '-*-no-recursion',
+                                      \ '-*no-assembler',
                                       \ ]
 
         let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
@@ -711,41 +736,50 @@ if IsSourced('ale')
                     \   '-*pro-type-union-access',
                     \   '-*bounds-constant-array-index',
                     \   '-*no-array-decay', '-*array-to-pointer-decay',
+                    \   '-*avoid-c-arrays',
+                    \   '-llvmlibc*'
+                    \ ])
+
+        call extend(g:ale_c_clangtidy_checks, [
+                    \   '-*macro-usage',
+                    \   '-*redundant-void-arg',
+                    \   '-cppcoreguidelines*',
                     \ ])
 
         " let g:ale_c_clangd_options='--clang-tidy --clang-tidy-checks=clang-diagnostic-*,clang-analyzer-*,*,-android*,-llvm-header-guard,-*c++98-compat,-*-braces-around-statements,-*DeprecatedOrUnsafeBufferHandling,-*avoid-c-arrays,-*avoid-goto,-*avoid-magic-numbers,-*bugprone-sizeof-expression,-*disabled-macro-expansion,-*gnu-statement-expression,-*gnu-zero-variadic-macro-arguments,-*isolate-declaration,-*macro-usage,-*narrowing-conversions,-*readability-magic-numbers,-*redundant-void-arg,-*todo*,-*uppercase-literal-suffix,-*init-variables'
-        " let g:ale_c_clangd_options = '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
-        " let g:ale_cpp_clangd_options = '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
+        let g:ale_c_clangd_options = '--clang-tidy --clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
+        let g:ale_cpp_clangd_options = '--clang-tidy --clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
 
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
         " let s:ALE_C = ['clang', 'clangtidy', 'cppcheck']
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck']
         " let s:ALE_C = ['clangtidy', 'cppcheck']
 
-        let b:ale_linters_c = {'c': ['clangtidy', 'clangd'],
-                             \ 'cpp': ['clangtidy', 'cppcheck']
+        let s:ale_linters_c = {'c': ['clangd'],
+                             \ 'cpp': ['clangd']
                              \ }
 
     "# Python {
-        let b:ale_linters_py = {'python': ['flake8', 'pyflakes']}
-        " let b:ale_linters_py = {'python': ['flake8', 'pyflakes', 'mypy']}
-        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyls', 'pyflakes', 'pep8']}
-        " let b:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
+        let s:ale_linters_py = {'python': ['flake8', 'pyflakes']}
+        " let s:ale_linters_py = {'python': ['flake8', 'pyflakes', 'mypy']}
+        " let s:ale_linters_py = {'python': ['mypy', 'prospector', 'pyls', 'pyflakes', 'pep8']}
+        " let s:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
         let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
         let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501'
 
     "# Perl {
-        let b:ale_linters_perl = {'perl': ['perl']}
+        let s:ale_linters_perl = {'perl': ['perl']}
         let g:ale_perl_perlcritic_options = '-4'
 
     "# Go {
-        let b:ale_linters_go = {'go': ['go vet', 'gofmt']}
+        " let s:ale_linters_go = {'go': ['go vet', 'gofmt']}
+        let s:ale_linters_go = {'go': []}
 
     let g:ale_linters =  {}
-    call extend(g:ale_linters, b:ale_linters_c)
-    call extend(g:ale_linters, b:ale_linters_py)
-    call extend(g:ale_linters, b:ale_linters_perl)
-    call extend(g:ale_linters, b:ale_linters_go)
+    call extend(g:ale_linters, s:ale_linters_c)
+    call extend(g:ale_linters, s:ale_linters_py)
+    call extend(g:ale_linters, s:ale_linters_perl)
+    call extend(g:ale_linters, s:ale_linters_go)
 
     " let g:ale_linters_ignore = {'c': ['clangd']}
 
@@ -763,8 +797,83 @@ if IsSourced('ale')
 endif
 
 
-if IsSourced('vim-vebugger')
-    let g:vebugger_leader='<Leader>d'
+if IsSourced('LanguageClient-neovim')
+    "let g:LanguageClient_serverCommands = {
+    "      \     'cpp': ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
+    "      \     'c':   ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
+    "      \     'rust': ['rustup', 'run', 'nightly', 'rls'],
+    "      \     'python': ['/usr/local/bin/pyls'],
+    "      \     'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
+    "      \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
+    "      \ }
+
+    let g:LanguageClient_serverCommands = {}
+
+    let g:LanguageClient_serverCommands['c']   = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')]
+    let g:LanguageClient_serverCommands['cpp'] = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')]
+    " let g:LanguageClient_serverCommands['c']   = ['clangd']
+    " let g:LanguageClient_serverCommands['cpp'] = ['clangd']
+
+
+    let g:LanguageClient_autoStart = 1
+    " let g:LanguageClient_changeThrottle = 1.0
+    " let g:LanguageClient_hoverPreview = 'Never'
+    let g:LanguageClient_hoverPreview = 'Auto'
+    let g:LanguageClient_completionPreferTextEdit = 1
+    let g:LanguageClient_setOmnifunc = v:false
+    " let g:LanguageClient_useVirtualText = 'No'
+    let g:LanguageClient_hideVirtualTextsOnInsert = 1
+    " let g:LanguageClient_preferredMarkupKind = ['plaintext', 'markdown']
+    let g:LanguageClient_preferredMarkupKind = ['plaintext']
+    " let g:LanguageClient_selectionUI = 'fzf'
+    " let g:LanguageClient_selectionUI ='location-list'
+    " let g:LanguageClient_selectionUI ='quickfix'
+
+    let g:LanguageClient_diagnosticsEnable = 1
+    " let g:LanguageClient_trace = 'verbose'
+    let g:LanguageClient_loggingLevel = 'INFO'
+    let g:LanguageClient_loggingFile = expand('~/lang_client.log')
+
+    " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
+    " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
+    " set completefunc=LanguageClient#complete
+    " set formatexpr=LanguageClient_textDocument_rangeFormatting()
+
+    " augroup MyLanguageClientConfig
+    "     au BufEnter * let b:Plugin_LanguageClient_started = 0
+    "     au User LanguageClientStarted setl signcolumn=yes
+    "     au User LanguageClientStarted let b:Plugin_LanguageClient_started = 1
+    "     au User LanguageClientStopped setl signcolumn=auto
+    "     au User LanguageClientStopped let b:Plugin_LanguageClient_stopped = 0
+    "     au CursorMoved * if b:Plugin_LanguageClient_started | call LanguageClient_textDocument_hover() | endif
+    "     au BufNew,BufAdd,BufCreate *.[ch] :LanguageClientStart<CR>
+    " augroup END
+
+    "nn <silent> <M-.> :call LanguageClient_textDocument_definition()<cr>
+    "nn <silent> <M-,> :call LanguageClient_textDocument_references()<cr>
+    "nn <f2> :call LanguageClient_textDocument_rename()<cr>
+    "nn <leader>ji :Denite documentSymbol<cr>
+    "nn <leader>jI :Denite workspaceSymbol<cr>
+
+    "nn ,la :call LanguageClient_workspace_symbol({'query':input('workspace/symbol ')})<cr>
+    "nnoremap <silent> <leader>h :call LanguageClient_textDocument_hover()<CR>
+    "nnoremap <silent> <leader>lh :call LanguageClient_textDocument_hover()<CR>
+    "nnoremap <silent> <leader>ld :call LanguageClient_textDocument_definition()<CR>
+    "nnoremap <silent> <leader>lr :call LanguageClient_textDocument_references()<CR>
+    "nnoremap <silent> <leader>ls :call LanguageClient_textDocument_documentSymbol()<CR>
+    "nnoremap <silent> <leader><F2> :call LanguageClient_textDocument_rename()<CR>
+
+    nnoremap <silent> <leader>gs :call LanguageClient_textDocument_documentSymbol()<CR>
+
+    nmap <silent><leader>h <Plug>(lcn-hover)
+    nmap <silent><leader>lh <Plug>(lcn-hover)
+    nmap <silent><leader>ld <Plug>(lcn-definition)
+    nmap <silent><leader>lr <Plug>(lcn-references)
+    nmap <silent><leader>li <Plug>(lcn-implementation)
+    nmap <silent><leader>lf <Plug>(lcn-code-action)
+    nmap <silent><leader>lg <Plug>(lcn-menu)
+
+    nnoremap <silent> <leader><F2> <Plug>(lcn-rename)
 endif
 
 
@@ -783,6 +892,8 @@ if IsSourced('deoplete.nvim')
     " let g:deoplete#enable_smart_case = 1
 
     call deoplete#custom#option('smart_case', v:true)
+    call deoplete#custom#option('deoplete-options-num_processes', 0)
+					
 
     " <C-h>, <BS>: close popup and delete backword char.
     inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
@@ -794,21 +905,31 @@ if IsSourced('deoplete.nvim')
         return deoplete#close_popup() . "\<CR>"
     endfunction
 
+    inoremap <expr> <C-j> deoplete#complete()
+
     " let s:libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
-    let s:libclang_path = '/usr/lib64/llvm/6/lib64/libclang.so'
+    let s:libclang_path = '/usr/local/lib/llvm-11/lib/libclang.so'
 
-    if IsSourced('zchee/deoplete-clang')
-        g:deoplete#sources#clang#libclang_path = s:libclang_path
-        g:deoplete#sources#clang#clang_header = '/usr/lib64/clang'
-    endif
+    " if IsSourced('zchee/deoplete-clang')
+    "     g:deoplete#sources#clang#libclang_path = s:libclang_path
+    "     g:deoplete#sources#clang#clang_header = '/usr/local/lib/llvm-11/include'
+    " endif
 
-    if IsSourced('zchee/deoplete-go')
-        let g:deoplete#sources#go#gocode_binary = exepath('gocode')
-        let g:deoplete#sources#go#cgo = 1
-        let g:deoplete#sources#go#cgo#libclang_path = s:libclang_path
-        let g:deoplete#sources#go#auto_goos = 1
-        set completeopt+=noselect
-    endif
+    call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
+    " set completefunc=LanguageClient#complete
+
+    "if IsSourced('zchee/deoplete-go')
+    "    let g:deoplete#sources#go#gocode_binary = exepath('gocode')
+    "    let g:deoplete#sources#go#cgo = 1
+    "    let g:deoplete#sources#go#cgo#libclang_path = s:libclang_path
+    "    let g:deoplete#sources#go#auto_goos = 1
+    "    set completeopt+=noselect
+    "endif
+endif
+
+
+if IsSourced('asyncomplete.vim')
+    g:asyncomplete_enable_for_all = 1
 endif
 
 
@@ -865,6 +986,11 @@ if IsSourced('YouCompleteMe')
     " Disable the neosnippet preview candidate window
     " When enabled, there can be too much visual noise, especially when splits are used.
     set completeopt-=preview
+endif
+
+
+if IsSourced('vim-vebugger')
+    let g:vebugger_leader='<Leader>d'
 endif
 
 
@@ -1035,6 +1161,11 @@ endif
 
 """" SEARCHFORME
 if IsSourced('tag-highlight.nvim')
+    echom 'foooo'
+
+    colo myMolokai4
+
+
     let g:tag_highlight#enabled = 1
     let g:tag_highlight#highlight = 1
     let g:tag_highlight#run_ctags = 1
@@ -1061,7 +1192,10 @@ if IsSourced('tag-highlight.nvim')
                 \         'alignof', 'alignas', 'Auto', 'main', 'stat',]
                 \ }
 
-    let g:tag_highlight#ignored_tags['cpp'] = g:tag_highlight#ignored_tags['c']
+    let g:tag_highlight#ignored_tags['cpp'] = copy(g:tag_highlight#ignored_tags['c'])
+    " call extend(g:tag_highlight#ignored_tags['cpp'], ['noreturn', 'nodiscard'])
+
+    let g:ale_fixers = { 'c': ['clangtidy'], 'cpp': ['clangtidy'] }
 
     let g:tag_highlight#restored_groups = {
                 \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cExtraConstants',
@@ -1075,9 +1209,10 @@ if IsSourced('tag-highlight.nvim')
     call extend(s:tmp_cpp_lst,
                 \   [
                 \        'cppStorageClass', 'cppType', 'cppAuto',
+                \        'cppSTLconstant', 
                 \   ])
-                " \        'cppSTLfunction', 'cppSTLconstant', 'cppSTLfunctional'
-    let g:tag_highlight#restored_groups['cpp'] = s:tmp_cpp_lst
+                " \        'cppSTLfunction', 'cppSTLfunctional', 'cppSTLnamespace',
+    let g:tag_highlight#restored_groups['cpp'] = copy(s:tmp_cpp_lst)
 
     set tags=tags,../tags
 
@@ -1085,7 +1220,7 @@ if IsSourced('tag-highlight.nvim')
     highlight link tag_highlight_FunctionTag	CFuncTag
     highlight link tag_highlight_MemberTag	CMember
     highlight link tag_highlight_GlobalVarTag	GlobalVarTag
-
+              
     highlight link goConstantTag	Enum
     highlight link goInterfaceTag	tag_highlight_ClassTag
     highlight link goGlobalVarTag	GlobalVarTag
@@ -1094,8 +1229,21 @@ if IsSourced('tag-highlight.nvim')
     highlight link tag_highlight_TemplateTag	newTemplateColor
     highlight link rustMacroTag newClassColor
     highlight link tag_highlight_ClassTag newClassColor
+    highlight link tag_highlight_NamespaceTag Namespace
+    highlight link tag_highlight_ModuleTag Namespace
+    highlight link tag_highlight_MethodTag Method
+    highlight link tag_highlight_OverloadedOperatorTag OverloadedOperator
+
+    highlight tag_highlight_ModuleTag
 
     nnoremap <leader>tag :THLUpdate<CR>
+endif
+
+
+if IsSourced('unite.vim')
+    if filereadable(expand('~/personaldotfiles/.Vim/unite.vim'))
+        " :source ~/personaldotfiles/.Vim/unite.vim
+    endif
 endif
 
 
@@ -1105,14 +1253,14 @@ endif
 
 
 if IsSourced('vim-cpp-enhanced-highlight')
-    " let g:cpp_member_variable_highlight = 1
+    let g:cpp_member_variable_highlight = 0
     let g:cpp_class_scope_highlight = 0
-    " let g:cpp_class_decl_highlight = 1
-    " let g:cpp_member_variable_highlight = 1
-    " let g:cpp_experimental_simple_template_highlight = 1
-    " let g:cpp_experimental_template_highlight = 1
-    " let g:cpp_concepts_highlight = 1
-    " let g:cpp_no_function_highlight = 1
+    let g:cpp_class_decl_highlight = 0
+    let g:cpp_member_variable_highlight = 0
+    let g:cpp_experimental_simple_template_highlight = 0
+    let g:cpp_experimental_template_highlight = 0
+    let g:cpp_concepts_highlight = 0
+    let g:cpp_no_function_highlight = 1
     hi! link cppSTLfunction mutedFunc
     hi! link cAnsiFunction mutedFunc
 endif
@@ -1136,69 +1284,6 @@ endif
 
 
 if IsSourced('vim-pandoc')
-endif
-
-
-if IsSourced('LanguageClient-neovim')
-    "let g:LanguageClient_serverCommands = {
-    "      \     'cpp': ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],
-    "      \     'c':   ['cquery', '--log-all-to-stderr', '--record=/home/bml/recorded.log', '--log-file=/tmp/cquery.log', '--init={"cacheDirectory":"'.expand('~/.cache/cquery').'"}'],  
-    "      \     'rust': ['rustup', 'run', 'nightly', 'rls'],
-    "      \     'python': ['/usr/local/bin/pyls'],
-    "      \     'javascript': ['/usr/local/bin/javascript-typescript-stdio'],
-    "      \     'javascript.jsx': ['tcp://127.0.0.1:2089'],
-    "      \ }
-
-    let g:LanguageClient_serverCommands = {}
-
-    let g:LanguageClient_serverCommands['c']   = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')]
-    let g:LanguageClient_serverCommands['cpp'] = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')]
-    " let g:LanguageClient_serverCommands['c']   = ['clangd']
-    " let g:LanguageClient_serverCommands['cpp'] = ['clangd']
-
-    let g:LanguageClient_diagnosticsEnable = 1
-    let g:LanguageClient_trace = 'verbose'
-    let g:LanguageClient_autoStart = 1
-    " let g:LanguageClient_changeThrottle = 1.0
-    let g:LanguageClient_hoverPreview = 'Never'
-    let g:LanguageClient_loggingLevel = 'DEBUG'
-    let g:LanguageClient_loggingFile = expand('~/lang_client.log')
-
-    " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
-    " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
-    " set completefunc=LanguageClient#complete
-    " set formatexpr=LanguageClient_textDocument_rangeFormatting()
-
-    " augroup MyLanguageClientConfig
-    "     au BufEnter * let b:Plugin_LanguageClient_started = 0
-    "     au User LanguageClientStarted setl signcolumn=yes
-    "     au User LanguageClientStarted let b:Plugin_LanguageClient_started = 1
-    "     au User LanguageClientStopped setl signcolumn=auto
-    "     au User LanguageClientStopped let b:Plugin_LanguageClient_stopped = 0
-    "     au CursorMoved * if b:Plugin_LanguageClient_started | call LanguageClient_textDocument_hover() | endif
-    "     au BufNew,BufAdd,BufCreate *.[ch] :LanguageClientStart<CR>
-    " augroup END
-
-    nn <silent> <M-.> :call LanguageClient_textDocument_definition()<cr>
-    nn <silent> <M-,> :call LanguageClient_textDocument_references()<cr>
-    nn <f2> :call LanguageClient_textDocument_rename()<cr>
-    nn <leader>ji :Denite documentSymbol<cr>
-    nn <leader>jI :Denite workspaceSymbol<cr>
-
-    nn ,la :call LanguageClient_workspace_symbol({'query':input('workspace/symbol ')})<cr>
-    nnoremap <silent> <leader>h :call LanguageClient_textDocument_hover()<CR>
-    nnoremap <silent> <leader>gh :call LanguageClient_textDocument_hover()<CR>
-    nnoremap <silent> <leader>gd :call LanguageClient_textDocument_definition()<CR>
-    nnoremap <silent> <leader>gr :call LanguageClient_textDocument_references()<CR>
-    nnoremap <silent> <leader>gs :call LanguageClient_textDocument_documentSymbol()<CR>
-    nnoremap <silent> <leader><F2> :call LanguageClient_textDocument_rename()<CR>
-endif
-
-
-if IsSourced('unite.vim')
-    if filereadable(expand('~/personaldotfiles/.Vim/unite.vim'))
-        :source ~/personaldotfiles/.Vim/unite.vim
-    endif
 endif
 
 

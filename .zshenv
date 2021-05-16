@@ -89,8 +89,11 @@ case "$SYSID" in
         export CARGO_HOME=/opt/rust/cargo
         ;;
     FreeBSD)
-        export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /opt/clang-bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
+        export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /usr/local/llvm12/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
         ;;
+    GhostBSD)
+        export path=( "${HOME}/.local/bin" /opt/bin /opt/local/bin /usr/local/llvm12/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin $path )
+	;;
     DragonFly)
         export path=( "${HOME}/.local/bin" /opt/bin /opt/clang-bin /usr/local/llvm-devel/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /usr/games /sbin /bin )
         ;;

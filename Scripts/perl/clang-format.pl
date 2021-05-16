@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 use warnings;
 use strict;
-use v5.22;
+use 5.22.0;
 use constant none    => 0;
 use constant correct => 1;
 use constant other   => 2;
@@ -14,53 +14,54 @@ use Getopt::Long
 
 sub slurp_file
 {
-    my ( $data, $filename, $style ) = ( shift, shift, shift ) or croak;
+    my ($data, $filename, $style) = (shift, shift, shift) or croak;
 
-    open( 'fp', '<', $filename ) or croak "$!";
+    open('fp', '<', $filename) or croak "$!";
 
     my $found_style = none;
     my $sublist     = 0;
-    my @skip        = ( qr/(?:^\n)/, qr/^#/ );
+    my @skip        = (qr/(?:^\n)/, qr/^#/);
 
     while (<fp>)
     {
         my $line = $_;
 
-        if ( $style ) {
-            if ( $found_style == correct ) {
-                next unless ( $found_style = $line !~ /^# ##END##/ );
+        if ($style) {
+            if ($found_style == correct) {
+                next unless ($found_style = $line !~ /^# ##END##/);
                 $line =~ s/^#?(.*)/$1/;
             }
-            elsif ( $found_style == other ) {
-                if ( /^# ##END##/ ) { $found_style = none }
+            elsif ($found_style == other) {
+                if (/^# ##END##/) { $found_style = none }
                 next;
             }
             else {
-                if ( /# ##(\w+)##/i ) {
-                    if    ( $1 eq $style ) { $found_style = correct }
-                    elsif ( $1 eq 'END' )  { croak "Shouldn't be possible..." }
-                    else                   { $found_style = other }
+                if (/# ##(\w+)##/i) {
+                    if    ($1 eq $style) { $found_style = correct }
+                    elsif ($1 eq 'END')  { croak "Shouldn't be possible..." }
+                    else                 { $found_style = other }
                 }
 
-                next if ( not $sublist and map { $line =~ $_ } @skip );
+                next if (not $sublist and map { $line =~ $_ } @skip);
             }
         }
         else {
-            next if ( not $sublist and map { $line =~ $_ } @skip );
+            next if (not $sublist and map { $line =~ $_ } @skip);
         }
 
         chomp $line;
 
-        if ( $sublist ) {
+        if ($sublist) {
+
             # Two '##' on a line marks the end of a sublist block. However, the
             # above code will remove one if the sublist is in a custom block.
-            if ( $line =~ /^#{1,2}$/ ) {
+            if ($line =~ /^#{1,2}$/) {
                 $sublist = 0;
                 ${$data} =~ s/(.*),\s*$/$1}, /;
                 next;
             }
         }
-        elsif ( $line =~ /^  \w/ ) {
+        elsif ($line =~ /^  \w/) {
             $sublist = 1;
             ${$data} =~ s/(.*),\s*$/$1 {/;
         }
@@ -95,7 +96,7 @@ my $data = '{';
 if (defined $opt{file}) { $file = $opt{file} }
 
 # This routine does most of the work, including checking for styles
-slurp_file( \$data, $file, $opt{style} );
+slurp_file(\$data, $file, $opt{style});
 
 # Add a terminating '}' in place of the trailing comma
 $data =~ s/(.*),\s*$/$1}/;
@@ -106,8 +107,8 @@ $data =~ s/(.*),\s*$/$1}/;
 # to the end of the list.
 
 # Handle max line length
-if ( $opt{length} ) {
-    if ( $data =~ m/ColumnLimit/ ) {
+if ($opt{length}) {
+    if ($data =~ m/ColumnLimit/) {
         $data =~ s/ColumnLimit: \d*/ColumnLimit: $opt{length}/;
     }
     else {
@@ -116,12 +117,12 @@ if ( $opt{length} ) {
 }
 
 # Handle the use of literal tab characters
-if ( $opt{usetabs} or $opt{notabs} ) {
+if ($opt{usetabs} or $opt{notabs}) {
     my $val;
-    if    ( $opt{usetabs} ) { $val = 'Always' }
-    elsif ( $opt{notabs} )  { $val = 'Never' }
+    if    ($opt{usetabs}) { $val = 'Always' }
+    elsif ($opt{notabs})  { $val = 'Never' }
 
-    if ( $data =~ m/UseTab/ ) {
+    if ($data =~ m/UseTab/) {
         $data =~ s/UseTab: \w*/UseTab: $val/;
     }
     else {
@@ -130,8 +131,8 @@ if ( $opt{usetabs} or $opt{notabs} ) {
 }
 
 # Handle the number of spaces used for indentation
-if ( defined $opt{indent} ) {
-    if ( $data =~ m/IndentWidth/ ) {
+if (defined $opt{indent}) {
+    if ($data =~ m/IndentWidth/) {
         $data =~ s/IndentWidth: \d*/IndentWidth: $opt{indent}/;
     }
     else {
@@ -140,12 +141,12 @@ if ( defined $opt{indent} ) {
 }
 
 my @clformat = which('clang-format');
-my $prog = ( $0 =~ /clang-format/ ? $clformat[1] : $clformat[0] );
+my $prog     = ($0 =~ /clang-format/ ? $clformat[1] : $clformat[0]);
 
-if ( $opt{dump} ) {
-    say qq/exec( $prog, "-style=$data", @ARGV )\n/;
-    exec( $prog, "-style=$data", '--dump-config' ) or croak "$!";
+if ($opt{dump}) {
+    say qq/exec($prog $prog, "-style=$data", @ARGV)\n/;
+    exec($prog $prog, "-style=$data", '--dump-config') or croak "$!";
 }
 else {
-    exec( $prog, "-style=$data", @ARGV ) or croak "$!";
+    exec($prog $prog, "-style=$data", @ARGV) or croak "$!";
 }

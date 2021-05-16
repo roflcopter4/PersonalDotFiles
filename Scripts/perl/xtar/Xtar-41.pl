@@ -146,25 +146,27 @@ single sub-directories or lots of loose files are created. See the manual for
 more detailed information.
 
 OPTIONS
- -h --help      Show this usage information.
- -V --version   Show version.
- -v --verbose   Verbose mode. Display progress information if possible.
- -d --debug     Enable very verbose output. Implies -v.
- -q --quiet     Disable most output.
- -Q --shutup    Really say nothing unless everything breaks.
- -o --out [DIR] Explicitly specify output directory. If it already exists,
-                time_t will be appended to it. When used with multiple
-                archives it will function as a top directory with each archive
-                extracted to sub-directories, unless -c is supplied, whereupon
-                all archives are combined into it.
- -c --combine   Combine multiple archives. When -o is not supplied, a directory
-                name is generated from the name of the first supplied archive.
-                *** NOT IMPLEMENTED ***
- -T --tar [ARG] Explicity specify the tar binary to use.
- -b --bsdtar    Use bsdtar over 'tar' if it exists, otherwise fall back to tar.
- -g --gtar      Use gtar if it exists, otherwise fall back to tar.
- -f --force     If completely unable to identify a type, try to extract through
-                trial and error using all commands available (safe but slow).
+ -h, --help      Show this usage information.
+ -V, --version   Show version.
+ -v, --verbose   Verbose mode. Display progress information if possible.
+ -d, --debug     Enable very verbose output. Implies -v.
+ -q, --quiet     Disable most output.
+ -Q, --shutup    Really say nothing unless everything breaks.
+ -o, --out=DIR   Explicitly specify output directory. If it already exists,
+                 time_t will be appended to it. When used with multiple
+                 archives it will function as a top directory with each archive
+                 extracted to sub-directories, unless -c is supplied, whereupon
+                 all archives are combined into it.
+ -T, --tar=ARG   Explicity specify the tar binary to use.
+ -b, --bsdtar    Use bsdtar over 'tar' if it exists, otherwise fall back to tar.
+ -g, --gtar      Use gtar if it exists, otherwise fall back to tar.
+ -f, --force     If completely unable to identify a type, try to extract through
+                 trial and error using all commands available (safe but slow).
+
+ -c, --combine   Combine multiple archives. When -o is not supplied, a directory
+                 name is generated from the name of the first supplied archive.
+                 *** NOT IMPLEMENTED ***
+
 EOF
     }
     else {

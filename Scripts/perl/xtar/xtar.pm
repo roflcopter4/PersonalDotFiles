@@ -129,19 +129,19 @@ sub extract :prototype($) ($self)
             }
         }
 
-        if ($self->init_archive($lonefile, true)) {
-            esayC(
-                'bRED',
-                'The output contains only a single file.',
-                "It could be a sub-archive. Attempting to extract."
-            );
-            unless ($self->try_extractions()) {
-                $self->Options($orig_options);
-                    err "Extraction failed, returning." if $DEBUG;
-                return false;
-            }
-        }
-        elsif (not -d $lonefile) {
+        #if ($self->init_archive($lonefile, true)) {
+        #    esayC(
+        #        'bRED',
+        #        'The output contains only a single file.',
+        #        "It could be a sub-archive. Attempting to extract."
+        #    );
+        #    unless ($self->try_extractions()) {
+        #        $self->Options($orig_options);
+        #            err "Extraction failed, returning." if $DEBUG;
+        #        #return false;
+        #    }
+        #}
+        if (not -d $lonefile) {
             last;
         }
     }

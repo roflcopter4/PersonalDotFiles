@@ -590,7 +590,11 @@ vnoremap > >gv
 vnoremap . :normal .<CR>
 
 " For when you forget to sudo.. Really Write the file.
-cmap w!! w !sudo tee % >/dev/null
+if has('nvim') && executable('ksshaskpass')
+    execute printf("cmap w!! w !SUDO_ASKPASS='%s' sudo tee %% >/dev/null", exepath('ksshaskpass'))
+else
+    cmap w!! w !sudo tee % >/dev/null
+endif
 
 " Some helpers to edit mode
 cnoremap %% <C-R>=fnameescape(expand('%:h')).'/'<cr>
@@ -793,19 +797,23 @@ vnoremap <leader>aa :Autoformat<CR>
 nnoremap <leader>::<space> q:
 nnoremap q: :
 
+set textwidth=89
+
 if has('nvim')
     if WINDOWS()
         let g:python_host_prog  = 'python2'
         let g:python3_host_prog = 'python3'
     else
         let g:python_host_prog  = 'python2'
-        let g:python3_host_prog = 'python3.8'
+        let g:python3_host_prog = 'python3.9'
     endif
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
     " let g:python_host_prog  = 'python2'
     " let g:python3_host_prog = 'python3'
     " let g:python_host_prog = 'python2'
+else
+        let g:python3_host_prog = 'python3'
 endif
 
 

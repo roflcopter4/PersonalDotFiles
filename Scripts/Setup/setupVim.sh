@@ -51,16 +51,20 @@ if [ "$1" = 'unix' ] || [ $# -eq 0 ]; then
         echo "Copying ${rcPath}/.vimrc to ${HOME}/.vimrc"
         echo "Copying ${HOME}/.vimrc to ${HOME}/.config/nvim/init.vim"
         echo "Copying ${rcPath}/.ginit.vim to ${HOME}/.config/nvim/ginit.vim"
-        cp "${rcPath}/.vimrc"     "${HOME}/.vimrc"
-        cp "${rcPath}/.vimrc"     "${HOME}/.vimrc"
-        cp "${rcPath}/.ginit.vim" "${HOME}/.config/nvim/ginit.vim"
+        echo "Copying ${rcPath}/.vimpluginsto ${HOME}/.vimplugins"
+        cp "${rcPath}/.vimrc"      "${HOME}/.vimrc"
+        cp "${rcPath}/.vimrc"      "${HOME}/.config/nvim/init.vim"
+        cp "${rcPath}/.ginit.vim"  "${HOME}/.config/nvim/ginit.vim"
+        cp "${rcPath}/.vimplugins" "${HOME}/.vimplugins"
     else
         echo "Linking ${rcPath}/.vimrc to ${HOME}/.vimrc"
         echo "Linking ${HOME}/.vimrc to ${HOME}/.config/nvim/init.vim"
         echo "Linking ${rcPath}/.ginit.vim to ${HOME}/.config/nvim/ginit.vim"
-        ln -sf "${rcPath}/.vimrc"     "${HOME}/.vimrc"
-        ln -sf "${HOME}/.vimrc"       "${HOME}/.config/nvim/init.vim"
-        ln -sf "${rcPath}/.ginit.vim" "${HOME}/.config/nvim/ginit.vim"
+        echo "Linking ${rcPath}/.vimpluginsto ${HOME}/.vimplugins"
+        ln -sf "${rcPath}/.vimrc"      "${HOME}/.vimrc"
+        ln -sf "${HOME}/.vimrc"        "${HOME}/.config/nvim/init.vim"
+        ln -sf "${rcPath}/.ginit.vim"  "${HOME}/.config/nvim/ginit.vim"
+        ln -sf "${rcPath}/.vimplugins" "${HOME}/.vimplugins"
     fi
 
 

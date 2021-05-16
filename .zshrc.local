@@ -57,6 +57,8 @@ zstyle ':completion:*'               menu select=2
 command -v 'thefuck' >/dev/null 2>&1 && eval $(thefuck --alias)
 setopt multios
 
+#source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 ###############################################################################
 # Select oh-my-zsh stuff
 setopt auto_pushd

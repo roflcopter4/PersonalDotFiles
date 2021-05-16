@@ -1,8 +1,14 @@
-#!/bin/dash
-# The shebang just tells shellcheck to use dash as a base shell for linting
+#
+# shellcheck shell=dash
+
+#
+# A bunch of trash mostly
+#
 
 _UNAME=$(uname)
-_UNAME_O=$(uname -o)
+if uname -o >/dev/null 2>&1; then
+    _UNAME_O=$(uname -o)
+fi
 
 ID_SHELL() {                                                     
     local _shname
@@ -208,40 +214,54 @@ if Exists 'exa'; then
 '*.ogg=0;36:*.ra=0;36:*.wav=0;36:*.oga=0;36:*.opus=0;36:*.spx=0;36:*.xspf=0;36:'
     export EXA_COLORS
 
-elif [ "x${_UNAME}" = 'xOpenBSD' ] && ! Exists 'gls'; then
-    alias ls='ls -F'
-    alias la='ls -A'
-    alias ll='ls -lh'
-    alias lla='ls -lhA'
 else
-    # Aliases based on the standard ls will hide backups.
-    Exists 'gls' && __LS_='gls'
-    alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
+    _super_basic=false
 
-    if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
-        alias ll='ls -l -h'
-        alias lll='ls -go -h'
+    case "${_UNAME}" in 
+    OpenBSD | FreeBSD | DragonFly)
+	if Exists 'gls'; then 
+	    __LS_='gls'
+	else
+	    _super_basic=true
+	fi
+	;;
+    esac
+
+    if ${_super_basic}; then
+	alias ls='ls -F'
+	alias la='ls -A'
+	alias ll='ls -lh'
+	alias lla='ls -lhA'
     else
-        alias ll='ls -go -h'
-        alias lll='ls -l -h'
+	# Aliases based on the standard ls will hide backups.
+	alias ls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
+	unset __LS_
+
+	if [ "$SSH_CONNECTION" ] || [ "$SSH_CLIENT" ] || [ "$MOARINFO" ]; then
+	    alias ll='ls -l -h'
+	    alias lll='ls -go -h'
+	else
+	    alias ll='ls -go -h'
+	    alias lll='ls -l -h'
+	fi
+
+	alias la='ls -A'
+	alias lla='ll -A -h'
+	alias laa='lll -A -h'
+	alias llt='ll -t'
+	alias lat='ll -At'
+
+	# I don't remember why these even exist.
+	alias LS='LC_ALL=C \ls -H --group-directories-first'
+	alias l='LS -CF --color'
+	alias llb='l -l -h'
+	alias lab='la -l -h'
+
+	# Some extras
+	alias Ll='ll -L'
+	alias Lla='lla -L'
+	alias Ls='ls -L'
     fi
-
-    alias la='ls -A'
-    alias lla='ll -A -h'
-    alias laa='lll -A -h'
-    alias llt='ll -t'
-    alias lat='ll -At'
-
-    # I don't remember why these even exist.
-    alias LS='LC_ALL=C \ls -H --group-directories-first'
-    alias l='LS -CF --color'
-    alias llb='l -l -h'
-    alias lab='la -l -h'
-
-    # Some extras
-    alias Ll='ll -L'
-    alias Lla='lla -L'
-    alias Ls='ls -L'
 fi
 
 # ---------------------------------------------------------
@@ -314,29 +334,84 @@ if [ "x$SYSID" = 'xlaptop-gentoo' ]; then
 fi
 case "$SYSID" in 
     'gentoo'|'laptop-gentoo')
-        EMERGE='emerge'
-        mkalias -A 'ems' 'esearch' 'emerge --search'
         mkalias -T qs='qsearch'
-        mkalias -s emr="${EMERGE}"
-        mkalias -s emp="${EMERGE} --pretend"
-        mkalias -s ema="${EMERGE} --ask"
-        mkalias -s em1="${EMERGE} --ask --oneshot"
-        mkalias -s empd="${EMERGE} --pretend --depclean -Dv"
-        mkalias -s empk="${EMERGE} --ask --buildpkg"
-        mkalias -s embd="${EMERGE} --ask --deep"
-        mkalias -s emupdate="${EMERGE} -aDNu --keep-going @world -j6"
-        mkalias -s emupdate="${EMERGE} -aDNu --keep-going -j6 --backtrack=100 --with-bdeps=y @world"
-        # mkalias -s emupdate="${EMERGE} --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude \"chromium\""
-        # mkalias -s emupdateP="${EMERGE} --pretend --update --deep --newuse --with-bdeps=y @world"
-        # mkalias -s emupdateF="${EMERGE} --update --deep --newuse --with-bdeps=y --keep-going @world"
-        mkalias emi="${EMERGE} --info"
+        mkalias -S emr="emerge"
+        mkalias -s emp="emerge --pretend"
+        mkalias -s ema="emerge --ask"
+        mkalias -s em1="emerge --ask --oneshot"
+        mkalias -s empd="emerge --pretend --depclean -Dv"
+        mkalias -s empk="emerge --ask --buildpkg"
+        mkalias -s embd="emerge --ask --deep"
+        mkalias -s emupdate="emerge -aDNu --keep-going -j6 --backtrack=100 --with-bdeps=y @world"
+        mkalias emi="emerge --info"
+
+        # mkalias -s emupdate="emerge -aDNu --keep-going @world -j6"
+        # mkalias -s emupdate="emerge --ask --update --deep --newuse --with-bdeps=y --keep-going @world --exclude \"chromium\""
+        # mkalias -s emupdateP="emerge --pretend --update --deep --newuse --with-bdeps=y @world"
+        # mkalias -s emupdateF="emerge --update --deep --newuse --with-bdeps=y --keep-going @world"
 
         mkalias -TS ufed='ufed'
-        #mkalias -TS euse='euse' 
         mkalias -TS repm='repoman manifest'
         alias watchfetch='tail -f /var/log/emerge-fetch.log'
 
-        mkalias -A 'gvi' 'nvim-gtk --' 'nvim-qt'
+        # mkalias -A 'gvi' 'nvim-gtk --' 'nvim-qt'
+
+        if Exists esearch; then
+            alias ems='esearch'
+            alias emss='esearch -S'
+            alias emc='esearch -c'
+            alias emcs='esearch -c -S'
+
+            Ems() { 
+                local key desc both
+                desc=false both=false key='3'
+
+                OPTIND=1
+                while getopts "k:sSb" ARG; do
+                    case "$ARG" in
+                        (S) desc=true ;;
+                        (b) both=true ;;
+                        (k|s)
+                            if [ "$OPTARG" -lt 3 ]; then
+                                key=$((OPTARG + 2))
+                            else
+                                key="$OPTARG"
+                            fi
+                            ;;
+                        (-*)
+                            echo "Invalid option '${1}'" >&2
+                            return 2
+                            ;;
+                    esac
+                done
+                shift $((OPTIND - 1))
+                [ $# -ge 1 ] || { echo 'No args' >&2; return 3; }
+                {
+                    if $both; then
+                        esearch -c "$@"
+                        esearch -c -S "$@";
+                    elif $desc; then
+                        esearch -c -S "$@";
+                    else
+                        esearch -c "$@"
+                    fi
+                } | sort -u "-k${key}" | \
+                    perl -pE 's{\033\[01m([^/]+?)/([^\033]+?)\033\[39;49;00m (\(.*?\)):  }{ \033[0;36m$1\033[0m ` \033[0;33m$2\033[0m ` }' | \
+                    column -t -s'`' -o' '
+            }
+        else
+            alias ems='emerge --search'
+        fi
+
+        if Exists 'nvim-qt'; then
+            gvi() {
+                if [ $# -eq 0 ]; then
+                    nvim-qt --maximized
+                else
+                    nvim-qt --maximized -- "$@"
+                fi
+            }
+        fi
 
         unset EMERGE
         ;;
@@ -344,7 +419,8 @@ esac
 
 
 # Linux Aliases
-if [ "x${_UNAME}" = 'xLinux' ]; then
+case "${_UNAME}" in
+Linux)
     if Exists 'pacman'; then
         mkalias -s pacman='pacman --color=always' 
         mkalias -s pacs='\pacman --color=always -S --needed' 
@@ -379,16 +455,21 @@ if [ "x${_UNAME}" = 'xLinux' ]; then
     fi
 
     alias make='make --no-print-directory'
+    ;;
 
-elif [ "x${_UNAME}" = 'xFreeBSD' ] || [ "x${_UNAME}" = 'xDragonFly' ]; then
+FreeBSD | DragonFly)
     mkalias -S pkg='pkg'
-    mkalias -S make='make'
+    #mkalias -S make='make'
+    alias make='make -j18'
     mkalias -T pf='portfind'
     mkalias -s pki='pkg install'
     mkalias -s mic='make install clean'
-    mkalias -s mc='make config-recursive'
+    mkalias -s mc='make config'
+    mkalias -s mcr='make config-recursive'
     alias pks='\pkg search'
-fi
+    alias pkgf='pkg query %Fp'
+    ;;
+esac
 
 #Exists 'gcp' && ! [ "$(command -v gcp)" = '/usr/bin/gcp' ] && unalias gcp
 
@@ -539,12 +620,11 @@ Exists 'J7Z.sh' && {
 
 if Exists 'fzy'; then
     ffzy() {
-        local _fzlen_ _cd_ _cmd_ _smartness_ _extra_ _statement_ _hidden_ __opts
-        _fzlen=30
+        local _fzlen_ _cd_ _cmd_ _smartness_ _extra_ _statement_ __opts
+        _fzlen_=30
         _cd_=false
-        _hidden_=true
         _cmd_='find'
-        __opts='hdcl:rgu:S:n'
+        __opts='hdcl:rgu:S:'
 
         if Exists 'fd'; then
             _cmd_='fd'
@@ -555,8 +635,7 @@ if Exists 'fzy'; then
         while getopts "$__opts" ARG; do
             case "$ARG" in
                 c) _cd_=true ;;
-                l) _fzlen=$OPTARG ;;
-                n) _hidden_=false ;;
+                l) _fzlen_=$OPTARG ;;
                 f) 
                     _cmd_='find'
                     _extra_=''
@@ -617,7 +696,7 @@ if Exists 'fzy'; then
             fi
         fi
 
-        _statement_="\"${_cmd_}\" ${_smartness_} ${_extra_} \"${1:-.}\" 2>/dev/null | fzy -l\"${_fzlen}\""
+        _statement_="\"${_cmd_}\" ${_smartness_} ${_extra_} \"${1:-.}\" 2>/dev/null | fzy -l\"${_fzlen_}\""
         if ${_cd_}; then
             local __file__
             __file__=$( (set -o shwordsplit >/dev/null 2>&1) && set -o shwordsplit

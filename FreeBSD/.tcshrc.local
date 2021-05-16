@@ -29,11 +29,11 @@ endif
 
 if ( -e `where gls` ) then
 	alias ls	"gls -h --color=always --group-directories-first"
-	alias ll	"ls -go"
-	alias la	"ls -A"
-	alias lla	"ls -goA"
-	alias lls	"ls -go  | less -r"
-	alias las	"ls -goA | less -r"
+	alias ll	"gls -go --color=always --group-directories-first"
+	alias la	"gls -A --color=always --group-directories-first"
+	alias lla	"gls -goA --color=always --group-directories-first"
+	alias lls	"gls -go --color=always --group-directories-first  | less -r"
+	alias las	"gls -goA --color=always --group-directories-first | less -r"
 else
 	alias ls	"ls -FG"
 	alias la	"ls -A"

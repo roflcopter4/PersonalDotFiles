@@ -941,11 +941,9 @@ if IsSourced('YouCompleteMe')
     else
         if has('nvim')
             let g:ycm_server_python_interpreter='/usr/bin/env python3'
-        endif
-        if executable('/usr/bin/python2') && has('python')
-            let g:ycm_server_python_interpreter='/usr/bin/env python2'
-        elseif executable('/usr/local/bin/python3') && has('python3')
-            let g:ycm_server_python_interpreter='/usr/bin/env python3'
+        else
+            " let g:ycm_server_python_interpreter='/usr/bin/env python2'
+            let g:ycm_server_python_interpreter='python3'
         endif
     endif
     "# enable completion from tags
@@ -1161,10 +1159,7 @@ endif
 
 """" SEARCHFORME
 if IsSourced('tag-highlight.nvim')
-    echom 'foooo'
-
     colo myMolokai4
-
 
     let g:tag_highlight#enabled = 1
     let g:tag_highlight#highlight = 1
@@ -1216,25 +1211,31 @@ if IsSourced('tag-highlight.nvim')
 
     set tags=tags,../tags
 
-    highlight link tag_highlight_EnumTag	Enum
-    highlight link tag_highlight_FunctionTag	CFuncTag
-    highlight link tag_highlight_MemberTag	CMember
-    highlight link tag_highlight_GlobalVarTag	GlobalVarTag
-              
-    highlight link goConstantTag	Enum
-    highlight link goInterfaceTag	tag_highlight_ClassTag
-    highlight link goGlobalVarTag	GlobalVarTag
-    highlight link pythonGlobalVarTag	Enum
-    highlight link tag_highlight_ClassTag	newClassColor
-    highlight link tag_highlight_TemplateTag	newTemplateColor
-    highlight link rustMacroTag newClassColor
-    highlight link tag_highlight_ClassTag newClassColor
-    highlight link tag_highlight_NamespaceTag Namespace
-    highlight link tag_highlight_ModuleTag Namespace
-    highlight link tag_highlight_MethodTag Method
-    highlight link tag_highlight_OverloadedOperatorTag OverloadedOperator
+    function s:WhyWontYouJustWork()
 
-    highlight tag_highlight_ModuleTag
+        highlight! link goConstantTag               Enum
+        highlight! link goGlobalVarTag              GlobalVarTag
+        highlight! link goInterfaceTag              tag_highlight_ClassTag
+        highlight! link pythonGlobalVarTag          Enum
+        highlight! link rustMacroTag                newClassColor
+        highlight! link tag_highlight_ClassTag      newClassColor
+        highlight! link tag_highlight_ClassTag      newClassColor
+        highlight! link tag_highlight_EnumTag       Enum
+        highlight! link tag_highlight_FunctionTag   CFuncTag
+        highlight! link tag_highlight_GlobalVarTag  GlobalVarTag
+        highlight! link tag_highlight_MemberTag     CMember
+        highlight! link tag_highlight_MethodTag     Method
+        highlight! link tag_highlight_ModuleTag     Namespace
+        highlight! link tag_highlight_NamespaceTag  Namespace
+        highlight! link tag_highlight_TemplateTag   newTemplateColor
+
+        highlight! link tag_highlight_OverloadedOperatorTag  OverloadedOperator
+
+    endfunction
+
+    augroup THLFixup
+        autocmd VimEnter * call s:WhyWontYouJustWork()
+    augroup END
 
     nnoremap <leader>tag :THLUpdate<CR>
 endif
@@ -1261,8 +1262,15 @@ if IsSourced('vim-cpp-enhanced-highlight')
     let g:cpp_experimental_template_highlight = 0
     let g:cpp_concepts_highlight = 0
     let g:cpp_no_function_highlight = 1
-    hi! link cppSTLfunction mutedFunc
-    hi! link cAnsiFunction mutedFunc
+
+    function s:killme2()
+        hi! link cppSTLfunction mutedFunc
+        hi! link cAnsiFunction mutedFunc
+    endfunction
+
+    augroup THLFixup
+        autocmd VimEnter,ColorScheme * call s:killme2()
+    augroup END
 endif
 
 
@@ -1379,7 +1387,7 @@ endif
 
 
 if IsSourced('wheel')
-    call mkdir(expand('~/.local/share/wheel'), "p")
+    call mkdir(expand('~/.local/share/wheel'), 'p')
     augroup PluginWheel
         autocmd VimLeave * call wheel#void#exit()
     augroup END

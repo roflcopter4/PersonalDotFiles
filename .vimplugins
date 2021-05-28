@@ -44,8 +44,10 @@ elseif WINDOWS()
 endif
 
 if dein#load_state(g:load_path)
+" call dein#load_state(g:load_path)
     call dein#begin(g:load_path)
-    call dein#add(g:dein_path)
+
+    call dein#add(g:dein_path, {'merged': v:false})
     call dein#add('haya14busa/dein-command.vim')
 
     if has('nvim') && 0
@@ -153,7 +155,6 @@ if dein#load_state(g:load_path)
     call dein#add('chaimleib/vim-renpy')
     call dein#add('dag/vim-fish')
     call dein#add('fatih/vim-go')
-    " call dein#disable('fatih/vim-go')
     call dein#add('fsharp/vim-fsharp')
     call dein#add('gentoo/gentoo-syntax')
     call dein#add('rsmenon/vim-mathematica')
@@ -178,9 +179,6 @@ if dein#load_state(g:load_path)
     call dein#add('tpope/vim-cucumber')
     call dein#add('tpope/vim-markdown')
     call dein#add('vim-scripts/Vimball')
-    " call dein#add('equalsraf/neovim-gui-shim')
-    " call dein#add('gf3/peg.vim')
-
 
     " Helpers:
     call dein#add('mileszs/ack.vim')
@@ -216,8 +214,6 @@ if dein#load_state(g:load_path)
     if !exists('g:ONI')
         call dein#add('Yggdroot/indentLine')
     endif
-
-    " call dein#add('Rip-Rip/clang_complete')
 
     if has('nvim')
         if s:use_ale == 1
@@ -268,28 +264,11 @@ if dein#load_state(g:load_path)
 
     " call dein#add('Shougo/unite.vim')
 
-
-    "---------- Colour Schemes ----------------
-    " call dein#add('KeitaNakamura/neodark.vim')
-    " call dein#add('MaxSt/FlatColor')
-    " call dein#add('Valloric/vim-valloric-colorscheme')
-    " call dein#add('benjaminwhite/Benokai')
-    " call dein#add('crater2150/vim-theme-chroma')
-    " call dein#add('dunckr/vim-monokai-soda')
-    " call dein#add('iCyMind/NeoSolarized')
-    " call dein#add('jaromero/vim-monokai-refined')
-    " call dein#add('joshdick/onedark.vim')
-    " call dein#add('lanox/lanox-vim-theme')
-    " call dein#add('mhartington/oceanic-next')
-    " call dein#add('mhinz/vim-janah')
-    " call dein#add('morhetz/gruvbox')
-    " call dein#add('ratazzi/blackboard.vim')
-    " call dein#add('reewr/vim-monokai-phoenix')
-    " call dein#add('tyrannicaltoucan/vim-quantum')
-    " call dein#add('vim-scripts/darkspectrum')
-    " call dein#add('zanglg/nova.vim')
+    call dein#add('davidhalter/jedi-vim', {'merged': v:false})
 
     call dein#local(expand('~/.vim/bundles/findent'))
+
+    " call dein#install()
 
     call dein#end()
     call dein#save_state()
@@ -391,8 +370,8 @@ if IsSourced('tabular')
 endif
 
 
-set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
 if IsSourced('sessionman.vim')
+    set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
     nmap <leader>sl :SessionList<CR>
     nmap <leader>ss :SessionSave<CR>
     nmap <leader>sc :SessionClose<CR>
@@ -403,10 +382,10 @@ nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
 let g:vim_json_syntax_conceal = 0
 
 
-if !has('python') && !has('python3')
-    let g:pymode = 0
-endif
 if IsSourced('python-mode')
+    if !has('python') && !has('python3')
+        let g:pymode = 0
+    endif
     let g:pymode_options = 1
     let g:pymode_lint = 0
     " let g:pymode_lint_checkers = ['pep8']
@@ -420,7 +399,7 @@ if IsSourced('python-mode')
     let g:pymode_indent = 1
     let g:pymode_options_colorcolumn = 0
     let g:pymode_options_max_line_length = 79
-    let g:pymode_python = 'python'
+    let g:pymode_python = 'python3'
     " let g:pymode_rope = 0
     let g:pymode_run = 1
     let g:pymode_run_bind = '<leader>r'
@@ -495,48 +474,72 @@ if IsSourced('rainbow') || 1
         "        \            'parentheses': ['start=/(/ end=/)/ fold',
         "        \                            'start=/{/ end=/}/ fold'],
         "\    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'firebrick1', 'orchid2'],
+        "\    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2'],
+        " \    'guifgs': ['Tomato', 'Cyan3', 'HotPink1', 'PeachPuff2', 'chartreuse3', 'DeepSkyBlue2', 'DeepPink2'],
+        " \    'guifgs': ['Tomato', 'Cyan3', 'HotPink1', 'PeachPuff2', 'chartreuse3', 'DeepSkyBlue2', 'DeepPink2'],
+        " \    'guifgs':      ['DodgerBlue1', 'darkorange1', 'green2', 'firebrick1', 'orchid2'],
 
     let g:rainbow_conf = {
-        \    'guifgs': ['Tomato', 'Cyan3', 'HotPink1', 'PeachPuff2'],
-        \    'ctermfgs': ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
-        \    'operators': '',
+        \    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2'],
+        \    'ctermfgs':    ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
         \    'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+        \    'operators': '',
         \    'separately': {
         \        '*': {},
-        \        'tex': {
-        \            'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/'],
-        \        },
-        \        'lisp': {
-        \            'guifgs': ['DeepSkyBlue2', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2', 'gold1', 'cyan1'],
-        \        },
-        \        'vim': {
-        \            'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/', 'start=/{/ end=/}/ fold',
-        \                            'start=/(/ end=/)/ containedin=vimFuncBody',
-        \                            'start=/\[/ end=/\]/ containedin=vimFuncBody',
-        \                            'start=/{/ end=/}/ fold containedin=vimFuncBody'],
-        \        },
-        \        'html': {
-        \            'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem'.
-        \                            '|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'.
-        \                            "'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
-        \        },
-        \        'perl': {
-        \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2'],
-        \        },
-        \        'cpp': {
-        \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
-        \            'parentheses': ['start=/(/ end=/)/ fold',
-        \                            'start=/{/ end=/}/ fold'],
-        \        },
-        \        'css': 0,
-        \        'antlr4': {
-        \            'parentheses': ['start=/(/ end=/)/ fold',
-        \                            'start=/{/ end=/}/ fold',],
-        \        },
         \    }
-    \}
+    \ }
 
-    " \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2', 'orange'],
+    function! s:ExtRainbowConf(ext)
+        call extend(g:rainbow_conf['separately'], a:ext)
+    endfunction
+
+    call s:ExtRainbowConf({
+         \       'tex': {
+         \           'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/'],
+         \       }})
+    call s:ExtRainbowConf({
+         \       'lisp': {
+         \           'guifgs': ['DeepSkyBlue2', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2', 'gold1', 'cyan1'],
+         \       }})
+    call s:ExtRainbowConf({
+         \       'vim': {
+         \           'parentheses': ['start=/(/ end=/)/', 'start=/\[/ end=/\]/', 'start=/{/ end=/}/ fold',
+         \                           'start=/(/ end=/)/ containedin=vimFuncBody',
+         \                           'start=/\[/ end=/\]/ containedin=vimFuncBody',
+         \                           'start=/{/ end=/}/ fold containedin=vimFuncBody'],
+         \       }})
+    call s:ExtRainbowConf({
+         \       'html': {
+         \           'parentheses': ['start=/\v\<((area|base|br|col|embed|hr|img|input|keygen|link|menuitem'.
+         \                           '|meta|param|source|track|wbr)[ >])@!\z([-_:a-zA-Z0-9]+)(\s+[-_:a-zA-Z0-9]+(\=("[^"]*"|'.
+         \                           "'".'[^'."'".']*'."'".'|[^ '."'".'"><=`]*))?)*\>/ end=#</\z1># fold'],
+         \       }})
+    call s:ExtRainbowConf({
+         \      'perl': {
+         \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2'],
+         \      }})
+    call s:ExtRainbowConf({
+         \      'cpp': {
+         \           'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
+         \           'parentheses': ['start=/(/ end=/)/ fold',
+         \                           'start=/{/ end=/}/ fold'],
+         \      }})
+    call s:ExtRainbowConf({
+         \      'antlr4': {
+         \           'parentheses': ['start=/(/ end=/)/ fold',
+         \                           'start=/{/ end=/}/ fold',],
+         \      }})
+    call s:ExtRainbowConf({
+         \      'go': {
+         \          'guifgs': ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
+         \          'parentheses': ['start=/(/ end=/)/ fold',
+         \                          'start=/{/ end=/}/ fold'],
+         \      }})
+
+    call s:ExtRainbowConf({'css': 0 })
+
+    " \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2',
+    " 'orange'],
                 " \ 'guifgs': ['orangered', 'MediumOrchid2', 'darkorange2', 'DeepPink2'],
     " let g:rainbow_conf['c'] = {
                 " \ 'guifgs': ['Tomato', 'Cyan3', 'VioletRed1', 'PeachPuff2'],
@@ -545,11 +548,7 @@ if IsSourced('rainbow') || 1
     "             \ 'parentheses': ['start=/(/ end=/)/ fold',
     "             \                 'start=/{/ end=/}/ fold'],
     "             \ } })
-    call extend(g:rainbow_conf['separately'], { 'go': {
-                \ 'guifgs': ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
-                \ 'parentheses': ['start=/(/ end=/)/ fold',
-                \                 'start=/{/ end=/}/ fold'],
-                \ } })
+
     " let g:rainbow_conf['c'] = {
     "             \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
     "             \ }
@@ -660,22 +659,21 @@ if IsSourced('ale')
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 1
     let g:ale_linters_explicit = 0
-    let g:ale_open_list = 0
+    " let g:ale_open_list = 0
     " let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
-    let g:ale_c_parse_makefile = 0
+    " let g:ale_c_parse_makefile = 0
 
     " let g:ale_floating_preview = 1
     " let g:ale_hover_to_floating_preview = 1
-    let g:ale_floating_window_border = []
+    " let g:ale_floating_window_border = []
     " let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
 
     let g:ale_nasm_nasm_options = '-felf64 "-I./inc/"'
 
     " No stupid popup windows
-    let g:ale_loclist_msg_format = ''
-
-    let g:ale_c_make_command = 'fmake -n'
+    " let g:ale_loclist_msg_format = ''
+    " let g:ale_c_make_command = 'fmake -n'
 
     nnoremap <silent> <Plug(ale_code_action) :ALECodeAction
 
@@ -811,9 +809,6 @@ if IsSourced('LanguageClient-neovim')
 
     let g:LanguageClient_serverCommands['c']   = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')]
     let g:LanguageClient_serverCommands['cpp'] = ['clangd', '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')]
-    " let g:LanguageClient_serverCommands['c']   = ['clangd']
-    " let g:LanguageClient_serverCommands['cpp'] = ['clangd']
-
 
     let g:LanguageClient_autoStart = 1
     " let g:LanguageClient_changeThrottle = 1.0
@@ -908,11 +903,15 @@ if IsSourced('deoplete.nvim')
     inoremap <expr> <C-j> deoplete#complete()
 
     " let s:libclang_path = '/usr/lib64/llvm/7/lib64/libclang.so'
-    let s:libclang_path = '/usr/local/lib/llvm-11/lib/libclang.so'
+    " let s:libclang_path = '/usr/local/lib/llvm-11/lib/libclang.so'
+    
+    " let s:libclang_path = '/usr/lib/llvm/12/lib64/libLLVM-12.so'
+    " let s:libclang_path = system('llvm-config --libfiles')
+    " let s:libclang_path = substitute(s:libclang_path, "\n", '', 'g')
 
     " if IsSourced('zchee/deoplete-clang')
-    "     g:deoplete#sources#clang#libclang_path = s:libclang_path
-    "     g:deoplete#sources#clang#clang_header = '/usr/local/lib/llvm-11/include'
+      let  g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm/12/lib64/libLLVM-12.so'
+      let  g:deoplete#sources#clang#clang_header = '/usr/lib/llvm/12/include'
     " endif
 
     call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })

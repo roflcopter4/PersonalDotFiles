@@ -216,7 +216,7 @@ sub run :prototype(\%\@@) ($options, $cmd, @cmd_args)
         }
         if (not $options->{dryrun}) {
             my $exe = shift @$cmd;
-            system($exe (@$cmd, @cmd_args));
+            system($exe @$cmd, @cmd_args);
             # system("@$cmd @cmd_args");
         }
     }

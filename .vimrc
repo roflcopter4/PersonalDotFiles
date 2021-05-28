@@ -805,7 +805,7 @@ if has('nvim')
         let g:python3_host_prog = 'python3'
     else
         let g:python_host_prog  = 'python2'
-        let g:python3_host_prog = 'python3.9'
+        let g:python3_host_prog = 'python3'
     endif
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'

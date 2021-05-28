@@ -57,7 +57,7 @@ zstyle ':completion:*'               menu select=2
 command -v 'thefuck' >/dev/null 2>&1 && eval $(thefuck --alias)
 setopt multios
 
-#source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 ###############################################################################
 # Select oh-my-zsh stuff
@@ -241,21 +241,6 @@ setx() {
 
 
 
-## Inform users about upgrade path for grml's old zshrc layout, assuming that:
-## /etc/skel/.zshrc was installed as ~/.zshrc,
-## /etc/zsh/zshrc was installed as ~/.zshrc.global and
-## ~/.zshrc.local does not exist yet.
-if [ -r ~/.zshrc -a -r ~/.zshrc.global -a ! -r ~/.zshrc.local ] ; then
-    printf '-!-\n'
-    printf '-!- Looks like you are using the old zshrc layout of grml.\n'
-    printf '-!- Please read the notes in the grml-zsh-refcard, being'
-    printf '-!- available at: http://grml.org/zsh/\n'
-    printf '-!-\n'
-    printf '-!- If you just want to get rid of this warning message execute:\n'
-    printf '-!-        touch ~/.zshrc.local\n'
-    printf '-!-\n'
-fi
-
 ## Settings for umask
 #if (( EUID == 0 )); then
 #    umask 002
@@ -323,26 +308,6 @@ bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 ## without this, typing a . aborts incremental history search
 #bindkey -M isearch . self-insert
 
-#bindkey '\eq' push-line-or-edit
-
-## some popular options ##
-
-## add `|' to output redirections in the history
-#setopt histallowclobber
-
-## try to avoid the 'zsh: no matches found...'
-#setopt nonomatch
-
-## warning if file exists ('cat /dev/null > ~/.zshrc')
-#setopt NO_clobber
-
-## don't warn me about bg processes when exiting
-#setopt nocheckjobs
-
-## Allow comments even in interactive shells
-#setopt interactivecomments
-
-
 ## compsys related snippets ##
 
 ## changed completer settings
@@ -352,37 +317,6 @@ bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 ## another different completer setting: expand shell aliases
 #zstyle ':completion:*' completer _expand_alias _complete _approximate
 
-## to have more convenient account completion, specify your logins:
-#my_accounts=(
-# {grml,grml1}@foo.invalid
-# grml-devel@bar.invalid
-#)
-#other_accounts=(
-# {fred,root}@foo.invalid
-# vera@bar.invalid
-#)
-#zstyle ':completion:*:my-accounts' users-hosts $my_accounts
-#zstyle ':completion:*:other-accounts' users-hosts $other_accounts
-
-## add grml.org to your list of hosts
-#hosts+=(grml.org)
-#zstyle ':completion:*:hosts' hosts $hosts
-
-## telnet on non-default ports? ...well:
-## specify specific port/service settings:
-#telnet_users_hosts_ports=(
-#  user1@host1:
-#  user2@host2:
-#  @mail-server:{smtp,pop3}
-#  @news-server:nntp
-#  @proxy-server:8000
-#)
-#zstyle ':completion:*:*:telnet:*' users-hosts-ports $telnet_users_hosts_ports
-
-## the default grml setup provides '..' as a completion. it does not provide
-## '.' though. If you want that too, use the following line:
-#zstyle ':completion:*' special-dirs true
-
 ## aliases ##
 
 ## translate
@@ -391,13 +325,10 @@ bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 ## instead of global aliase it might be better to use grmls $abk assoc array, whose contents are expanded after pressing ,.
 #$abk[SnL]="| sort -n | less"
 
-## get top 10 shell commands:
-alias top10='print -l ${(o)history%% *} | uniq -c | sort -nr | head -n 10'
-
 ## miscellaneous code ##
 
 ## variation of our manzsh() function; pick you poison:
-#manzsh()  { /usr/bin/man zshall |  most +/"$1" ; }
+manzsh()  { /usr/bin/man zshall |  most +/"$1" ; }
 
 ## Switching shell safely and efficiently? http://www.zsh.org/mla/workers/2001/msg02410.html
 bash() {
@@ -412,54 +343,12 @@ restart () {
 #sameas() { diff -q "$*" $REPLY &>/dev/null }
 #ot () { [[ $REPLY -ot ${~1} ]] }
 
-## get_ic() - queries imap servers for capabilities; real simple. no imaps
-#ic_get() {
-#    emulate -L zsh
-#    local port
-#    if [[ ! -z $1 ]] ; then
-#        port=${2:-143}
-#        print "querying imap server on $1:${port}...\n";
-#        print "a1 capability\na2 logout\n" | nc $1 ${port}
-#    else
-#        print "usage:\n  $0 <imap-server> [port]"
-#    fi
-#}
-
-## List all occurrences of programm in current PATH
-#plap() {
-#    emulate -L zsh
-#    if [[ $# = 0 ]] ; then
-#        echo "Usage:    $0 program"
-#        echo "Example:  $0 zsh"
-#        echo "Lists all occurrences of program in the current PATH."
-#    else
-#        ls -l ${^path}/*$1*(*N)
-#    fi
-#}
-
 ## Find out which libs define a symbol
 #lcheck() {
 #    if [[ -n "$1" ]] ; then
 #        nm -go /usr/lib/lib*.a 2>/dev/null | grep ":[[:xdigit:]]\{8\} . .*$1"
 #    else
 #        echo "Usage: lcheck <function>" >&2
-#    fi
-#}
-
-## Download a file and display it locally
-#uopen() {
-#    emulate -L zsh
-#    if ! [[ -n "$1" ]] ; then
-#        print "Usage: uopen \$URL/\$file">&2
-#        return 1
-#    else
-#        FILE=$1
-#        MIME=$(curl --head $FILE | \
-#               grep Content-Type | \
-#               cut -d ' ' -f 2 | \
-#               cut -d\; -f 1)
-#        MIME=${MIME%$'\r'}
-#        curl $FILE | see ${MIME}:-
 #    fi
 #}
 
@@ -480,18 +369,3 @@ restart () {
 #        return 1
 #    fi
 #}
-
-## log out? set timeout in seconds...
-## ...and do not log out in some specific terminals:
-#if [[ "${TERM}" == ([Exa]term*|rxvt|dtterm|screen*) ]] ; then
-#    unset TMOUT
-#else
-#    TMOUT=1800
-#fi
-
-## associate types and extensions (be aware with perl scripts and anwanted behaviour!)
-#check_com zsh-mime-setup || { autoload zsh-mime-setup && zsh-mime-setup }
-#alias -s pl='perl -S'
-
-## ctrl-s will no longer freeze the terminal.
-#stty erase "^?"

@@ -720,11 +720,17 @@ if IsSourced('ale')
                                       \ '-*no-assembler',
                                       \ ]
 
-        let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++17'
+        let g:ale_cpp_gcc_options = '-Wall -Wpedantic -Wextra -Iinc -Iinclude -I.. -std=gnu++20'
         let g:ale_cpp_clang_options = g:ale_cpp_gcc_options
 
-        let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
+        " let g:ale_cpp_clangtidy_checks = (g:ale_c_clangtidy_checks)
+        let g:ale_cpp_clangtidy_checks = ['*']
         call extend(g:ale_cpp_clangtidy_checks, [
+                    \   '-android*',
+                    \   '-llvm-header-guard',
+                    \   '-*c++98-compat',
+                    \   '-*-braces-around-statements',
+                    \   '-*avoid-goto',
                     \   '-*pointer-arithmetic*',
                     \   '-*fuchsia*',
                     \   '-*implicit-bool*',
@@ -733,7 +739,8 @@ if IsSourced('ale')
                     \   '-*trailing-return-type',
                     \   '-*pro-type-union-access',
                     \   '-*bounds-constant-array-index',
-                    \   '-*no-array-decay', '-*array-to-pointer-decay',
+                    \   '-*no-array-decay',
+                    \   '-*array-to-pointer-decay',
                     \   '-*avoid-c-arrays',
                     \   '-llvmlibc*'
                     \ ])
@@ -745,8 +752,11 @@ if IsSourced('ale')
                     \ ])
 
         " let g:ale_c_clangd_options='--clang-tidy --clang-tidy-checks=clang-diagnostic-*,clang-analyzer-*,*,-android*,-llvm-header-guard,-*c++98-compat,-*-braces-around-statements,-*DeprecatedOrUnsafeBufferHandling,-*avoid-c-arrays,-*avoid-goto,-*avoid-magic-numbers,-*bugprone-sizeof-expression,-*disabled-macro-expansion,-*gnu-statement-expression,-*gnu-zero-variadic-macro-arguments,-*isolate-declaration,-*macro-usage,-*narrowing-conversions,-*readability-magic-numbers,-*redundant-void-arg,-*todo*,-*uppercase-literal-suffix,-*init-variables'
-        let g:ale_c_clangd_options = '--clang-tidy --clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
-        let g:ale_cpp_clangd_options = '--clang-tidy --clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
+
+        let s:clangd_options = '--pch-storage=memory --cross-file-rename --header-insertion=iwyu --all-scopes-completion --header-insertion-decorators --limit-results=1000'
+        " let s:clangd_options = '--limit-results=0'
+        let g:ale_c_clangd_options   = s:clangd_options . ' --clang-tidy --clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
+        let g:ale_cpp_clangd_options = s:clangd_options . ' --clang-tidy --clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
 
         " let s:ALE_C = ['gcc', 'clangtidy', 'cppcheck', 'flawfinder']
         " let s:ALE_C = ['clang', 'clangtidy', 'cppcheck']
@@ -1012,7 +1022,7 @@ endif
 
 if IsSourced('vim-autoformat')
     augroup c_formatting
-        autocmd FileType c,cpp,cs,c++ setlocal cindent sw=8 sts=8
+        autocmd FileType c,cpp,cs,c++ setlocal cindent sw=6 sts=6 tw=90
         autocmd FileType go setlocal cindent sw=6 sts=6 ts=6 noexpandtab
     augroup END
     let g:__c__shiftwidth = 8
@@ -1148,7 +1158,7 @@ if IsSourced('neotags.nvim')
     let g:neotags_restored_groups = {
                 \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cAnsiFunction'],
                 \     'cpp': ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType',
-                \             'cppStorageClass', 'cppType', 'cppAuto'],
+                \             'cppStorageClass', 'cppType', 'cppAuto', 'smart_pointers', 'cppSTLconstant', 'cppSTLexception', 'cppSTLenum'],
                 \     'go':  ['goExtraConstants', 'goStdlibFuncs']
                 \ }
 
@@ -1202,8 +1212,9 @@ if IsSourced('tag-highlight.nvim')
     let s:tmp_cpp_lst = copy(g:tag_highlight#restored_groups['c'])
     call extend(s:tmp_cpp_lst,
                 \   [
-                \        'cppStorageClass', 'cppType', 'cppAuto',
-                \        'cppSTLconstant', 
+                \        'cppStorageClass', 'cppType', 'cppAuto', 'cppSTLenum',
+                \        'cppSTLconstant', 'smart_pointers', 'cppSTLconstant', 'cppSTLfunctional',
+                \        'cppSTLcast', 'cppSTLbool',
                 \   ])
                 " \        'cppSTLfunction', 'cppSTLfunctional', 'cppSTLnamespace',
     let g:tag_highlight#restored_groups['cpp'] = copy(s:tmp_cpp_lst)
@@ -1214,11 +1225,11 @@ if IsSourced('tag-highlight.nvim')
 
         highlight! link goConstantTag               Enum
         highlight! link goGlobalVarTag              GlobalVarTag
-        highlight! link goInterfaceTag              tag_highlight_ClassTag
+        highlight! link goInterfaceTag              newClassColor
         highlight! link pythonGlobalVarTag          Enum
         highlight! link rustMacroTag                newClassColor
-        highlight! link tag_highlight_ClassTag      newClassColor
-        highlight! link tag_highlight_ClassTag      newClassColor
+        highlight! link tag_highlight_ClassTag      magentaIGuess
+        " highlight! link tag_highlight_ClassTag      newClassColor
         highlight! link tag_highlight_EnumTag       Enum
         highlight! link tag_highlight_FunctionTag   CFuncTag
         highlight! link tag_highlight_GlobalVarTag  GlobalVarTag

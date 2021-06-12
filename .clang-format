@@ -18,7 +18,7 @@ BasedOnStyle: LLVM
 BinPackParameters: false
 BinPackArguments: true
 
-# AlignConsecutiveMacros: true
+AlignConsecutiveMacros: true
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
@@ -54,11 +54,15 @@ MaxEmptyLinesToKeep: 2
 PointerAlignment: Right
 ReflowComments: true
 SortIncludes: true
+SortUsingDeclarations: true
 SpaceBeforeAssignmentOperators: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AllowAllConstructorInitializersOnNextLine: true
+
+FixNamespaceComments: true
 
 ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH',
                 'P99_PARALLEL_FOR', 'P99_PARALLEL_DO', 'GENLIST_FOREACH', 'foreach']
-
 
 
 # ##Linux##
@@ -69,10 +73,11 @@ IndentWidth: 8
 # ##END##
 
 UseTab: Never
-ColumnLimit: 80
+ColumnLimit: 90
 
 # ##Custom##
 #BreakBeforeBraces: Custom
+#IndentWidth: 6
 #BraceWrapping:
 #  AfterClass:            true
 #  AfterControlStatement: false

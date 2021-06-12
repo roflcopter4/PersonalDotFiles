@@ -309,9 +309,6 @@ It should only modify the values of Spacemacs settings."
                          deeper-blue
                          spacemacs-dark
                          spacemacs-light
-                         midnight
-                         classic
-                         cobalt
                          )
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',

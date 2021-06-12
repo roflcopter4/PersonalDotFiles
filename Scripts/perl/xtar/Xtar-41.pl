@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-use 5.26.0; use warnings; use strict;
+use 5.28.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -102,7 +102,7 @@ my $xtar = xtar->new(
         shutup  => $options{shutup}
     },
     CWD         => rel2abs(getcwd()),
-    NumArchives => scalar(@ARGV)
+    NumArchives => scalar(@ARGV),
 );
 undef %options;
 

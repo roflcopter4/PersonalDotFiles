@@ -123,7 +123,7 @@ compdef _directories smartcd
 export LESS='-R -M --shift 5 -i'
 export DISTCC_HOSTS="${DISTCC_HOSTS}${DISTCC_HOSTS:+:}+zeroconf"
 export MANWIDTH=120
-export HISTSIZE=1000000000
+export HISTSIZE=10000000000
 export HIGHLIGHT_OPTIONS='-l -t8 --out-format=truecolor --force --style=myMolokai'
 
 SourceIfExist "${HOME}/.local/etc/profile.d/autojump.sh"

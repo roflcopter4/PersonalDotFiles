@@ -364,13 +364,13 @@ case "$SYSID" in
 
             Ems() { 
                 local key desc both
-                desc=false both=false key='3'
+                desc=false both=true key='3'
 
                 OPTIND=1
                 while getopts "k:sSb" ARG; do
                     case "$ARG" in
                         (S) desc=true ;;
-                        (b) both=true ;;
+                        (b) both=$(if $both; then echo 'false'; else echo 'true'; fi) ;;
                         (k|s)
                             if [ "$OPTARG" -lt 3 ]; then
                                 key=$((OPTARG + 2))
@@ -379,8 +379,8 @@ case "$SYSID" in
                             fi
                             ;;
                         (-*)
-                            echo "Invalid option '${1}'" >&2
-                            return 2
+                            echo "Invalid option '${1}'" >&2 ;
+                            exit 1 ;
                             ;;
                     esac
                 done

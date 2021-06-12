@@ -1,8 +1,7 @@
 package xtar::OutPath;
-use 5.26.0; use warnings; use strict;
-use Moose;
-use feature 'signatures';
-no warnings 'experimental::signatures';
+
+use Moo;
+use MooX::Types::MooseLike::Base qw{Int Str Object HashRef Bool};
 
 use constant true  => 1;
 use constant false => 0;
@@ -11,6 +10,11 @@ use File::Spec::Functions qw( rel2abs catdir );
 
 use lib rel2abs('..');
 use xtar::Utils;
+
+# BEGIN { eval $xtar::Utils::moo; }
+use 5.28.0; use warnings; use strict;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 
 ###############################################################################
 
@@ -24,19 +28,19 @@ sub descend         :prototype($);
 
 ###############################################################################
 
-has 'CWD'         => ( is => 'ro', isa => 'Str' );
-has 'Options'     => ( is => 'ro', isa => 'HashRef' );
-has 'NumArchives' => ( is => 'ro', isa => 'Int' );
-has 'notfirst'    => ( is => 'rw', isa => 'Bool' );
+has 'CWD'         => ( is => 'ro', isa => Str );
+has 'Options'     => ( is => 'ro', isa => HashRef );
+has 'NumArchives' => ( is => 'ro', isa => Int );
+has 'notfirst'    => ( is => 'rw', isa => Bool );
 
-has 'tmpdir'      => ( is => 'rw', isa => 'Str' );
-has 'bottom'      => ( is => 'rw', isa => 'Str' );
-has 'top_dir'     => ( is => 'rw', isa => 'Str' );
-has 'odir'        => ( is => 'rw', isa => 'Str' );
-has 'out_top'     => ( is => 'rw', isa => 'Str' );
-has 'top_exist'   => ( is => 'rw', isa => 'Str' );
+has 'tmpdir'      => ( is => 'rw', isa => Str );
+has 'bottom'      => ( is => 'rw', isa => Str );
+has 'top_dir'     => ( is => 'rw', isa => Str );
+has 'odir'        => ( is => 'rw', isa => Str );
+has 'out_top'     => ( is => 'rw', isa => Str );
+has 'top_exist'   => ( is => 'rw', isa => Str );
 
-has 'file'        => ( is => 'rw', isa => 'Object' );
+has 'file'        => ( is => 'rw', isa => Object );
 
 ###############################################################################
 

@@ -1,8 +1,7 @@
 package xtar;
-use Moose;
-use 5.26.0; use warnings; use strict;
-use feature 'signatures';
-no warnings 'experimental::signatures';
+
+use Moo;
+use MooX::Types::MooseLike::Base qw{Str Int Object HashRef};
 
 use constant true  => 1;
 use constant false => 0;
@@ -26,13 +25,10 @@ use xtar::OutPath;
 use xtar::Colors;
 use xtar::Utils;
 
-# BEGIN {
-#     eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
-#     eval 'use xtar::File;';
-#     eval 'use xtar::OutPath;';
-#     eval 'use xtar::Colors;';
-#     eval 'use xtar::Utils;';
-# }
+# BEGIN { eval $xtar::Utils::moo; }
+use 5.28.0; use warnings; use strict;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 
 #########################################################################################
 
@@ -52,13 +48,13 @@ sub force_extract      :prototype($$);
 
 #########################################################################################
 
-has 'CWD'         => (is => 'ro', isa => 'Str');
-has 'NumArchives' => (is => 'ro', isa => 'Int');
-has 'Options'     => (is => 'rw', isa => 'HashRef');
-has 'counter'     => (is => 'rw', isa => 'Int');
-has 'tmpdir'      => (is => 'rw', isa => 'Str');
-has 'out'         => (is => 'rw', isa => 'Object');
-has 'file'        => (is => 'rw', isa => 'Object');
+has 'CWD'         => (is => 'ro', isa => Str);
+has 'NumArchives' => (is => 'ro', isa => Int);
+has 'Options'     => (is => 'rw', isa => HashRef);
+has 'counter'     => (is => 'rw', isa => Int);
+has 'tmpdir'      => (is => 'rw', isa => Str);
+has 'out'         => (is => 'rw', isa => Object);
+has 'file'        => (is => 'rw', isa => Object);
 
 my $cmd_color = 'Bcyan';
 our $DEBUG;

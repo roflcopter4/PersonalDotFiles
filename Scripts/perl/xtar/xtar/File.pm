@@ -1,8 +1,7 @@
 package xtar::File;
-use Moose;
-use 5.26.0; use warnings; use strict;
-use feature 'signatures';
-no warnings 'experimental::signatures';
+
+use Moo;
+use MooX::Types::MooseLike::Base qw{Int Str Object HashRef Bool};
 
 use constant true  => 1;
 use constant false => 0;
@@ -22,6 +21,11 @@ use Data::Dumper;
 use lib rel2abs('..');
 use xtar::Colors;
 use xtar::Utils;
+
+# BEGIN { eval $xtar::Utils::moo; }
+use 5.28.0; use warnings; use strict;
+use feature 'signatures';
+no warnings 'experimental::signatures';
 
 our $found_file_unpack = false;
 try {
@@ -45,30 +49,30 @@ sub determine_decompressor :prototype($$);
 
 ##############################################################################
 
-has 'Options'     => ( is => 'ro', isa => 'HashRef' );
-has 'ID_Failure'  => ( is => 'rw', isa => 'Bool' );
+has 'Options'     => ( is => 'ro', isa => HashRef );
+has 'ID_Failure'  => ( is => 'rw', isa => Bool );
 
-has 'basepath'    => ( is => 'ro', isa => 'Str' );
-has 'filename'    => ( is => 'rw', isa => 'Str' );
-has 'fullpath'    => ( is => 'rw', isa => 'Str' );
-has 'bname'       => ( is => 'rw', isa => 'Str' );
-has 'quotedname'  => ( is => 'rw', isa => 'Str' );
+has 'basepath'    => ( is => 'ro', isa => Str );
+has 'filename'    => ( is => 'rw', isa => Str );
+has 'fullpath'    => ( is => 'rw', isa => Str );
+has 'bname'       => ( is => 'rw', isa => Str );
+has 'quotedname'  => ( is => 'rw', isa => Str );
 
-has 'extention'   => ( is => 'rw', isa => 'Str' );
-has 'ext_type'    => ( is => 'rw', isa => 'Str' );
-has 'ext_tar'     => ( is => 'rw', isa => 'Bool' );
-has 'ext_cmd'     => ( is => 'rw', isa => 'HashRef' );
+has 'extention'   => ( is => 'rw', isa => Str );
+has 'ext_type'    => ( is => 'rw', isa => Str );
+has 'ext_tar'     => ( is => 'rw', isa => Bool );
+has 'ext_cmd'     => ( is => 'rw', isa => HashRef );
 
-has 'mime_raw'    => ( is => 'rw', isa => 'Str' );
-has 'mime_type'   => ( is => 'rw', isa => 'Str' );
-has 'mime_tar'    => ( is => 'rw', isa => 'Bool' );
-has 'mime_cmd'    => ( is => 'rw', isa => 'HashRef' );
+has 'mime_raw'    => ( is => 'rw', isa => Str );
+has 'mime_type'   => ( is => 'rw', isa => Str );
+has 'mime_tar'    => ( is => 'rw', isa => Bool );
+has 'mime_cmd'    => ( is => 'rw', isa => HashRef );
 
-has 'likely_type' => ( is => 'rw', isa => 'Str' );
-has 'likely_tar'  => ( is => 'rw', isa => 'Bool' );
-has 'likely_cmd'  => ( is => 'rw', isa => 'HashRef' );
+has 'likely_type' => ( is => 'rw', isa => Str );
+has 'likely_tar'  => ( is => 'rw', isa => Bool );
+has 'likely_cmd'  => ( is => 'rw', isa => HashRef );
 
-has 'notfirst'    => ( is => 'ro', isa => 'Bool' );
+has 'notfirst'    => ( is => 'ro', isa => Bool );
 
 ###############################################################################
 
@@ -295,6 +299,9 @@ EOF
 # nothing then either die or resort to random guessing.
 sub finalize_analysis :prototype($) ($self)
 {
+    if ($xtar::DEBUG) {
+        printf qq{mime_type: "%s"\next_type: "%s"\n}, $self->mime_type, $self->ext_type;
+    }
     if    ($self->mime_type) { $self->likely_type( $self->mime_type ) }
     elsif ($self->ext_type)  { $self->likely_type( $self->ext_type ) }
     else {
@@ -339,6 +346,7 @@ sub _normalize_type :prototype($) ($extention)
     elsif (/^(arc)$/ni)          { $type = 'arc' }
     elsif (/^(ace|winace)$/ni)   { $type = 'ace' }
     elsif (/^(rar)$/ni)          { $type = 'rar' }
+    elsif (/^(a)$/ni)            { $type = 'archive' }
 
     return $type;
 }
@@ -402,9 +410,14 @@ sub determine_decompressor : prototype($$) ($self, $type)
         $TFlags = '-xf -- -O';
         $EFlags = '-xf';
     }
+    elsif (/^(a|archive)$/ni and which('ar')) {
+        $CMD = 'ar';
+        $TFlags = 'NOTAR';
+        $EFlags = 'x';
+    }
     elsif (/^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
               deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
-              compress|gzip|bzip2?|7[-]?zip)$/nxi
+              compress|gzip|bzip2?|7[-]?zip|archive)$/nxi
            and which('7z'))
     {
         $CMD    = '7z';

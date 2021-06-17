@@ -167,6 +167,8 @@ OPTIONS
                  name is generated from the name of the first supplied archive.
                  *** NOT IMPLEMENTED ***
 
+ -O              Out topdir
+
 EOF
     }
     else {

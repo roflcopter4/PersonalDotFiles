@@ -366,7 +366,7 @@ sub move_zqaq ($self)
 
 sub determine_decompressor : prototype($$) ($self, $type)
 {
-    my ($CMD, $TFlags, $EFlags, $Stdout);
+    my ($CMD, $TFlags, $EFlags, $Stdout, $NeedOdir);
     my $V     = $self->Options->{verbose};
     my $Q     = $self->Options->{quiet};
     my $v7z   = ($Q) ? '-bso0 -bsp0' : '';
@@ -415,6 +415,12 @@ sub determine_decompressor : prototype($$) ($self, $type)
         $TFlags = 'NOTAR';
         $EFlags = 'x';
     }
+    # elsif (/^(deb)$/ni and which('dpkg')) {
+    #     $CMD = 'dpkg';
+    #     $TFlags = 'NOTAR';
+    #     $EFlags = '--unpack';
+    #     $NeedOdir = true;
+    # }
     elsif (/^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
               deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
               compress|gzip|bzip2?|7[-]?zip|archive)$/nxi
@@ -448,10 +454,11 @@ sub determine_decompressor : prototype($$) ($self, $type)
     }
 
     return {
-        CMD    => $CMD,
-        tflags => $TFlags,
-        eflags => $EFlags,
-        stdout => $Stdout
+        CMD      => $CMD,
+        tflags   => $TFlags,
+        eflags   => $EFlags,
+        stdout   => $Stdout,
+        needodir => $NeedOdir,
     };
 }
 

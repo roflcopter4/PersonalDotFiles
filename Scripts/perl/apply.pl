@@ -66,7 +66,8 @@ sub main :prototype()
         my $tmp = $options{script};
         my $sh = ( $options{shell} ) ? $options{shell} : '/bin/sh';
 
-        push @cmd, $sh, '-s', '--', "<<'_APPLY_EOF_'\n${tmp}\n_APPLY_EOF_\n";
+        # push @cmd, $sh, '-c', "<<'_APPLY_EOF_'\n${tmp}\n_APPLY_EOF_\n";
+        push @cmd, $sh, '-c', "${tmp}";
         $init = 0;
     }
     elsif ($options{xargs}) {
@@ -145,12 +146,16 @@ sub cmdarg :prototype(\%\@$) ($options, $cmd_args, $arg)
     my $init = 1;
 
     if ($options->{diff}) {
-        if ( $arg eq '--' ) { $init = 0 }
-        else                { push @{$cmd_args}, $arg }
+        if    ( $arg eq '\--' ) { push @{$cmd_args}, '--' }
+        elsif ($arg ne '--' )   { push @{$cmd_args}, $arg }
+        else                    { $init = 0 }
     }
     else {
         if ($arg eq '--') {
             $init = 0;
+        }
+        elsif ($arg eq '\--') {
+            push @$cmd_args, '--';
         }
         elsif ($arg =~ /^-{1,2}/ or $options->{allow_spaces}) {
             push @{$cmd_args}, $arg;
@@ -188,10 +193,12 @@ sub run :prototype(\%\@@) ($options, $cmd, @cmd_args)
             my $post = @$cmd[$#$cmd];
             $post .= ' ' if ($post !~ /\n$/);
 
-            msg(  "\033[0;32msystem(\033[1;36m@$cmd[0..($#$cmd-1)] "
-                . "\033[0;33m@{cmd_args}\033[0;36m$post\033[0;32m)\033[0m",
-                !$options->{dryrun} || $options->{sep}
-            );
+            # msg(  "\033[0;32msystem(\033[1;36m@$cmd[0..($#$cmd-1)] "
+            #     . "\033[0;33m@{cmd_args}\033[0;36m$post\033[0;32m)\033[0m",
+            #     !$options->{dryrun} || $options->{sep}
+            # );
+
+            msg(qq{system(@$cmd, @cmd_args)});
         }
         else {
             print "\n" if $options->{sep}
@@ -199,25 +206,31 @@ sub run :prototype(\%\@@) ($options, $cmd, @cmd_args)
 
         if (not $options->{dryrun}) {
             # system("@$cmd[0..($#$cmd-1)] @cmd_args $$cmd[$#$cmd]");
-            system(@$cmd[0 .. ($#$cmd-1)], @cmd_args, $$cmd[$#$cmd]);
+            # system(@$cmd[0 .. ($#$cmd-1)], @cmd_args, $$cmd[$#$cmd]);
+            system(@$cmd, @cmd_args);
         }
     }
     else {
-        if ($DEBUG or $options->{dryrun}) {
+        my $exe = @$cmd[0];
+        my @args = (@$cmd[1 .. ($#$cmd-1)], @cmd_args);
+
+        if ($DEBUG) {
             msg(($options->{sep} ? "\033[1;34m" . '-'x40 . "\033[0m\n\033[1;34m==>\033[0m  " : "")
-                . "\033[0;32msystem(\033[1;36m@$cmd "
+                . "\033[0;32msystem( "
+                . "\033[1;36m$exe \033[1;30m$exe "
                 . "\033[0;33m@{cmd_args}\033[0;32m)\033[0m"
                 . ($options->{sep} ? "\n\033[1;34m" . '-'x40 . "\033[0m\n" : ""),
                 !$options->{dryrun} || $options->{sep}
             );
         }
         else {
+            if ($options->{dryrun}) {
+                print "$exe @args\n";
+            }
             print "\n" if $options->{sep}
         }
         if (not $options->{dryrun}) {
-            my $exe = shift @$cmd;
-            system($exe @$cmd, @cmd_args);
-            # system("@$cmd @cmd_args");
+            system($exe $exe, @args);
         }
     }
 

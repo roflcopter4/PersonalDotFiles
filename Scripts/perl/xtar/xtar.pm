@@ -39,9 +39,9 @@ sub _get_tempdir       :prototype($);
 sub try_extractions    :prototype($);
 sub _do_try_extraction :prototype($$$$);
 sub _extraction_failed :prototype($$$);
-sub do_extraction      :prototype($$$$);
-sub extract_tar        :prototype($$$$);
-sub extract_else       :prototype($$$$$);
+sub do_extraction      :prototype($$$$$);
+sub extract_tar        :prototype($$$);
+sub extract_else       :prototype($$$);
 sub substitute_cmd     :prototype($$$$);
 sub safe_make_path     :prototype($);
 sub force_extract      :prototype($$);
@@ -227,7 +227,9 @@ sub _do_try_extraction :prototype($$$$) ($self, $try, $success, $tmpdir)
     $$tmpdir = $self->_get_tempdir;
     chdir $$tmpdir;
 
-    $$success = do_extraction($self->file->fullpath, $cmd, $is_tar, $self->Options);
+    $cmd->{tmpdir} = $$tmpdir;
+
+    $$success = do_extraction($self->file->fullpath, $cmd, $is_tar, $$tmpdir, $self->Options);
 
     if ($$success) {
         if ($self->Options->{verbose}) {
@@ -258,34 +260,31 @@ sub _extraction_failed :prototype($$$) ($self, $success, $tmpdir)
 
 #########################################################################################
 
-sub do_extraction :prototype($$$$) ($archive, $cmd, $is_tar, $options)
+sub do_extraction :prototype($$$$$) ($archive, $cmd, $is_tar, $tmpdir, $options)
 {
     if ($cmd->{CMD} eq 'FAIL') {
         return false;
     }
     elsif ($is_tar and $cmd->{tflags} eq 'NOTAR') {
-        return extract_else($cmd->{CMD}, $cmd->{eflags}, $cmd->{stdout},
-                            $archive, $options);
+        return extract_else($cmd, $archive, $options);
     }
     else {
         if ($is_tar) {
-            return extract_tar($cmd->{CMD}, $cmd->{tflags},
-                               $archive, $options);
+            return extract_tar($cmd, $archive, $options);
         }
         else {
-            return extract_else($cmd->{CMD}, $cmd->{eflags}, $cmd->{stdout},
-                                $archive, $options);
+            return extract_else($cmd, $archive, $options);
         }
     }
 }
 
-sub extract_tar :prototype($$$$) ($CMD, $flags, $file, $options)
+sub extract_tar :prototype($$$) ($cmd, $file, $options)
 {
     my $Q             = $options->{quiet};
     my $ret           = true;
     my $shortname     = Basename($file);
-    my $command       = substitute_cmd($CMD, $flags, $file, $options);
-    my $short_command = substitute_cmd($CMD, $flags, $shortname, $options);
+    my $command       = substitute_cmd($cmd, $cmd->{tflags}, $file, $options);
+    my $short_command = substitute_cmd($cmd, $cmd->{tflags}, $shortname, $options);
 
     sayC($cmd_color, qq{$short_command | $options->{TAR} -xf -}) unless $Q || $DEBUG;
     sayC($cmd_color, qq{$command | $options->{TAR} -xf -}) if $DEBUG;
@@ -304,15 +303,15 @@ sub extract_tar :prototype($$$$) ($CMD, $flags, $file, $options)
     return $ret;
 }
 
-sub extract_else :prototype($$$$$) ($CMD, $flags, $stdout, $file, $options)
+sub extract_else :prototype($$$) ($cmd, $file, $options)
 {
     my $Q             = $options->{quiet};
     my $shortname     = Basename($file);
     my $CWD           = getcwd();
-    my $command       = substitute_cmd($CMD, $flags, shell_quote($file), $options);
-    my $short_command = substitute_cmd($CMD, $flags, $shortname, $options);
+    my $command       = substitute_cmd($cmd, $cmd->{eflags}, shell_quote($file), $options);
+    my $short_command = substitute_cmd($cmd, $cmd->{eflags}, $shortname, $options);
 
-    if ($stdout) {
+    if ($cmd->{stdout}) {
         my $dst = shell_quote(catfile($CWD, $shortname));
         sayC($cmd_color, qq{$short_command > "$CWD/"}) unless $Q || $DEBUG;
         sayC($cmd_color, qq{$command > $dst}) if $DEBUG;
@@ -329,15 +328,21 @@ sub extract_else :prototype($$$$$) ($CMD, $flags, $stdout, $file, $options)
 
 #########################################################################################
 
-sub substitute_cmd :prototype($$$$) ($CMD, $flags, $file, $options)
+sub substitute_cmd :prototype($$$$) ($cmd, $flags, $file, $options)
 {
+    my $CMD = $cmd->{CMD};
     my $TAR = $options->{TAR};
     $CMD =~ s/TAR/$TAR/;
 
-    if ($flags =~ /--/) { $flags =~ s/--/$file/ }
-    else                { $flags .= " $file" }
 
-    return "$CMD $flags";
+    if ($flags =~ / -- /) { $flags =~ s/ -- / $file / }
+    else                  { $flags .= " $file" }
+
+    my $ret = "$CMD $flags";
+    if ($cmd->{needodir}) {
+        $ret .= ' ' . $cmd->{tmpdir}
+    }
+    return $ret;
 }
 
 sub safe_make_path :prototype($) ($top_dir)

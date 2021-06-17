@@ -15,8 +15,8 @@ ID_SHELL() {
     _shname=''
 
     if ! {
-        [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xOpenBSD' ] || \
-        [ "x${_UNAME_O}" = 'xCygwin' ]  || [ "x${_UNAME_O}" = 'xMsys' ]
+        [ "${_UNAME}" = 'DragonFly' ] || [ "${_UNAME}" = 'OpenBSD' ] || \
+        [ "${_UNAME_O}" = 'Cygwin' ]  || [ "${_UNAME_O}" = 'Msys' ]
     }; then
         _shname="$(basename "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
@@ -90,10 +90,7 @@ mkalias() {
         shift
 
         for param in "$@"; do
-            # [ "$param" ] || return 1
             TEMP=$(echo "$param" | sed -E 's/([[:alnum:][:punct:]]*).*/\1/')
-            # TEMP=$(__get_base_name "$param")
-            # TEMP=$(echo "$param" | sed -E "s/[^=]*=['\"]?([[:alnum:][:punct:]/]*).*['\"]?/\\1/")
             if echo "$TEMP" | grep -q '^\\'; then
                 TEMP=$(echo "$TEMP" | sed 's/^\\//')
             fi
@@ -105,12 +102,6 @@ mkalias() {
         done
 
         [ "${alias_cmd_tmp}" ] || return 2
-
-        #if Exists "$TEMP"; then
-        #    alias_cmd_tmp="${1}=${2}"
-        #else
-        #    alias_cmd_tmp="${1}=${3}"
-        #fi
 
     elif $do_test; then
         TEMP=$(echo "$1" | sed -E "s/[^=]*=['\"]?([[:alnum:][:punct:]/]*).*['\"]?/\\1/")
@@ -166,14 +157,14 @@ if Exists 'exa'; then
         arg=''
         if [ $# -eq 0 ]; then
             arg='-s date' 
-        elif ! { printf '%s' "$1" | command grep -q '^-'; }; then
+        elif ! { printf '%s' "$1" | grep -q '^-'; }; then
             if ! [ -e "$1" ]; then
                 arg="-s $1"
                 shift
             else
                 arg='-s date'
             fi
-        elif [ $# -ge 1 ] && [ "x$1" = 'x-r' ] && ! { echo "$2" | command grep -q '^-'; }; then
+        elif [ $# -ge 1 ] && [ "$1" = '-r' ] && ! { echo "$2" | grep -q '^-'; }; then
             arg="-rs date"
         else
             OPTIND=1
@@ -302,7 +293,6 @@ alias  glgs="git log --graph --pretty=\"%C()\${(l.\$((\${COLUMNS}-8))..─.)}\"'
 alias glgsa="git log --graph --pretty=\"%C()\${(l.\$((\${COLUMNS}-8))..─.)}\"'%n%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --all --summary --stat"
 
 # The rest.
-mkalias -Tg clformat='clang-format-3.6' 
 mkalias -Tg clformat='clang-format' 
 mkalias -T cdif='colordiff'
 mkalias -T pylint='pylint -f colorized' 
@@ -329,7 +319,7 @@ unset BAT_COMMON
 # Force less to take raw characters (color).
 [ "$LESS" ] || alias less='less -r'
 
-if [ "x$SYSID" = 'xlaptop-gentoo' ]; then
+if [ "$SYSID" = 'laptop-gentoo' ]; then
     alias emerge='emerge -k'
 fi
 case "$SYSID" in 
@@ -403,16 +393,6 @@ case "$SYSID" in
             alias ems='emerge --search'
         fi
 
-        if Exists 'nvim-qt'; then
-            gvi() {
-                if [ $# -eq 0 ]; then
-                    nvim-qt --maximized
-                else
-                    nvim-qt --maximized -- "$@"
-                fi
-            }
-        fi
-
         unset EMERGE
         ;;
 esac
@@ -420,55 +400,53 @@ esac
 
 # Linux Aliases
 case "${_UNAME}" in
-Linux)
-    if Exists 'pacman'; then
-        mkalias -s pacman='pacman --color=always' 
-        mkalias -s pacs='\pacman --color=always -S --needed' 
-        mkalias -s pacup='\pacman --color=always -Syu' 
-        alias      pacss='\pacman --color=always -Ss' 
-        alias      paci='\pacman --color=always -Si' 
-        alias      pac='\pacman --color=always'
-    fi
-    mkalias -T pacaur='pacaur --color=always' 
-    mkalias -T pacg='pacget -s' 
-    mkalias -T yays='yay -S'
-    mkalias -T yayss='yay -Ss'
-    mkalias -T yayi='yay -Si'
-
-    mkalias -s stl='systemctl'
-    mkalias -T n.='nemo . >/dev/null 2>&1 &' 
-    mkalias -T e.='nemo . >/dev/null 2>&1 &' 
-    mkalias -T d.='dolphin . >/dev/null 2>&1 &' 
-
-    mkalias -TS ualt='update-alternatives' 
-
-    if Exists 'apt'; then
-        mkalias -S apt='apt' 
-        alias      apts='command apt search'
-
-        if Exists 'apt-fast'; then
-            mkalias -s aptf='apt-fast'
-            mkalias -s aptfi='apt-fast install'
-        else
-            mkalias -s apti='apt install'
+    Linux)
+        if Exists 'pacman'; then
+            mkalias -s pacman='pacman --color=always' 
+            mkalias -s pacs='\pacman --color=always -S --needed' 
+            mkalias -s pacup='\pacman --color=always -Syu' 
+            alias      pacss='\pacman --color=always -Ss' 
+            alias      paci='\pacman --color=always -Si' 
+            alias      pac='\pacman --color=always'
         fi
-    fi
+        mkalias -T pacaur='pacaur --color=always' 
+        mkalias -T pacg='pacget -s' 
+        mkalias -T yays='yay -S'
+        mkalias -T yayss='yay -Ss'
+        mkalias -T yayi='yay -Si'
 
-    alias make='make --no-print-directory'
-    ;;
+        mkalias -s stl='systemctl'
+        mkalias -T n.='nemo . >/dev/null 2>&1 &' 
+        mkalias -T e.='nemo . >/dev/null 2>&1 &' 
+        mkalias -T d.='dolphin . >/dev/null 2>&1 &' 
 
-FreeBSD | DragonFly)
-    mkalias -S pkg='pkg'
-    #mkalias -S make='make'
-    alias make='make -j18'
-    mkalias -T pf='portfind'
-    mkalias -s pki='pkg install'
-    mkalias -s mic='make install clean'
-    mkalias -s mc='make config'
-    mkalias -s mcr='make config-recursive'
-    alias pks='\pkg search'
-    alias pkgf='pkg query %Fp'
-    ;;
+        mkalias -TS ualt='update-alternatives' 
+
+        if Exists 'apt'; then
+            mkalias -S apt='apt' 
+            alias      apts='command apt search'
+
+            if Exists 'apt-fast'; then
+                mkalias -s aptf='apt-fast'
+                mkalias -s aptfi='apt-fast install'
+            else
+                mkalias -s apti='apt install'
+            fi
+        fi
+
+        alias make='make --no-print-directory'
+        ;;
+
+    FreeBSD | DragonFly)
+        mkalias -S pkg='pkg'
+        mkalias -T pf='portfind'
+        mkalias -s pki='pkg install'
+        mkalias -s mic='make install clean'
+        mkalias -s mc='make config'
+        mkalias -s mcr='make config-recursive'
+        alias pks='\pkg search'
+        alias pkgf='\pkg query %Fp'
+        ;;
 esac
 
 #Exists 'gcp' && ! [ "$(command -v gcp)" = '/usr/bin/gcp' ] && unalias gcp
@@ -488,6 +466,15 @@ if [ "$IS_WINDOWS" ]; then
         alias pacss='pacman -Ss --color=always' 
         alias paci='pacman -Si --color=always' 
     fi
+else
+    Exists 'nvim-qt' &&
+    gvi() {
+        if [ $# -eq 0 ]; then
+            nvim-qt --maximized
+        else
+            nvim-qt --maximized -- "$@"
+        fi
+    }
 fi
 
 if [ ".$TERM" = '.linux' ]; then
@@ -541,7 +528,7 @@ perlman () {
 }
 
 
-if [ "x${_UNAME}" = 'xDragonFly' ] || [ "x${_UNAME}" = 'xFreeBSD' ]; then
+if [ "${_UNAME}" = 'DragonFly' ] || [ "${_UNAME}" = 'FreeBSD' ]; then
     Exists 'gfind' && FIND='gfind'
 else
     FIND='find'
@@ -568,14 +555,6 @@ lessinfo() {
 }
 
 
-Exists 'emacs' && {
-    emacs () {
-        command emacs -g 120x75 "$@" > /dev/null 2>&1 &
-    }
-    alias emacsn='/usr/bin/emacs -nw'
-}
-
-
 Exists 'eovim' && {
     eov() {
         (
@@ -585,21 +564,10 @@ Exists 'eovim' && {
     }
 }
 
-Exists 'nvim-qt' && {
-    qvi() {
-        (
-            export NVIM_QT='true'
-            # nvim-qt --geometry 900x950 --no-ext-tabline "$@" >/dev/null 2>&1
-            # nvim-qt --maximized --no-ext-tabline "$@" >/dev/null 2>&1
-            nvim-qt --geometry 900x925 --maximized --no-ext-tabline "$@" >/dev/null 2>&1
-        )
-    }
-}
-
 
 Exists 'fzf' && {
     cdfzf() {
-        cd "$(dirname "$(fzf "$@")")"
+        cd "$(dirname "$(fzf "$@")")" || return 1
     }
 }
 
@@ -673,7 +641,7 @@ if Exists 'fzy'; then
                     esac
                     ;;
                 h)
-                    cat <<-EOF >&2
+                    cat <<-"EOF" >&2
 			Wrapper for fzy. Options: "${__opts}"
 			-r: rg, -g: ag, -f: find, -d: fd
 			-l: set fzy length
@@ -717,8 +685,6 @@ if Exists 'fzy'; then
     cdf() {
         ffzy -c "$@"
     }
-
-    alias fz='ffzy'
 fi
 
 

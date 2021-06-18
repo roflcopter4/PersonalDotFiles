@@ -12,5 +12,5 @@ let g:ale_echo_msg_format = get(g:, 'ale_echo_msg_format', '%severity%: %linter%
 "highlight link ALEErrorSign GruvboxRedSign
 "highlight link ALEWarningSign GruvboxYellowSign
 
-let g:ale_lint_on_text_changed = 'always'
-let g:ale_lint_delay = 500
+" let g:ale_lint_on_text_changed = 'always'
+" let g:ale_lint_delay = 500

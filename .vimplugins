@@ -219,7 +219,8 @@ if dein#load_state(g:load_path)
         if s:use_ale == 1
             call dein#add('w0rp/ale', {'merged': v:false})
         else
-            call dein#add('neomake/neomake', {'merged': v:false})
+            " call dein#add('Valloric/YouCompleteMe', {'merged': v:false})
+            " call dein#add('neomake/neomake', {'merged': v:false})
         endif
         if s:use_deoplete == 1
             call dein#add('Shougo/deoplete.nvim')
@@ -228,12 +229,12 @@ if dein#load_state(g:load_path)
             call dein#add('artur-shaik/vim-javacomplete2')
             " call dein#add('zchee/deoplete-clang')
             " call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': v:false})
-            call dein#add('zchee/deoplete-jedi')
+            " call dein#add('zchee/deoplete-jedi')
         elseif s:use_async == 1
             call dein#add('prabirshrestha/asyncomplete.vim')
         else
-            call dein#add('Valloric/YouCompleteMe',
-                        \ {'merged': v:false, 'build': 'python3 install.py --all'})
+            " call dein#add('Valloric/YouCompleteMe',
+            "             \ {'merged': v:false, 'build': 'python3 install.py --all'})
             call dein#add('rdnetto/YCM-Generator')
         endif
     else
@@ -659,7 +660,7 @@ if IsSourced('ale')
     let g:ale_sign_column_always = 1
     let g:ale_lint_on_insert_leave = 1
     let g:ale_linters_explicit = 0
-    " let g:ale_open_list = 0
+    let g:ale_open_list = 0
     " let g:ale_list_window_size = 4
     let g:ale_sh_shell_default_shell = 'sh'
     " let g:ale_c_parse_makefile = 0
@@ -742,6 +743,7 @@ if IsSourced('ale')
                     \   '-*no-array-decay',
                     \   '-*array-to-pointer-decay',
                     \   '-*avoid-c-arrays',
+                    \   '-*magic-numbers',
                     \   '-llvmlibc*'
                     \ ])
 
@@ -780,8 +782,9 @@ if IsSourced('ale')
         let g:ale_perl_perlcritic_options = '-4'
 
     "# Go {
-        " let s:ale_linters_go = {'go': ['go vet', 'gofmt']}
-        let s:ale_linters_go = {'go': []}
+        " let s:ale_linters_go = {'go': ['gopls', 'golangci-lint', 'govet', 'gofmt']}
+        let s:ale_linters_go = {'go': ['gopls', 'govet', 'gofmt', 'gobuild']}
+        " let s:ale_linters_go = {'go': []}
 
     let g:ale_linters =  {}
     call extend(g:ale_linters, s:ale_linters_c)
@@ -920,7 +923,7 @@ if IsSourced('deoplete.nvim')
     " let s:libclang_path = substitute(s:libclang_path, "\n", '', 'g')
 
     " if IsSourced('zchee/deoplete-clang')
-      let  g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm/12/lib64/libLLVM-12.so'
+      let  g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm/12/lib64/libclang.so.12'
       let  g:deoplete#sources#clang#clang_header = '/usr/lib/llvm/12/include'
     " endif
 
@@ -943,13 +946,13 @@ endif
 
 
 if IsSourced('YouCompleteMe')
-    let g:acp_enableAtStartup = 0
+    " let g:acp_enableAtStartup = 0
 
     if CYGWIN()
         let g:ycm_server_python_interpreter='/c/bin/python3'
     else
         if has('nvim')
-            let g:ycm_server_python_interpreter='/usr/bin/env python3'
+            let g:ycm_server_python_interpreter='/usr/bin/python3.10'
         else
             " let g:ycm_server_python_interpreter='/usr/bin/env python2'
             let g:ycm_server_python_interpreter='python3'
@@ -992,7 +995,7 @@ if IsSourced('YouCompleteMe')
 
     " Disable the neosnippet preview candidate window
     " When enabled, there can be too much visual noise, especially when splits are used.
-    set completeopt-=preview
+    " set completeopt-=preview
 endif
 
 

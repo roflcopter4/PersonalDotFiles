@@ -45,21 +45,24 @@
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     ;; auto-completion
+     auto-completion
+     asm
+     c-c++
+     csharp
      ;; better-defaults
      emacs-lisp
      ;; git
      helm
-     ;; lsp
-     ;; markdown
+     lsp
+     markdown
      multiple-cursors
      ;; org
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     ;; spell-checking
-     ;; syntax-checking
-     ;; version-control
+     spell-checking
+     syntax-checking
+     version-control
      treemacs
 
      ;;coq
@@ -406,7 +409,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-auto-save-file-location 'cache
 
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
-   dotspacemacs-max-rollback-slots 5
+   dotspacemacs-max-rollback-slots 10
 
    ;; If non nil, `helm' will try to minimize the space it uses. (default nil)
    dotspacemacs-helm-resize nil
@@ -785,14 +788,14 @@ before packages are loaded."
   ;; ================================================================================
   ;; C/C++ style
   (setq-default c-default-style "K&R")
-  (setq-default c-basic-offset 8)
+  (setq-default c-basic-offset 6)
   ;; Clang support (clang-format & clang-complete snippets)
   (setq c-c++-enable-clang-support t)
   ;; Flycheck and clang arugments for syntax checking in C/C++
   (add-hook
    'c++-mode-hook
    (lambda ()
-     (setq flycheck-clang-language-standard "c++11")
+     (setq flycheck-clang-language-standard "c++17")
      (setq company-clang-arguments '("-Weverything"))
      (setq company-c-headers-path-user '("../include" "./include" "." "../../include" "../inc" "../../inc" "inc"))
      (setq flycheck-clang-include-path '("../include" "./include" "." "../../include" "../inc" "../../inc" "inc"))))

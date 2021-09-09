@@ -10,7 +10,7 @@ if uname -o >/dev/null 2>&1; then
     _UNAME_O=$(uname -o)
 fi
 
-ID_SHELL() {                                                     
+ID_SHELL () {                                                     
     local _shname
     _shname=''
 
@@ -52,9 +52,10 @@ __get_base_name() {
 # -t  -> Test program      - only make alias if the given command exists.
 # -T  -> Better test       - only make alias if its base command exists.
 # -e  -> Escape            - escape the command in the alias (eg. alias ll='\ls -l')
-mkalias() {
+
+mkalias () {
+    local arg_1 alias_cmd alias_cmd_tmp do_sudo do_test do_alt do_global escape TEMP
     OPTIND=1  # For some incomprehensible reason bash doesn't reset OPTIND by default.
-    local alias_cmd alias_cmd_tmp do_sudo do_test do_alt do_global escape TEMP
     do_sudo=false do_test=false do_alt=false do_global=false escape=false
     
     while getopts 'gGsSt:TAe' ARG "$@"; do
@@ -85,7 +86,6 @@ mkalias() {
 
 
     if $do_alt; then
-        local arg_1
         arg_1="${1}"
         shift
 
@@ -150,25 +150,29 @@ if Exists 'exa'; then
     alias lla='exa -l -a'
     alias lst='exa -T'
     alias llt='exa -T'
+
+    alias gls="LC_ALL=C ${__LS_:-ls} -B -H --color --group-directories-first"
+
     # alias lls='exa -lrs size'
 
     lls () {
-        local arg
+        local arg legal_opts
         arg=''
         if [ $# -eq 0 ]; then
             arg='-s date' 
-        elif ! { printf '%s' "$1" | grep -q '^-'; }; then
+        elif ! { printf '%s' "$1" | \grep -q '^-'; }; then
             if ! [ -e "$1" ]; then
                 arg="-s $1"
                 shift
             else
                 arg='-s date'
             fi
-        elif [ $# -ge 1 ] && [ "$1" = '-r' ] && ! { echo "$2" | grep -q '^-'; }; then
+        elif [ $# -ge 1 ] && [ "$1" = '-r' ] && ! { echo "$2" | \grep -q '^-'; }; then
             arg="-rs date"
         else
+            legal_opts='rSsDdeta'
             OPTIND=1
-            while getopts 'rSsDdet' OPT; do
+            while getopts "$legal_opts" OPT; do
                 case "$OPT" in
                     (s) arg="${arg} -s size"      ;;
                     (S) arg="${arg} -rs size"     ;;
@@ -177,8 +181,9 @@ if Exists 'exa'; then
                     (r) arg="-r ${arg}"           ;;
                     (e) arg="${arg} -s extension" ;;
                     (t) arg="${arg} -s type"      ;;
+                    (a) arg="${arg} -a"           ;;
                     (*)
-                        echo 'lls: legal args "rsSdDet"' >&2
+                        echo "lls: legal args \"$legal_opts\"" >&2
                         return 1
                         ;;
                 esac
@@ -202,7 +207,7 @@ if Exists 'exa'; then
 '*.flv=1;35:*.gl=1;35:*.dl=1;35:*.xcf=1;35:*.xwd=1;35:*.yuv=1;35:*.cgm=1;35:*.emf=1;35:*.ogv=1;35:*.ogx=1;35:*.cfg=0;'\
 '32:*.conf=0;32:*.diff=0;32:*.doc=0;32:*.ini=0;32:*.log=0;32:*.patch=0;32:*.pdf=0;32:*.ps=0;32:*.tex=0;32:'\
 '*.txt=0;32:*.aac=0;36:*.au=0;36:*.flac=0;36:*.m4a=0;36:*.mid=0;36:*.midi=0;36:*.mka=0;36:*.mp3=0;36:*.mpc=0;36:'\
-'*.ogg=0;36:*.ra=0;36:*.wav=0;36:*.oga=0;36:*.opus=0;36:*.spx=0;36:*.xspf=0;36:'
+'*.ogg=0;36:*.ra=0;36:*.wav=0;36:*.oga=0;36:*.opus=0;36:*.spx=0;36:*.xspf=0;36:*.zpaq=1;31'
     export EXA_COLORS
 
 else
@@ -305,6 +310,9 @@ mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
 mkalias -S parted='parted'
 mkalias -T rg='rg -S'
 
+alias diff='diff --color -u'
+alias winetricks='winetricks -q'
+
 mkalias -T wolf='wolframscript'
 
 # Bat
@@ -329,10 +337,8 @@ case "$SYSID" in
         mkalias -s emp="emerge --pretend"
         mkalias -s ema="emerge --ask"
         mkalias -s em1="emerge --ask --oneshot"
-        mkalias -s empd="emerge --pretend --depclean -Dv"
-        mkalias -s empk="emerge --ask --buildpkg"
-        mkalias -s embd="emerge --ask --deep"
-        mkalias -s emupdate="emerge -aDNu --keep-going -j6 --backtrack=100 --with-bdeps=y @world"
+        mkalias -s empd="emerge --pretend --verbose --deep --depclean"
+        mkalias -s emupdate="emerge -aDNuv -j6 --keep-going --backtrack=100 --with-bdeps=y @world"
         mkalias emi="emerge --info"
 
         # mkalias -s emupdate="emerge -aDNu --keep-going @world -j6"
@@ -341,7 +347,7 @@ case "$SYSID" in
         # mkalias -s emupdateF="emerge --update --deep --newuse --with-bdeps=y --keep-going @world"
 
         mkalias -TS ufed='ufed'
-        mkalias -TS repm='repoman manifest'
+        mkalias -T repm='repoman manifest'
         alias watchfetch='tail -f /var/log/emerge-fetch.log'
 
         # mkalias -A 'gvi' 'nvim-gtk --' 'nvim-qt'
@@ -364,6 +370,7 @@ case "$SYSID" in
                         (k|s)
                             if [ "$OPTARG" -lt 3 ]; then
                                 key=$((OPTARG + 2))
+                                # ((key=OPTARG + 2))
                             else
                                 key="$OPTARG"
                             fi
@@ -470,9 +477,9 @@ else
     Exists 'nvim-qt' &&
     gvi() {
         if [ $# -eq 0 ]; then
-            nvim-qt --maximized
+            nvim-qt --maximized 2>/dev/null
         else
-            nvim-qt --maximized -- "$@"
+            nvim-qt --maximized -- "$@" 2>/dev/null
         fi
     }
 fi
@@ -480,6 +487,14 @@ fi
 if [ ".$TERM" = '.linux' ]; then
     mkalias -T vi='vim' 
 fi
+
+# ----------------------------------------------------------
+# Misc
+
+alias valgrindall='valgrind -v --show-below-main=yes --leak-check=full --show-leak-kinds=definite,indirect --expensive-definedness-checks=yes \
+--read-inline-info=yes --read-var-info=yes --trace-children=yes --num-callers=30 --vex-iropt-level=2 \
+--px-default=allregs-at-each-insn --px-file-backed=allregs-at-each-insn --vex-iropt-unroll-thresh=400 --vex-guest-max-insns=100 \
+'
 
 
 # ----------------------------------------------------------
@@ -522,8 +537,8 @@ Exists 'git' && {
 
 
 perlman () {  
-    [ $# -ge 1 ] || return 1
-    perldoc -T "$@" >/dev/null || return 2
+    # [ $# -ge 1 ] || return 1
+    # perldoc -T "$@" >/dev/null || return 2
     perldoc -T -onroff "$@" | man -l -
 }
 

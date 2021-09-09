@@ -1,3 +1,6 @@
+#!/bin/zsh
+# shellcheck shell=zsh
+
 # Filename:      zshenv
 # Purpose:       system-wide .zshenv file for zsh(1)
 # Authors:       grml-team (grml.org), (c) Michael Prokop <mika@grml.org>
@@ -23,6 +26,8 @@
 if [[ -z "${_ZSH_ORIGINAL_PATH}" ]]; then
     export _ZSH_ORIGINAL_PATH="${PATH}"
 fi
+
+# export FPATH="${FPATH}:${HOME}/personaldotfiles/zsh/autoload"
 
 if [[ -o interactive ]]; then
     [[ -r /etc/profile ]] && source /etc/profile
@@ -68,7 +73,7 @@ __split_path() {(
 
 local p5_dir="${HOME}/Perl5"
 local need_path=( "${p5_dir}/bin" )
-export PERL5LIB="${p5_dir}/lib/perl5${PERL5LIB:+:${PERL5LIB}}"
+export PERL5LIB="${HOME}/.local/lib/perl5:${p5_dir}/lib/perl5${PERL5LIB:+:${PERL5LIB}}"
 export PERL_LOCAL_LIB_ROOT="${p5_dir}${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"
 export PERL_MB_OPT="--install_base \"${p5_dir}\""
 export PERL_MM_OPT="INSTALL_BASE=${p5_dir}"
@@ -87,6 +92,8 @@ case "$SYSID" in
         export PT=/var/tmp/portage
         export RUSTUP_HOME=/opt/rust/rustup
         export CARGO_HOME=/opt/rust/cargo
+        # export SCCACHE_DIR="/var/cache/sccache"
+        # export SCCACHE_CACHE_SIZE="25G"
         ;;
     FreeBSD)
         export path=( "${HOME}/.local/bin" /usr/local/libexec/ccache /opt/bin /usr/local/llvm12/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin )
@@ -127,7 +134,7 @@ if [[ -o interactive ]] && [[ -z "$_PAGER_OPTS_SET" ]]; then
     elif [[ -x /usr/bin/lesspipe.sh ]]; then
         export LESSOPEN="|lesspipe.sh %s"
     fi
-    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -l -t8 --out-format=truecolor --force --style=myMolokai"
+    command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=myMolokai"
     unset lp
     export READNULLCMD=${PAGER:-/usr/bin/pager}
     # MAKEDEV should be usable on udev as well by default:

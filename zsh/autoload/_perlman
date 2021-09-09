@@ -1,0 +1,3 @@
+#compdef perlman
+
+_perldoc "$@"

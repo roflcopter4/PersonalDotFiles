@@ -42,6 +42,8 @@ else
     else
         set shell=/bin/sh
     endif
+    let s:vimfiles_path = expand('/usr/share/vim/vimfiles')
+    let &runtimepath .= ',' . s:vimfiles_path
 endif
 
 if &runtimepath =~# 'oni'
@@ -642,7 +644,7 @@ else
 
     if !has('nvim') && has('gui_running')
         set guifont=DinaPowerline\ 10
-        set linespace=1
+        set linespace=2
         set guioptions=agimrLt
         set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
     endif
@@ -804,8 +806,19 @@ if has('nvim')
         let g:python_host_prog  = 'python2'
         let g:python3_host_prog = 'python3'
     else
-        let g:python_host_prog  = 'python2'
+        let g:python_host_prog  = 'pypy'
         let g:python3_host_prog = 'python3'
+
+        for pyver in ['python3.9', 'python3.8', 'python3.10', 'pypy3']
+            if executable(pyver) 
+                        \ && system(pyver . ' -c ' . 
+                        \           shellescape("import sys; sys.path = list(filter(lambda x: x != '', sys.path)); "
+                        \                    .  'import neovim; print(neovim.__file__)')
+                        \    ) !~# 'Error'
+                let g:python3_host_prog = pyver
+                break
+            endif
+        endfor
     endif
     " let g:python_host_prog  = executable('pypy')  ? 'pypy'  : 'python2'
     " let g:python3_host_prog = executable('pypy3') ? 'pypy3' : 'python3'
@@ -879,7 +892,7 @@ let g:gonvim_draw_tabline = 0
 let g:gonvim_draw_lint = 0
 
 augroup CHeaderType
-    autocmd BufRead *.h set ft=cpp
+    autocmd BufRead *.h set ft=c
 augroup END
 
 if exists('g:gnvim') && g:gnvim == 1
@@ -889,9 +902,18 @@ if exists('g:gnvim') && g:gnvim == 1
     set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
 else
     set guifont=Dina:h7
-    set linespace=1
+    set linespace=2
 endif
 
 let g:yacc_uses_golang = 1
+
+function! s:DiffWithSaved()
+  let filetype=&filetype
+  diffthis
+  vnew | r # | normal! 1Gdd
+  diffthis
+  execute 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
+endfunction
+com! DiffSaved call s:DiffWithSaved()
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

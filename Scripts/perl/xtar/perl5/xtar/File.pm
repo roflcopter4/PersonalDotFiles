@@ -1,7 +1,6 @@
 package xtar::File;
 
-use Moo;
-use MooX::Types::MooseLike::Base qw{Int Str Object HashRef Bool};
+use Moose;
 
 use constant true  => 1;
 use constant false => 0;
@@ -18,12 +17,10 @@ use Try::Tiny;
 
 use Data::Dumper;
 
-use lib rel2abs('..');
 use xtar::Colors;
 use xtar::Utils;
 
-# BEGIN { eval $xtar::Utils::moo; }
-use 5.28.0; use warnings; use strict;
+use 5.34.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -49,30 +46,30 @@ sub determine_decompressor :prototype($$);
 
 ##############################################################################
 
-has 'Options'     => ( is => 'ro', isa => HashRef );
-has 'ID_Failure'  => ( is => 'rw', isa => Bool );
+has 'Options'     => ( is => 'ro', isa => 'HashRef' );
+has 'ID_Failure'  => ( is => 'rw', isa => 'Bool' );
 
-has 'basepath'    => ( is => 'ro', isa => Str );
-has 'filename'    => ( is => 'rw', isa => Str );
-has 'fullpath'    => ( is => 'rw', isa => Str );
-has 'bname'       => ( is => 'rw', isa => Str );
-has 'quotedname'  => ( is => 'rw', isa => Str );
+has 'basepath'    => ( is => 'ro', isa => 'Str' );
+has 'filename'    => ( is => 'rw', isa => 'Str' );
+has 'fullpath'    => ( is => 'rw', isa => 'Str' );
+has 'bname'       => ( is => 'rw', isa => 'Str' );
+has 'quotedname'  => ( is => 'rw', isa => 'Str' );
 
-has 'extention'   => ( is => 'rw', isa => Str );
-has 'ext_type'    => ( is => 'rw', isa => Str );
-has 'ext_tar'     => ( is => 'rw', isa => Bool );
-has 'ext_cmd'     => ( is => 'rw', isa => HashRef );
+has 'extention'   => ( is => 'rw', isa => 'Str' );
+has 'ext_type'    => ( is => 'rw', isa => 'Str' );
+has 'ext_tar'     => ( is => 'rw', isa => 'Bool' );
+has 'ext_cmd'     => ( is => 'rw', isa => 'HashRef' );
 
-has 'mime_raw'    => ( is => 'rw', isa => Str );
-has 'mime_type'   => ( is => 'rw', isa => Str );
-has 'mime_tar'    => ( is => 'rw', isa => Bool );
-has 'mime_cmd'    => ( is => 'rw', isa => HashRef );
+has 'mime_raw'    => ( is => 'rw', isa => 'Str' );
+has 'mime_type'   => ( is => 'rw', isa => 'Str' );
+has 'mime_tar'    => ( is => 'rw', isa => 'Bool' );
+has 'mime_cmd'    => ( is => 'rw', isa => 'HashRef' );
 
-has 'likely_type' => ( is => 'rw', isa => Str );
-has 'likely_tar'  => ( is => 'rw', isa => Bool );
-has 'likely_cmd'  => ( is => 'rw', isa => HashRef );
+has 'likely_type' => ( is => 'rw', isa => 'Str' );
+has 'likely_tar'  => ( is => 'rw', isa => 'Bool' );
+has 'likely_cmd'  => ( is => 'rw', isa => 'HashRef' );
 
-has 'notfirst'    => ( is => 'ro', isa => Bool );
+has 'notfirst'    => ( is => 'ro', isa => 'Bool' );
 
 ###############################################################################
 
@@ -173,7 +170,7 @@ RETRY:
 
     while ( looks_like_number($app) and $app == 0 and $mimekind <= MAXKIND )
     {
-        esayC( 'b', "Mimetype number $dbg_kind failed." ) if $xtar::DEBUG;
+        esayC( 'b', "Mimetype number $dbg_kind failed." ) if $xtar::xtar::DEBUG;
         $dbg_kind = $mimekind;
         $app = $self->find_mimetype(\$mimekind);
     }
@@ -217,7 +214,7 @@ RETRY:
             last if ( $type = _normalize_type($_) );
         }
 
-        if ( not $type and $xtar::DEBUG ) {
+        if ( not $type and $xtar::xtar::DEBUG ) {
             carp("Failed to identify mime_raw!");
         }
         $self->mime_raw($type);
@@ -250,26 +247,26 @@ sub find_mimetype :prototype($\$) ($self, $counter)
 
     if ($$counter < 2) {
         if ( $found_file_unpack == true ) {
-            err 'Using File::Unpack' if $xtar::DEBUG;
+            err 'Using File::Unpack' if $xtar::xtar::DEBUG;
             my $unpack = File::Unpack->new();
             my $m      = $unpack->mime( file => $self->fullpath );
             # my $index  = ((${${counter}})++ == 1) ? 0 : 2;
             $app = $m->[0];
         } else {
-            err 'No File::Unpack' if $xtar::DEBUG;
+            err 'No File::Unpack' if $xtar::xtar::DEBUG;
             $$counter = 2;
         }
     }
     else {
         # Resort to using the `file` command, with a GNU option.
         if ($$counter == 2) {
-            err 'Attempting to use GNU file(1)' if $xtar::DEBUG;
+            err 'Attempting to use GNU file(1)' if $xtar::xtar::DEBUG;
             $app = `file --mime-type $qnam` or ($? <<= 8 && confess("$! - $?"));
             chomp $app;
         }
         # Resort to using `file` with no options. Last gasp.
         elsif ($$counter == 3) {
-            err 'Attempting to use generic file(1)' if $xtar::DEBUG;
+            err 'Attempting to use generic file(1)' if $xtar::xtar::DEBUG;
             $app = `file $qnam` or confess "$! - $?";
             chomp $app;
         }
@@ -299,7 +296,7 @@ EOF
 # nothing then either die or resort to random guessing.
 sub finalize_analysis :prototype($) ($self)
 {
-    if ($xtar::DEBUG) {
+    if ($xtar::xtar::DEBUG) {
         printf qq{mime_type: "%s"\next_type: "%s"\n}, $self->mime_type, $self->ext_type;
     }
     if    ($self->mime_type) { $self->likely_type( $self->mime_type ) }
@@ -331,22 +328,23 @@ EOF
 sub _normalize_type :prototype($) ($extention)
 {
     my $type = '';
-    $_ = $extention;
+    $_ = lc $extention;
 
-    if    (/^(z|Z)$/ni)          { $type = 'compress' }
-    elsif (/^(gz|bzip)$/ni)      { $type = 'gzip' }
-    elsif (/^(bz|bz2|bzip2)$/ni) { $type = 'bzip2' }
-    elsif (/^(xz|lzma)$/ni)      { $type = 'xz' }
-    elsif (/^(lz)$/ni)           { $type = 'lzip' }
-    elsif (/^(lz4)$/ni)          { $type = 'lz4' }
-    elsif (/^(tar|cpio)$/ni)     { $type = 'tar' }
-    elsif (/^(7z|7zip|7-zip)/ni) { $type = '7zip' }
-    elsif (/^(zpaq)$/ni)         { $type = 'zpaq' }
-    elsif (/^(zip)$/ni)          { $type = 'zip' }
-    elsif (/^(arc)$/ni)          { $type = 'arc' }
-    elsif (/^(ace|winace)$/ni)   { $type = 'ace' }
-    elsif (/^(rar)$/ni)          { $type = 'rar' }
-    elsif (/^(a)$/ni)            { $type = 'archive' }
+    if    (/^(z)$/n)            { $type = 'compress' }
+    elsif (/^(gz|bzip)$/n)      { $type = 'gzip' }
+    elsif (/^(bz|bz2|bzip2)$/n) { $type = 'bzip2' }
+    elsif (/^(xz|lzma)$/n)      { $type = 'xz' }
+    elsif (/^(lz)$/n)           { $type = 'lzip' }
+    elsif (/^(lz4)$/n)          { $type = 'lz4' }
+    elsif (/^(tar)$/n)          { $type = 'tar' }
+    elsif (/^(cpio)$/n)         { $type = 'cpio' }
+    elsif (/^(7z|7zip|7-zip)/n) { $type = '7zip' }
+    elsif (/^(zpaq)$/n)         { $type = 'zpaq' }
+    elsif (/^(zip)$/n)          { $type = 'zip' }
+    elsif (/^(arc)$/n)          { $type = 'arc' }
+    elsif (/^(ace|winace)$/n)   { $type = 'ace' }
+    elsif (/^(rar)$/n)          { $type = 'rar' }
+    elsif (/^(a)$/n)            { $type = 'archive' }
 
     return $type;
 }
@@ -363,55 +361,72 @@ sub move_zqaq ($self)
 
 ###############################################################################
 
+sub find_cpio_decompressor :prototype();
+
 
 sub determine_decompressor : prototype($$) ($self, $type)
 {
-    my ($CMD, $TFlags, $EFlags, $Stdout, $NeedOdir);
+    my ($CMD, $TFlags, $EFlags, $allFlags, $Stdout, $NeedOdir);
     my $V     = $self->Options->{verbose};
     my $Q     = $self->Options->{quiet};
     my $v7z   = ($Q) ? '-bso0 -bsp0' : '';
     my $vzpaq = ($V) ? '' : ' >/dev/null';
+    my $tmp   = '';
 
-    $TFlags = $EFlags = '';
+    $TFlags = $EFlags = $allFlags = '';
     $_      = $type;
 
     if (/^(z|compress)$/ni and which('uncompress')) {
-        $CMD    = 'uncompress';
-        $TFlags = $EFlags = '-c';
-        $Stdout = true;
+        $CMD      = 'uncompress';
+        $allFlags = '-c';
+        $Stdout   = true;
     }
     elsif (/^(gz|z|gzip|compress)$/ni and which('gzip')) {
-        $CMD    = 'gzip';
-        $TFlags = $EFlags = '-dc';
-        $Stdout = true;
+        $CMD      = 'gzip';
+        $allFlags = '-dc';
+        $Stdout   = true;
     }
     elsif (/^(bz|bz2|bzip[2]?)$/ni and which('bzip2')) {
         $CMD    = 'bzip2';
-        $TFlags = $EFlags = '-dc';
+        $allFlags = '-dc';
         $Stdout = true;
     }
     elsif (/^(xz|lzma)$/ni and which('xz')) {
         $CMD    = 'xz';
-        $TFlags = $EFlags = '-dc';
+        $allFlags = '-dc';
         $Stdout = true;
     }
     elsif (/^(lz|lzip)$/ni and which('lzip')) {
-        $CMD    = 'lzip';
-        $TFlags = $EFlags = '-dc';
-        $Stdout = true;
+        $CMD      = 'lzip';
+        $allFlags = '-dc';
+        $Stdout   = true;
     }
     elsif (/^(lz4)$/ni and which('lz4')) {
-        $CMD    = 'lz4';
-        $TFlags = $EFlags = '-dc';
-        $Stdout = true;
+        $CMD      = 'lz4';
+        $allFlags = '-dc';
+        $Stdout   = true;
     }
-    elsif (/^(tar|cpio)$/ni) {
+    elsif (/^(tar)$/ni) {
         $CMD    = 'TAR';
         $TFlags = '-xf -- -O';
         $EFlags = '-xf';
     }
+    elsif (/^(cpio)$/ni and ($tmp = find_cpio_decompressor())) {
+        if ($tmp == 1) {
+            $CMD    = 'bsdtar';
+            $TFlags = '-xf -- -O';
+            $EFlags = '-xf';
+        } else {
+            croak 'Should not be possible?!';
+        }
+        # Screw cpio
+        #elsif ($tmp == 2) {
+        #    $CMD = 'cpio';
+        #    $TFlags = ''
+        #}
+    }
     elsif (/^(a|archive)$/ni and which('ar')) {
-        $CMD = 'ar';
+        $CMD    = 'ar';
         $TFlags = 'NOTAR';
         $EFlags = 'x';
     }
@@ -422,13 +437,13 @@ sub determine_decompressor : prototype($$) ($self, $type)
     #     $NeedOdir = true;
     # }
     elsif (/^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
-              deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
-              compress|gzip|bzip2?|7[-]?zip|archive)$/nxi
-           and which('7z'))
+             deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
+             compress|gzip|bzip2?|7[-]?zip|archive)$/nxi
+          and which('7z'))
     {
-        $CMD    = '7z';
-        $TFlags = "$v7z -so x";
-        $EFlags = "$v7z x";
+       $CMD    = '7z';
+       $TFlags = "$v7z -so x";
+       $EFlags = "$v7z x";
     }
     elsif (/^(zpaq)$/ni and which('zpaq')) {
         $CMD    = 'zpaq';
@@ -436,8 +451,9 @@ sub determine_decompressor : prototype($$) ($self, $type)
         $EFlags = "x -- -to tmp" . $vzpaq;
     }
     elsif (/^(zip)$/ni and which('unzip')) {
-        $CMD    = 'unzip';
-        $TFlags = '-p';
+        $CMD      = 'unzip';
+        $TFlags   = '-p';
+        $allFlags = '-q';
     }
     elsif (/^(arc)$/ni and which('arc')) {
         $CMD    = 'arc';
@@ -445,23 +461,31 @@ sub determine_decompressor : prototype($$) ($self, $type)
         $EFlags = 'x';
     }
     elsif (/^(ace|winace)$/ni and which('unace')) {
-        $CMD    = 'unace';
-        $TFlags = $EFlags = 'x';
+        $CMD      = 'unace';
+        $allFlags = 'x';
     }
     elsif (/^(rar)$/ni and which('unrar')) {
-        $CMD    = 'unrar';
-        $TFlags = $EFlags = 'x';
+        $CMD      = 'unrar';
+        $allFlags = 'x';
     }
 
     return {
         CMD      => $CMD,
-        tflags   => $TFlags,
-        eflags   => $EFlags,
+        tflags   => $TFlags . ($TFlags and $allFlags ? ' ' : '') . $allFlags,
+        eflags   => $EFlags . ($TFlags and $allFlags ? ' ' : '') . $allFlags,
         stdout   => $Stdout,
         needodir => $NeedOdir,
     };
 }
 
+
+sub find_cpio_decompressor :prototype() ()
+{
+    return which('bsdtar') ? 1 : 0;
+}
+
+
 ###############################################################################
 
+no Moose;
 __PACKAGE__->meta->make_immutable;

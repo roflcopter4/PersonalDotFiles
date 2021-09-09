@@ -1,32 +1,30 @@
-package xtar;
+package xtar::xtar;
 
-use Moo;
-use MooX::Types::MooseLike::Base qw{Str Int Object HashRef};
+use Moose;
 
 use constant true  => 1;
 use constant false => 0;
 use Carp;
-use Carp 'verbose';
 use Clone 'clone';
 use Cwd 'getcwd';
 use File::Which;
 use Data::Dumper;
 use String::ShellQuote;
-use File::Copy qw{mv cp};
+use File::Copy qw{mv};
 use File::Path qw{make_path};
 use File::Temp qw{tempdir cleanup};
 use File::Spec::Functions qw{rel2abs splitpath catfile};
 use File::Copy::Recursive 'dircopy';
 use Scalar::Util 'looks_like_number';
 
-use lib rel2abs('.');
+$Carp::Verbose = 1;
+
 use xtar::File;
 use xtar::OutPath;
 use xtar::Colors;
 use xtar::Utils;
 
-# BEGIN { eval $xtar::Utils::moo; }
-use 5.28.0; use warnings; use strict;
+use 5.34.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
@@ -48,30 +46,34 @@ sub force_extract      :prototype($$);
 
 #########################################################################################
 
-has 'CWD'         => (is => 'ro', isa => Str);
-has 'NumArchives' => (is => 'ro', isa => Int);
-has 'Options'     => (is => 'rw', isa => HashRef);
-has 'counter'     => (is => 'rw', isa => Int);
-has 'tmpdir'      => (is => 'rw', isa => Str);
-has 'out'         => (is => 'rw', isa => Object);
-has 'file'        => (is => 'rw', isa => Object);
+has 'CWD'         => (is => 'ro', isa => 'Str');
+has 'NumArchives' => (is => 'ro', isa => 'Int');
+has 'Options'     => (is => 'rw', isa => 'HashRef');
+has 'counter'     => (is => 'rw', isa => 'Int');
+has 'tmpdir'      => (is => 'rw', isa => 'Str');
+has 'out'         => (is => 'rw', isa => 'Object');
+has 'file'        => (is => 'rw', isa => 'Object');
 
 my $cmd_color = 'Bcyan';
-our $DEBUG;
+our $DEBUG    = false;
 
 #########################################################################################
 
-sub init_outpath :prototype($) ($self)
+around BUILDARGS => sub
 {
-    $self->out(
-        xtar::OutPath->new(
-            CWD         => $self->CWD,
-            Options     => $self->Options,
-            NumArchives => $self->NumArchives,
-        )
+    my $orig  = shift;
+    my $class = shift;
+    my $ret   = $class->$orig(@_);
+    $DEBUG    = $ret->{Options}->{Debug};
+
+    $ret->{out} = xtar::OutPath->new(
+        CWD         => $ret->{CWD},
+        Options     => $ret->{Options},
+        NumArchives => $ret->{NumArchives},
     );
-    $DEBUG = $self->Options->{Debug};
-}
+
+    return $ret;
+};
 
 sub init_archive :prototype($$;$) ($self, $filename, $second_try = false)
 {
@@ -97,7 +99,7 @@ sub extract :prototype($) ($self)
 
     unless ($self->try_extractions()) {
         $self->Options($orig_options);
-            err "Extraction failed, returning." if $DEBUG;
+        err "Extraction failed, returning." if $DEBUG;
         return false;
     }
 
@@ -147,7 +149,6 @@ sub extract :prototype($) ($self)
     my $out_file = ($lonefile) ? $lonefile : $self->out->bottom;
 
     if (-d $out_file) {
-
         # What a mess of a command follows here.
         safe_make_path $self->out->top_dir;
 
@@ -157,10 +158,21 @@ sub extract :prototype($) ($self)
             or croak("Dircopy failed. Aborting. - $!");
     }
     else {
-        my $odir = $self->out->odir;
-        croak("File exists somehow?!") if (-e $odir);
+        my $odir;
+
+        if ($self->out->top_dir) {
+            $odir = $self->out->top_dir;
+            mkdir($odir)
+                or croak qq{Can't create output directory "$odir":  $!\n}
+                    unless (-d $odir);
+        }
+        else {
+            $odir = $self->out->odir;
+            croak "File exists somehow?!" if (-e $odir);
+        }
+
         mv($out_file, $self->out->odir)
-            or croak(qq{Failed to move "$out_file" to $odir $!});
+            or croak qq{Failed to move "$out_file" to "$odir":  $!\n};
     }
 
     my $CWD    = $self->CWD;
@@ -396,4 +408,5 @@ sub force_extract :prototype($$) ($archive, $TAR)
 
 #########################################################################################
 
+no Moose;
 __PACKAGE__->meta->make_immutable;

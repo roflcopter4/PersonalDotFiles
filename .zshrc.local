@@ -55,16 +55,23 @@ zstyle ':completion:*'               menu select=2
 
 # ============== Various settings
 command -v 'thefuck' >/dev/null 2>&1 && eval $(thefuck --alias)
-setopt multios
 
 # source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-###############################################################################
-# Select oh-my-zsh stuff
+# -------------------------------------------------------------------------------
+# Sensible options
+
 setopt auto_pushd
+setopt globstarshort
+setopt multios
 setopt pushd_ignore_dups
 setopt pushdminus
-setopt globstarshort
+setopt rematchpcre
+setopt ignoreclosebraces
+setopt rcquotes
+
+###############################################################################
+# Select oh-my-zsh stuff
 
 alias -g ...='../..'
 alias -g ....='../../..'
@@ -81,6 +88,7 @@ alias 6='cd -6'
 alias 7='cd -7'
 alias 8='cd -8'
 alias 9='cd -9'
+
 ###############################################################################
 
 # -------------------------------------------------------------------------------
@@ -107,7 +115,6 @@ bind2maps       viins       -- -s '^h'   backward-delete-char
 bind2maps       viins       -- -s '^?'   backward-delete-char
 bind2maps       viins       -- -s '^w'   backward-kill-word
 
-
 # -------------------------------------------------------------------------------
 # Environment Variables
 
@@ -120,17 +127,19 @@ compdef _directories smartcd
 
 #[[ "$(command -v ag)" ]] && export FZF_DEFAULT_COMMAND='ag --hidden -u --ignore .git --ignore .vimbackup --ignore .vimviews --ignore .vimundo -g ""'
 #[[ "$(command -v rg)" ]] && export FZF_DEFAULT_COMMAND="rg --files --no-ignore --hidden --follow -g '!{.git,node_modules,.vimviews,.vimundo,.vimswap,.vimbackup,.cache,.wine,.steam,.Steam,proc,run}/'\"*\" 2>/dev/null"
+
+export MANWIDTH=120
+export SAVEHIST=500000
+export HISTSIZE=600000
+
 export LESS='-R -M --shift 5 -i'
 export DISTCC_HOSTS="${DISTCC_HOSTS}${DISTCC_HOSTS:+:}+zeroconf"
-export MANWIDTH=120
-export HISTSIZE=10000000000
-export HIGHLIGHT_OPTIONS='-l -t8 --out-format=truecolor --force --style=myMolokai'
+
+export HIGHLIGHT_OPTIONS='-t8 --out-format=truecolor --force --style=myMolokai'
 
 SourceIfExist "${HOME}/.local/etc/profile.d/autojump.sh"
 
-
 # Lazy solution to platform specific stuff.
-[[ -f "${HOME}/.localconfig.zsh" ]] && mv "${HOME}/.localconfig.zsh" "${HOME}/.Localconfig.zsh"
 SourceIfExist "${HOME}/.Localconfig.zsh"
 
 # -------------------------------------------------------------------------------
@@ -231,6 +240,18 @@ setx() {
 }
 
 
+# -------------------------------------------------------------------------------
+# zsh parameter completion for the dotnet CLI
+#
+_dotnet_zsh_complete()
+{
+    local completions=("$(dotnet complete "$words")")
+
+    reply=( "${(ps:\n:)completions}" )
+}
+
+compctl -K _dotnet_zsh_complete dotnet
+
 # =============================================================================
 # =============================================================================
 # =============================================================================
@@ -239,6 +260,8 @@ setx() {
 # =============================================================================
 # =============================================================================
 
+
+# compdef _perldoc perlman
 
 
 ## Settings for umask

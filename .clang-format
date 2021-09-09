@@ -69,7 +69,7 @@ ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH',
 BreakBeforeBraces: Linux
 SpaceBeforeParens: ControlStatements
 IndentCaseLabels: false
-IndentWidth: 8
+IndentWidth: 6
 # ##END##
 
 UseTab: Never

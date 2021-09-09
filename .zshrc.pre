@@ -40,6 +40,10 @@ zplug "plugins/compleat",             from:oh-my-zsh
 zplug "plugins/copydir",              from:oh-my-zsh 
 zplug "plugins/cp",                   from:oh-my-zsh
 zplug "plugins/zsh-navigation-tools", from:oh-my-zsh
+# zplug "plugins/rust", from:oh-my-zsh
+# zplug "plugins/cpanm", from:oh-my-zsh
+# zplug "plugins/docker", from:oh-my-zsh
+_OMZ_PLUGIN_DIR="${ZPLUG_REPOS}/robbyrussell/oh-my-zsh/plugins"
 
 ### ===================================================================
 
@@ -73,6 +77,20 @@ fi
 ###                                                                          ###
 ################################################################################
 
+
+if command -v rustc >/dev/null 2>&1; then
+    _cargo_complete="$(rustc --print sysroot)/share/zsh/site-functions"
+    if [[ -d "${_cargo_complete}" ]]; then
+        fpath=(${fpath} "${_cargo_complete}")
+    fi
+fi
+
+# for i in "${_OMZ_PLUGIN_DIR}/"{cpanm,rust,docker}; do
+#     fpath=($fpath $i)
+# done
+fpath=($fpath "${_OMZ_PLUGIN_DIR}/"{cpanm,rust,docker})
+
+export fpath
 
 #export path=( $path $ZPLUG_BIN )
 #zplug load

@@ -1,6 +1,6 @@
 package xtar::main;
 
-use 5.28.0; use warnings; use strict;
+use 5.34.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -15,31 +15,6 @@ use Getopt::Long qw(:config gnu_getopt no_ignore_case);
 
 $Carp::Verbose = 1;
 
-# BEGIN {
-#     # my $lib_location = ( splitpath(readlink rel2abs("$0")) )[1];
-#     # if (-e $lib_location) {
-#     #     $lib_location =~ s|/$||;
-#     # } else {
-#     $lib_location = rel2abs('.');
-#     # }
-#     eval 'use lib "$lib_location";';
-#     # my $lib_location = (splitpath(rel2abs("$0")))[1];
-#     # { local $/ = '/'; chomp $lib_location; }
-#     # say "lib_location == '$lib_location'";
-# 
-#     # eval 'use lib "$lib_location"'; 
-#     # eval 'use xtar;';
-#     # eval 'use xtar::Colors;';
-#     # eval 'use xtar::Utils;';
-# 
-#     # eval 'use lib "$ENV{HOME}/personaldotfiles/Scripts/perl/xtar";';
-#     # eval 'use xtar;';
-#     # eval 'use xtar::Colors;';
-#     # eval 'use xtar::Utils;';
-# }
-#
-#use lib "/home/bml/personaldotfiles/Scripts/perl/xtar";
-
 use xtar::xtar;
 use xtar::Colors;
 use xtar::Utils;
@@ -47,11 +22,11 @@ use xtar::Utils;
 ###############################################################################
 # Main
 
-sub main       :prototype(@);
+sub main       :prototype();
 sub find_tar   :prototype($);
 sub show_usage :prototype(;$);
 
-sub main :prototype(@) (@ARGV)
+sub main :prototype() ()
 {
     my (%options, $TAR);
     my $default_tar = 'tar';
@@ -96,7 +71,7 @@ sub main :prototype(@) (@ARGV)
 
 ###############################################################################
 
-    my $xtar = xtar->new(
+    my $xtar = xtar::xtar->new(
         Options => {
             TAR     => $TAR,
             odir    => $options{odir},
@@ -114,16 +89,12 @@ sub main :prototype(@) (@ARGV)
     );
     undef %options;
 
-    print Dumper(\$xtar);
-
-    #$xtar->init_outpath();
-
     my $counter = 1;
     my $spacing = ($xtar->Options->{verbose}) ? "\n\n" : "\n";
 
-    while (@ARGV) {
-        my $file = shift;
-
+    # while (@ARGV) {
+    #     my $file = shift @ARGV;
+    foreach my $file (@ARGV) {
         if    ( $xtar->Options->{shutup} ) {}
         elsif ( $xtar->Options->{quiet} )  { say "Extracting $file" }
         else {

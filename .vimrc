@@ -892,7 +892,7 @@ let g:gonvim_draw_tabline = 0
 let g:gonvim_draw_lint = 0
 
 augroup CHeaderType
-    autocmd BufRead *.h set ft=c
+    autocmd BufRead *.h set ft=cpp
 augroup END
 
 if exists('g:gnvim') && g:gnvim == 1

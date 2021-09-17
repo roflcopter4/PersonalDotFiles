@@ -309,6 +309,7 @@ mkalias -T par='par-format'
 mkalias -Ts zef='/usr/share/perl6/site/bin/zef'
 mkalias -S parted='parted'
 mkalias -T rg='rg -S'
+mkalias -T dwdiff='dwdiff --color'
 
 alias diff='diff --color -u'
 alias winetricks='winetricks -q'

@@ -9,7 +9,7 @@ if exists('g:GtkGuiLoaded')
     call rpcnotify(1, 'Gui', 'Option', 'Popupmenu', 0)
     call rpcnotify(1, 'Gui', 'Option', 'Cmdline', 0)
 else
-    set mouse=a
+    " set mouse=a
 
     if exists(':GuiFont')
         if WINDOWS()

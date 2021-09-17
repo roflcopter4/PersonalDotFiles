@@ -21,7 +21,7 @@ endif
 let s:use_ale = 1
 let s:use_deoplete = 1
 let s:use_async = 0
-let g:use_language_client = 0
+let g:use_language_client = 1
 let s:vim_ale = 1
 
 filetype off
@@ -192,6 +192,7 @@ if dein#load_state(g:load_path)
     "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
+    " call dein#add('neoclide/coc.nvim', {'merged': v:false})
     if !WINDOWS() && g:use_language_client == 1
         call dein#add('autozimu/LanguageClient-neovim', {'merged': v:false})
                     " \ {'merged': v:false, 'build': 'cargo build'})
@@ -462,7 +463,7 @@ endif
 
 
 if IsSourced('rainbow') || 1
-    let g:rainbow_active = 1
+    let g:rainbow_active = 0
     " God, what a horrific mess.
 
         "\    'guifgs': ['DodgerBlue1', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2'],
@@ -724,7 +725,6 @@ if IsSourced('ale')
                     \   '-*c++98-compat',
                     \   '-*disabled-macro-expansion',
                     \   '-*else-after-return',
-                    \   '-*fuchsia*',
                     \   '-*gnu-statement-expression',
                     \   '-*gnu-zero-variadic-macro-arguments',
                     \   '-*init-variables',
@@ -738,6 +738,8 @@ if IsSourced('ale')
                     \   '-llvm-header-guard',
                     \   '-llvmlibc*',
                     \   '-altera-unroll-loops',
+                    \   '-*fuchsia*',
+                    \   '-modernize-use-trailing-return-type',
                     \ ]
 
         let g:ale_c_clangtidy_checks = [
@@ -756,12 +758,11 @@ if IsSourced('ale')
                     \   '-*array-to-pointer-decay',
                     \   '-*avoid-c-arrays',
                     \   '-*bounds-constant-array-index',
-                    \   '-*implicit-bool*',
                     \   '-*no-array-decay',
                     \   '-*owning-memory',
                     \   '-*pointer-arithmetic*',
-                    \   '-*trailing-return-type',
                     \   '-*vararg',
+                    \   '-cppcoreguidelines-pro-type-reinterpret-cast'
                     \ ]
 
         call extend(g:ale_c_clangtidy_checks, s:_ale_c_cxx_common_checks)
@@ -769,7 +770,7 @@ if IsSourced('ale')
 
 
         let s:clangd_options = '--pch-storage=memory --cross-file-rename --header-insertion=iwyu --all-scopes-completion ' . 
-                             \ '--header-insertion-decorators --limit-results=1000'
+                             \ '--header-insertion-decorators --limit-results=1000 --completion-style=detailed'
         let g:ale_c_clangd_options   = s:clangd_options . ' --clang-tidy --clang-tidy-checks=' . join(g:ale_c_clangtidy_checks, ',')
         let g:ale_cpp_clangd_options = s:clangd_options . ' --clang-tidy --clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ',')
 
@@ -833,17 +834,23 @@ endif
 
 
 if IsSourced('LanguageClient-neovim')
-    let g:LanguageClient_serverCommands           = {}
+    let g:LanguageClient_serverCommands = {}
     let g:LanguageClient_serverCommands['c'] = [
                 \     'clangd', '--function-arg-placeholders=0',
                 \     '--pch-storage=memory', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--header-insertion-decorators', '--limit-results=1000',
                 \     '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ','),
                 \ ]
     let g:LanguageClient_serverCommands['cpp'] = [
-                \     'clangd', '--function-arg-placeholders=0',
-                \     '--pch-storage=memory', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--header-insertion-decorators', '--limit-results=1000',
-                \     '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ','),
+                \     'clangd', '--function-arg-placeholders=1',
+                \     '--pch-storage=disk', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--background-index',
+                \     '--clang-tidy', '--inlay-hints', '--include-ineligible-results', '--limit-results=1000',
                 \ ]
+
+    " let g:LanguageClient_serverCommands['cpp'] = [
+    "             \     'clangd', '--function-arg-placeholders=0', '--clang-tidy',
+    "             \     '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--header-insertion-decorators',
+    "             \ ]
+
     "let g:LanguageClient_serverCommands['c']      = ['clangd', '--function-arg-placeholders = 0', '--clang-tidy', '--clang-tidy-checks = ' . join(g:ale_cpp_clangtidy_checks, ',')]
     "let g:LanguageClient_serverCommands['cpp']    = ['clangd', '--function-arg-placeholders = 0', '--clang-tidy', '--clang-tidy-checks = ' . join(g:ale_cpp_clangtidy_checks, ',')]
     let g:LanguageClient_serverCommands['cs']     = ['omnisharp']
@@ -856,7 +863,7 @@ if IsSourced('LanguageClient-neovim')
     " let g:LanguageClient_completionPreferTextEdit = 1
     let g:LanguageClient_setOmnifunc = v:false
     " let g:LanguageClient_useVirtualText = 'No'
-    " let g:LanguageClient_hideVirtualTextsOnInsert = 1
+    let g:LanguageClient_hideVirtualTextsOnInsert = 1
     " let g:LanguageClient_preferredMarkupKind = ['plaintext', 'markdown']
     " let g:LanguageClient_preferredMarkupKind = ['plaintext']
     " let g:LanguageClient_selectionUI = 'fzf'
@@ -865,8 +872,8 @@ if IsSourced('LanguageClient-neovim')
 
     let g:LanguageClient_diagnosticsEnable = 1
     let g:LanguageClient_trace = 'verbose'
-    let g:LanguageClient_loggingLevel = 'INFO'
-    let g:LanguageClient_loggingFile = expand('~/lang_client.log')
+    let g:LanguageClient_loggingLevel = 'WARN'
+    let g:LanguageClient_loggingFile = expand('~/lsp.log')
 
     " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
     " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
@@ -1198,7 +1205,7 @@ if IsSourced('tag-highlight.nvim')
 
     let g:tag_highlight#enabled = 1
     let g:tag_highlight#highlight = 1
-    let g:tag_highlight#run_ctags = 1
+    let g:tag_highlight#run_ctags = 0
     let g:tag_highlight#verbose = 0
     let g:tag_highlight#recursive = 1
     let g:tag_highlight#no_autoconf = 1

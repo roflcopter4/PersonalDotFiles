@@ -18,10 +18,12 @@ BasedOnStyle: LLVM
 BinPackParameters: false
 BinPackArguments: true
 
-AlignConsecutiveMacros: true
 AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: true
+AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
 AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: AcrossComments
 AlignEscapedNewlines: Left
 AlignOperands: true
 AlignTrailingComments: true
@@ -35,18 +37,20 @@ AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
 # AllowShortFunctionsOnASingleLine: All
 
-AlwaysBreakAfterReturnType: TopLevelDefinitions
 # AlwaysBreakAfterReturnType: AllDefinitions
+AlwaysBreakAfterReturnType: TopLevelDefinitions
 AlwaysBreakTemplateDeclarations: true
 BreakBeforeBinaryOperators: None
 BreakStringLiterals: true
 
 # PenaltyBreakAssignment: 1000
-PenaltyExcessCharacter: 3
-PenaltyBreakBeforeFirstCallParameter: 500
+# PenaltyExcessCharacter: 3
+# PenaltyBreakBeforeFirstCallParameter: 500
+
+# PPIndentWidth: 1
+# IndentPPDirectives: AfterHash
 
 # NamespaceIndentation: Inner
-# IndentPPDirectives: AfterHash
 # IndentWrappedFunctionNames: true
 
 # AccessModifierOffset: 0
@@ -58,12 +62,17 @@ SortUsingDeclarations: true
 SpaceBeforeAssignmentOperators: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 AllowAllConstructorInitializersOnNextLine: true
+BreakConstructorInitializers: BeforeColon
 
 FixNamespaceComments: true
 
-ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH',
-                'P99_PARALLEL_FOR', 'P99_PARALLEL_DO', 'GENLIST_FOREACH', 'foreach']
+ForEachMacros: ['LL_FOREACH_F', 'LL_FOREACH_B', 'B_LIST_FOREACH', 'B_FOREACH', 'P99_PARALLEL_FOR', 'P99_PARALLEL_DO', 'GENLIST_FOREACH', 'foreach']
 
+StatementAttributeLikeMacros: ['UNUSED', 'ND', 'NODISCARD']
+
+# QualifierAlignment: left
+# QualifierAlignment: ['inline', 'static', 'constexpr', 'type', 'const', 'volatile', 'restrict']
+# QualifierOrder: ['inline', 'static', 'constexpr', 'type', 'const', 'volatile', 'restrict']
 
 # ##Linux##
 BreakBeforeBraces: Linux

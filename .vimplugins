@@ -192,10 +192,14 @@ if dein#load_state(g:load_path)
     "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
-    " call dein#add('neoclide/coc.nvim', {'merged': v:false})
+    " call dein#add('neoclide/coc.nvim', {'merged': v:false, 'rev': 'master', 'build': 'yarn install --frozen-lockfile'})
+    " call dein#disable('neoclide/coc.nvim')
+    " call dein#disable('coc.nvim')
+    " call dein#disable('coc.nvim_master')
+
     if !WINDOWS() && g:use_language_client == 1
         call dein#add('autozimu/LanguageClient-neovim', {'merged': v:false})
-                    " \ {'merged': v:false, 'build': 'cargo build'})
+"                    \ {'merged': v:false, 'build': 'cargo build'})
     else
         call dein#disable('autozimu/LanguageClient-neovim')
     endif
@@ -223,13 +227,20 @@ if dein#load_state(g:load_path)
             " call dein#add('neomake/neomake', {'merged': v:false})
         endif
         if s:use_deoplete == 1
+            " call dein#add('ncm2/ncm2', {'merged': v:false})
             call dein#add('Shougo/deoplete.nvim')
             call dein#add('Shougo/neco-vim')
+            call dein#add('Shougo/neoinclude.vim')
+            call dein#add('deoplete-plugins/deoplete-zsh')
+            call dein#add('deoplete-plugins/deoplete-lsp')
+            call dein#add('deoplete-plugins/deoplete-tag')
+            call dein#add('deoplete-plugins/deoplete-dictionary')
+
             call dein#add('Shougo/deoplete-clangx')
             call dein#add('artur-shaik/vim-javacomplete2')
             " call dein#add('zchee/deoplete-clang')
-            " call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': v:false})
-            " call dein#add('zchee/deoplete-jedi')
+            call dein#add('zchee/deoplete-go', {'build': 'make', 'merged': v:false})
+            call dein#add('zchee/deoplete-jedi')
         elseif s:use_async == 1
             call dein#add('prabirshrestha/asyncomplete.vim')
         else
@@ -265,7 +276,7 @@ if dein#load_state(g:load_path)
 
     call dein#add('Shougo/unite.vim')
 
-    call dein#add('davidhalter/jedi-vim', {'merged': v:false})
+    " call dein#add('davidhalter/jedi-vim', {'merged': v:false})
 
     call dein#local(expand('~/.vim/bundles/findent'))
 
@@ -463,7 +474,7 @@ endif
 
 
 if IsSourced('rainbow') || 1
-    let g:rainbow_active = 0
+    let g:rainbow_active = 1
     " God, what a horrific mess.
 
         "\    'guifgs': ['DodgerBlue1', 'chartreuse3', 'darkorange1',  'firebrick1', 'orchid2'],
@@ -489,9 +500,16 @@ if IsSourced('rainbow') || 1
     "     \        '*': {},
     "     \    }
     " \ }
+    " \      'cpp': {
+    " \           'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
+    " \           'parentheses': ['start=/(/ end=/)/ fold',
+    " \                           'start=/{/ end=/}/ fold'],
+    " \      }})
 
+    "\    'guifgs':      ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
+    "\    'guifgs':      ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2'],
     let g:rainbow_conf = {
-        \    'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2'],
+        \    'guifgs':      ['DeepSkyBlue2', 'darkorange1', 'orchid2', 'gold1'],
         \    'ctermfgs':    ['lightblue', 'lightyellow', 'lightcyan', 'lightmagenta'],
         \    'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
         \    'operators': '',
@@ -529,11 +547,14 @@ if IsSourced('rainbow') || 1
          \      'perl': {
          \            'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'firebrick1', 'orchid2'],
          \      }})
+
+    call s:ExtRainbowConf({
+         \      'c': {
+         \           'parentheses': ['start=/(/ end=/)/ fold'],
+         \      }})
     call s:ExtRainbowConf({
          \      'cpp': {
-         \           'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'gold1', 'orchid2'],
-         \           'parentheses': ['start=/(/ end=/)/ fold',
-         \                           'start=/{/ end=/}/ fold'],
+         \           'parentheses': ['start=/(/ end=/)/ fold'],
          \      }})
     call s:ExtRainbowConf(g:rainbow_conf['separately']['cpp'])
     call s:ExtRainbowConf({
@@ -690,7 +711,7 @@ if IsSourced('ale')
 
     " nnoremap <silent> <Plug(ale_code_action) :ALECodeAction
 
-    if (!IsSourced('LanguageClient-neovim') )
+    if (!IsSourced('LanguageClient-neovim') && !(IsSourced('coc.nvim') || IsSourced('coc.nvim_master')))
         nmap <silent><leader>h  <Plug>(ale_hover)
         nmap <silent><leader>lh <Plug>(ale_hover)
         nmap <silent><leader>ld <Plug>(ale_go_to_definition)
@@ -731,13 +752,15 @@ if IsSourced('ale')
                     \   '-*isolate-declaration',
                     \   '-*no-assembler',
                     \   '-*readability-magic-numbers',
+                    \   '-*readability-identifier-length',
                     \   '-*todo*',
-                    \   '-*uppercase-literal-suffix',
                     \   '-android*',
                     \   '-concurrency-mt-unsafe',
                     \   '-llvm-header-guard',
                     \   '-llvmlibc*',
                     \   '-altera-unroll-loops',
+                    \   '-altera-struct-pack-align',
+                    \   '-altera-id-dependent-backward-branch',
                     \   '-*fuchsia*',
                     \   '-modernize-use-trailing-return-type',
                     \ ]
@@ -762,7 +785,11 @@ if IsSourced('ale')
                     \   '-*owning-memory',
                     \   '-*pointer-arithmetic*',
                     \   '-*vararg',
-                    \   '-cppcoreguidelines-pro-type-reinterpret-cast'
+                    \   '-cppcoreguidelines-pro-type-reinterpret-cast',
+                    \   '-cppcoreguidelines-pro-type-const-cast',
+                    \   '-*-non-private-member-variables-in-classes',
+                    \   '-readability-implicit-bool-conversion',
+                    \   '-google-default-arguments',
                     \ ]
 
         call extend(g:ale_c_clangtidy_checks, s:_ale_c_cxx_common_checks)
@@ -778,9 +805,12 @@ if IsSourced('ale')
 
         " let s:ALE_C = ['gcc', 'clang', 'clangtidy', 'cppcheck', 'flawfinder']
 
-        let s:ale_linters_c = {'c': ['clangd', 'clangtidy'],
-                             \ 'cpp': ['clangd', 'clangtidy']
+        let s:ale_linters_c = {'c': ['clangtidy'],
+                             \ 'cpp': ['clangtidy']
                              \ }
+        " let s:ale_linters_c = {'c': ['clangd', 'clangtidy'],
+        "                      \ 'cpp': ['clangd', 'clangtidy']
+        "                      \ }
 
     "# }}}
 
@@ -834,17 +864,31 @@ endif
 
 
 if IsSourced('LanguageClient-neovim')
+    if !IsSourced('ale')
+        let g:ale_cpp_clangtidy_checks = ['*']
+    endif
+
+    " let g:LanguageClient_serverCommands['cpp']['command'] = [
+    "             \     'clangd', '--function-arg-placeholders=0',
+    "             \     '--pch-storage=disk', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--background-index',
+    "             \     '--clang-tidy', '--inlay-hints', '--include-ineligible-results', '--limit-results=1000',
     let g:LanguageClient_serverCommands = {}
     let g:LanguageClient_serverCommands['c'] = [
-                \     'clangd', '--function-arg-placeholders=0',
+                \     'clangd',
                 \     '--pch-storage=memory', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--header-insertion-decorators', '--limit-results=1000',
                 \     '--clang-tidy', '--clang-tidy-checks=' . join(g:ale_cpp_clangtidy_checks, ','),
                 \ ]
-    let g:LanguageClient_serverCommands['cpp'] = [
-                \     'clangd', '--function-arg-placeholders=1',
-                \     '--pch-storage=disk', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--background-index',
-                \     '--clang-tidy', '--inlay-hints', '--include-ineligible-results', '--limit-results=1000',
-                \ ]
+    let g:LanguageClient_serverCommands['cpp'] = {
+                 \    'command': [
+                 \         'clangd',
+                 \         '--pch-storage=memory', '--cross-file-rename', '--header-insertion=iwyu', '--all-scopes-completion', '--background-index',
+                 \         '--clang-tidy', '--inlay-hints', '--include-ineligible-results', '--limit-results=1000', '--header-insertion-decorators', 
+                 \         '--log=verbose', '--pretty',
+                 \     ],
+                 \     'name': 'clangd',
+                 \ }
+
+    let g:LanguageClient_hasSnippetSupport = 0
 
     " let g:LanguageClient_serverCommands['cpp'] = [
     "             \     'clangd', '--function-arg-placeholders=0', '--clang-tidy',
@@ -856,29 +900,49 @@ if IsSourced('LanguageClient-neovim')
     let g:LanguageClient_serverCommands['cs']     = ['omnisharp']
     let g:LanguageClient_serverCommands['python'] = ['pylsp']
 
+    
+        let g:LanguageClient_serverCommands['rust'] = ['rls']
+        let g:LanguageClient_serverCommands['go'] = {
+        \   'name': 'gopls',
+        \   'command': ['gopls'],
+        \   'initializationOptions': {
+        \     'usePlaceholders': v:true,
+        \     'codelens': {
+        \       'generate': v:true,
+        \       'test': v:true,
+        \     },
+        \   },
+        \ }
+
     let g:LanguageClient_autoStart = 1
     " let g:LanguageClient_changeThrottle = 1.0
     " let g:LanguageClient_hoverPreview = 'Never'
     " let g:LanguageClient_hoverPreview = 'Auto'
-    " let g:LanguageClient_completionPreferTextEdit = 1
-    let g:LanguageClient_setOmnifunc = v:false
-    " let g:LanguageClient_useVirtualText = 'No'
+    let g:LanguageClient_completionPreferTextEdit = 1
+    " let g:LanguageClient_setOmnifunc = v:true
+    " let g:LanguageClient_useVirtualText = 'All'
     let g:LanguageClient_hideVirtualTextsOnInsert = 1
-    " let g:LanguageClient_preferredMarkupKind = ['plaintext', 'markdown']
+    let g:LanguageClient_preferredMarkupKind = ['plaintext', 'markdown']
     " let g:LanguageClient_preferredMarkupKind = ['plaintext']
     " let g:LanguageClient_selectionUI = 'fzf'
     " let g:LanguageClient_selectionUI ='location-list'
     " let g:LanguageClient_selectionUI ='quickfix'
 
+    let g:LanguageClient_diagnosticsMaxSeverity = 'Hint'
     let g:LanguageClient_diagnosticsEnable = 1
     let g:LanguageClient_trace = 'verbose'
-    let g:LanguageClient_loggingLevel = 'WARN'
-    let g:LanguageClient_loggingFile = expand('~/lsp.log')
+    let g:LanguageClient_loggingLevel = 'INFO'
+    let g:LanguageClient_loggingFile  =  expand('~/.local/share/nvim/LanguageClient.log')
+    let g:LanguageClient_serverStderr = expand('~/.local/share/nvim/LanguageServer.log')
+
+    " let g:LanguageClient_applyCompletionAdditionalTextEdits = 0
+    let $RUST_BACKTRACE = 1
+    let g:LanguageClient_virtualTextPrefix = '[LC]: '
 
     " let g:LanguageClient_loadSettings = 1 " Use an absolute configuration path if you want system-wide settings
     " let g:LanguageClient_settingsPath = expand('~/.config/nvim/settings.json')
     " set completefunc=LanguageClient#complete
-    " set formatexpr=LanguageClient_textDocument_rangeFormatting()
+    " set formatexpr=LanguageClient#textDocument_rangeFormatting_sync()
 
     " augroup MyLanguageClientConfig
     "     au BufEnter * let b:Plugin_LanguageClient_started = 0
@@ -904,10 +968,75 @@ if IsSourced('LanguageClient-neovim')
 endif
 
 
+if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
+    nmap <silent> <leader>ld <Plug>(coc-definition)
+    nmap <silent> <leader>ly <Plug>(coc-type-definition)
+    nmap <silent> <leader>li <Plug>(coc-implementation)
+    nmap <silent> <leader>lr <Plug>(coc-references)
+
+    xmap <leader>la  <Plug>(coc-codeaction-selected)
+    nmap <leader>la  <Plug>(coc-codeaction-selected)
+
+    " Remap keys for applying codeAction to the current buffer.
+    nmap <leader>lac <Plug>(coc-codeaction)
+    " Apply AutoFix to problem on the current line.
+    nmap <leader>lqf  <Plug>(coc-fix-current)
+
+    nmap <leader>lrn <Plug>(coc-rename)
+
+    " Use tab for trigger completion with characters ahead and navigate.
+    " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+    " other plugin before putting this into your config.
+    inoremap <silent><expr> <TAB>
+                \ pumvisible() ? "\<C-n>" :
+                \ <SID>check_back_space() ? "\<TAB>" :
+                \ coc#refresh()
+    inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+    function! s:check_back_space() abort
+        let col = col('.') - 1
+        return !col || getline('.')[col - 1]  =~# '\s'
+    endfunction
+
+    " Use <c-space> to trigger completion.
+    " if has('nvim')
+    "     inoremap <silent><expr> <c-space> coc#refresh()
+    " else
+    "     inoremap <silent><expr> <c-@> coc#refresh()
+    " endif
+
+    " Make <CR> auto-select the first completion item and notify coc.nvim to
+    " format on enter, <cr> could be remapped by other vim plugin
+    inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+    " Use `[g` and `]g` to navigate diagnostics
+    " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+    nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+    " Use K to show documentation in preview window.
+    nnoremap <silent> <leader>h  :call <SID>show_documentation()<CR>
+
+    function! s:show_documentation()
+      if (index(['vim','help'], &filetype) >= 0)
+        execute 'h '.expand('<cword>')
+      elseif (coc#rpc#ready())
+        call CocActionAsync('doHover')
+      else
+        execute '!' . &keywordprg . " " . expand('<cword>')
+      endif
+    endfunction
+
+    " Highlight the symbol and its references when holding the cursor.
+    autocmd CursorHold * silent call CocActionAsync('highlight')
+endif
+
+
 if IsSourced('deoplete.nvim')
     let g:deoplete#enable_at_startup = 1
     " if !exists('g:deoplete#omni#input_patterns')
-        " let g:deoplete#omni#input_patterns = {}
+    "     let g:deoplete#omni#input_patterns = {}
     " endif
     " if filereadable(expand('~/personaldotfiles/.Vim/deoplete.vim'))
     "     :source ~/personaldotfiles/.Vim/deoplete.vim
@@ -915,11 +1044,13 @@ if IsSourced('deoplete.nvim')
 
     " deoplete tab-complete
     inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+
     " Use smartcase.
     " let g:deoplete#enable_smart_case = 1
 
     call deoplete#custom#option('smart_case', v:true)
     call deoplete#custom#option('deoplete-options-num_processes', 0)
+    call deoplete#custom#option('refresh_always', v:false)
 					
 
     " <C-h>, <BS>: close popup and delete backword char.
@@ -944,13 +1075,17 @@ if IsSourced('deoplete.nvim')
     " if IsSourced('zchee/deoplete-clang')
       let  g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm/13/lib64/libclang.so'
       let  g:deoplete#sources#clang#clang_header = '/usr/lib/llvm/13/include'
+
+
+      call deoplete#custom#option('skip_chars', ['('])
+
     " endif
 
-    call deoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
+    ""call  eoplete#custom#option('omni_patterns', { 'go': '[^. *\t]\.\w*' })
     " set completefunc=LanguageClient#complete
 
     "if IsSourced('zchee/deoplete-go')
-    "    let g:deoplete#sources#go#gocode_binary = exepath('gocode')
+    "    let g:keoplete#sources#go#gocode_binary = exepath('gocode')
     "    let g:deoplete#sources#go#cgo = 1
     "    let g:deoplete#sources#go#cgo#libclang_path = s:libclang_path
     "    let g:deoplete#sources#go#auto_goos = 1
@@ -1038,7 +1173,7 @@ if IsSourced('indentLine')
     "let g:indentLine_setColors = 0
     let g:indentLine_color_gui = '#7E8E91'
     "let g:indentLine_enabled = 1
-    nmap <silent> <leader>il :IndentLinesToggle<CR>
+    " nmap <silent> <leader>il :IndentLinesToggle<CR>
 endif
 
 
@@ -1146,66 +1281,13 @@ if IsSourced('numbers.vim') || IsSourced('PersonalVimStuff')
 endif
 
 
-if IsSourced('neotags.nvim')
-    let g:neotags_enabled = 1
-    let g:neotags_highlight = 1
-    let g:neotags_run_ctags = 1
-    let g:neotags_verbose = 1
-    let g:neotags_recursive = 1
-    let g:neotags_no_autoconf = 1
-    let g:neotags_use_binary = 1
-    let g:neotags_strip_comments = 1
-    if LINUX() || WINDOWS()
-        let g:neotags_compression_type = 'lzma'
-    elseif BSD() || CYGWIN()
-        let g:neotags_compression_type = 'gzip'
-    else
-        echom 'Setup your damn compression settings you moron!'
-    endif
-    let g:neotags_use_compression = 1
-
-    let g:neotags#c#order = 'guesfdtmv'
-
-    highlight link neotags_EnumTag	Enum
-    highlight link neotags_FunctionTag	CFuncTag
-    highlight link neotags_MemberTag	CMember
-    highlight link neotags_GlobalVarTag	CMember
-
-    highlight link goConstantTag	Enum
-    highlight link pythonGlobalVarTag	Constant
-
-    set tags=./tags;,../tags
-
-    let g:neotags_norecurse_dirs = [
-                        \     $HOME, '/', '/include', '/usr/include', '/usr/share', '/usr/local/include',
-                        \     '/usr/local/share', '/tmp', '/usr/src', '/usr/ports', '/usr/dports',
-                        \     expand('~/personaldotfiles'),  expand('~/random'),    expand('~/random/Code'),
-                        \     expand('~/random/school'),     expand('~/Downloads'), expand('~/documents'),
-                        \ ]
-
-    let g:neotags_ignored_tags = {
-                \   'c': ['xmalloc', 'xcalloc', 'xrealloc', 'xreallocarray', 'nmalloc', 'nrealloc', '_Bool',
-                \         'malloc', 'calloc', 'realloc', 'reallocarray', 'free', 'xfree', '__attribute__', 'TRUE', 'FALSE']
-                \ }
-
-    let g:neotags_restored_groups = {
-                \     'c':   ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType', 'cAnsiFunction'],
-                \     'cpp': ['cConstant', 'cStorageClass', 'cConditional', 'cRepeat', 'cType',
-                \             'cppStorageClass', 'cppType', 'cppAuto', 'smart_pointers', 'cppSTLconstant', 'cppSTLexception', 'cppSTLenum'],
-                \     'go':  ['goExtraConstants', 'goStdlibFuncs']
-                \ }
-
-    nmap <leader>tag :NeotagsToggle<CR>
-endif
-
-
 """" SEARCHFORME
 if IsSourced('tag-highlight.nvim')
     colo myMolokai4
 
     let g:tag_highlight#enabled = 1
     let g:tag_highlight#highlight = 1
-    let g:tag_highlight#run_ctags = 0
+    let g:tag_highlight#run_ctags = 1
     let g:tag_highlight#verbose = 0
     let g:tag_highlight#recursive = 1
     let g:tag_highlight#no_autoconf = 1
@@ -1226,12 +1308,21 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#ignored_tags = {
                 \   'c': ['static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \         '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__',
-                \         'alignof', 'alignas', 'Auto', 'main', 'stat', 'fork', 'vfork']
+                \         'alignof', 'alignas', 'Auto', 'main', 'stat', 'fork', 'vfork', ]
                 \ }
+
+    let g:tag_highlight#ignored_tags['cpp'] = [
+                \   'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
+                \   '__attribute__', '__extension__',
+                \   'fork', 'vfork', 'main', 'assert',
+                \   'concept', 'requires',
+                \   'maybe_unused', 'nodiscard',
+                \   'unique_ptr', 'shared_ptr', 'static_pointer_cast', 'const_pointer_cast',
+                \   'dynamic_pointer_cast', 'reinterpret_pointer_cast',
+                \ ]
 
     call extend(g:tag_highlight#ignored_tags['c'], ['DIVU_', 'DIV_', 'MODU_', 'MOD_', 'MULU_', 'MUL_', 'abort', 'abs', 'acos', 'acosf', 'acosh', 'acoshf', 'acoshl', 'acosl', 'asctime', 'asin', 'asinf', 'asinh', 'asinhf', 'asinhl', 'asinl', 'atan', 'atan2', 'atan2f', 'atan2l', 'atanf', 'atanh', 'atanhf', 'atanhl', 'atanl', 'atexit', 'atof', 'atoi', 'atol', 'atoll', 'bsearch', 'btowc', 'cabs', 'cabsf', 'cabsl', 'cacos', 'cacosf', 'cacosh', 'cacoshf', 'cacoshl', 'cacosl', 'carg', 'cargf', 'cargl', 'casin', 'casinf', 'casinh', 'casinhf', 'casinhl', 'casinl', 'catan', 'catanf', 'catanh', 'catanhf', 'catanhl', 'catanl', 'cbrt', 'cbrtf', 'cbrtl', 'ccos', 'ccosf', 'ccosh', 'ccoshf', 'ccoshl', 'ccosl', 'ceil', 'ceilf', 'ceill', 'cexp', 'cexpf', 'cexpl', 'cimag', 'cimagf', 'cimagl', 'clearerr', 'clock', 'clog', 'clogf', 'clogl', 'close', 'conj', 'conjf', 'conjl', 'copysign', 'copysignf', 'copysignl', 'cos', 'cosf', 'cosh', 'coshf', 'coshl', 'cosl', 'cpow', 'cpowf', 'cpowl', 'cproj', 'cprojf', 'cprojl', 'creal', 'crealf', 'creall', 'csin', 'csinf', 'csinh', 'csinhf', 'csinhl', 'csinl', 'csqrt', 'csqrtf', 'csqrtl', 'ctan', 'ctanf', 'ctanh', 'ctanhf', 'ctanhl', 'ctanl', 'ctime', 'difftime', 'div', 'dup', 'dup2', 'erf', 'erfc', 'erfcf', 'erfcl', 'erff', 'erfl', 'exit', 'exp', 'exp2', 'exp2f', 'exp2l', 'expf', 'expl', 'expm1', 'expm1f', 'expm1l', 'fabs', 'fabsf', 'fabsl', 'fclose', 'fcntl', 'fdim', 'fdimf', 'fdiml', 'feclearexcept', 'fegetenv', 'fegetexceptflag', 'fegetround', 'feholdexcept', 'feof', 'feraiseexcept', 'ferror', 'fesetenv', 'fesetexceptflag', 'fesetround', 'fetestexcept', 'feupdateenv', 'fflush', 'fgetc', 'fgetpos', 'fgets', 'fgetwc', 'fgetws', 'floor', 'floorf', 'floorl', 'fma', 'fmaf', 'fmal', 'fmax', 'fmaxf', 'fmaxl', 'fmin', 'fminf', 'fminl', 'fmod', 'fmodf', 'fmodl', 'fopen', 'fpclassify', 'fprintf', 'fputc', 'fputs', 'fputwc', 'fputws', 'fread', 'freopen', 'frexp', 'frexpf', 'frexpl', 'fscanf', 'fseek', 'fsetpos', 'ftell', 'fwide', 'fwprintf', 'fwrite', 'fwscanf', 'getc', 'getchar', 'getenv', 'gets', 'getwc', 'getwchar', 'gmtime', 'hypot', 'hypotf', 'hypotl', 'ilogb', 'ilogbf', 'ilogbl', 'ioctl', 'isalnum', 'isalpha', 'iscntrl', 'isdigit', 'isfinite', 'isgraph', 'isgreater', 'isgreaterequal', 'isinf', 'isless', 'islessequal', 'islessgreater', 'islower', 'isnan', 'isnormal', 'isprint', 'ispunct', 'isspace', 'isunordered', 'isupper', 'iswalnum', 'iswalpha', 'iswcntrl', 'iswctype', 'iswdigit', 'iswgraph', 'iswlower', 'iswprint', 'iswpunct', 'iswspace', 'iswupper', 'iswxdigit', 'isxdigit', 'labs', 'ldexp', 'ldexpf', 'ldexpl', 'ldiv', 'lgamma', 'lgammaf', 'lgammal', 'llabs', 'lldiv', 'llrint', 'llrintf', 'llrintl', 'llround', 'llroundf', 'llroundl', 'localeconv', 'localtime', 'log', 'log10', 'log10f', 'log10l', 'log1p', 'log1pf', 'log1pl', 'log2', 'log2f', 'log2l', 'logb', 'logbf', 'logbl', 'logf', 'logl', 'longjmp', 'lrint', 'lrintf', 'lrintl', 'lround', 'lroundf', 'lroundl', 'lseek', 'main', 'mblen', 'mbrlen', 'mbrtowc', 'mbsinit', 'mbsrtowcs', 'mbstowcs', 'mbtowc', 'memchr', 'memcmp', 'memcpy', 'memmem', 'memmove', 'memset', 'mktime', 'mkxtime', 'modf', 'modff', 'modfl', 'nan', 'nanf', 'nanl', 'nearbyint', 'nearbyintf', 'nearbyintl', 'nextafter', 'nextafterf', 'nextafterl', 'nextafterx', 'nextafterxf', 'nextafterxl', 'offsetof', 'open', 'perror', 'pow', 'powf', 'powl', 'printf', 'putc', 'putchar', 'puts', 'putwc', 'putwchar', 'qsort', 'raise', 'rand', 'read', 'remainder', 'remainderf', 'remainderl', 'remove', 'remquo', 'remquof', 'remquol', 'rename', 'rewind', 'rint', 'rintf', 'rintl', 'round', 'roundf', 'roundl', 'scalbln', 'scalblnf', 'scalblnl', 'scalbn', 'scalbnf', 'scalbnl', 'scanf', 'setbuf', 'setjmp', 'setlocale', 'setvbuf', 'signal', 'signbit', 'sin', 'sinf', 'sinh', 'sinhf', 'sinhl', 'sinl', 'snprintf', 'sprintf', 'sqrt', 'sqrtf', 'sqrtl', 'srand', 'sscanf', 'strcat', 'strchr', 'strcmp', 'strcoll', 'strcpy', 'strcspn', 'strerror', 'strftime', 'strfxtime', 'strlcat', 'strlcpy', 'strlen', 'strncat', 'strncmp', 'strncpy', 'strpbrk', 'strrchr', 'strsep', 'strspn', 'strstr', 'strtod', 'strtof', 'strtoimax', 'strtok', 'strtol', 'strtold', 'strtoll', 'strtonum', 'strtoul', 'strtoull', 'strtoumax', 'strxfrm', 'swprintf', 'swscanf', 'system', 'tan', 'tanf', 'tanh', 'tanhf', 'tanhl', 'tanl', 'tgamma', 'tgammaf', 'tgammal', 'time', 'tmpfile', 'tmpnam', 'tolower', 'toupper', 'towctrans', 'towlower', 'towupper', 'trunc', 'truncf', 'truncl', 'ungetc', 'ungetwc', 'va_arg', 'va_copy', 'va_end', 'va_start', 'vfprintf', 'vfscanf', 'vfwprintf', 'vfwscanf', 'vprintf', 'vscanf', 'vsnprintf', 'vsprintf', 'vsscanf', 'vswprintf', 'vswscanf', 'vwprintf', 'vwscanf', 'wcrtomb', 'wcscat', 'wcschr', 'wcscmp', 'wcscoll', 'wcscpy', 'wcscspn', 'wcsftime', 'wcsfxtime', 'wcslen', 'wcsncat', 'wcsncmp', 'wcsncpy', 'wcspbrk', 'wcsrchr', 'wcsrtombs', 'wcsspn', 'wcsstr', 'wcstod', 'wcstof', 'wcstoimax', 'wcstok', 'wcstol', 'wcstold', 'wcstoll', 'wcstombs', 'wcstoul', 'wcstoull', 'wcstoumax', 'wcsxfrm', 'wctob', 'wctomb', 'wctrans', 'wctype', 'wmemchr', 'wmemcmp', 'wmemcpy', 'wmemmove', 'wmemset', 'wprintf', 'write', 'wscanf', 'zonetime', ])
 
-    let g:tag_highlight#ignored_tags['cpp'] = copy(g:tag_highlight#ignored_tags['c'])
     " call extend(g:tag_highlight#ignored_tags['cpp'], ['noreturn', 'nodiscard'])
 
     let g:ale_fixers = { 'c': ['clangtidy'], 'cpp': ['clangtidy'] }
@@ -1244,15 +1335,19 @@ if IsSourced('tag-highlight.nvim')
                 \     'go':  ['goExtraConstants', 'goStdlibFuncs', 'goBoolean']
                 \ }
 
-    let s:tmp_cpp_lst = copy(g:tag_highlight#restored_groups['c'])
+    " let s:tmp_cpp_lst = copy(g:tag_highlight#restored_groups['c'])
+    let s:tmp_cpp_lst = []
     call extend(s:tmp_cpp_lst,
                 \   [
-                \        'cppStorageClass', 'cppType', 'cppAuto', 'cppSTLenum',
-                \        'cppSTLconstant', 'smart_pointers', 'cppSTLconstant', 'cppSTLfunctional',
-                \        'cppSTLcast', 'cppSTLbool',
+                \        'cppStorageClass', 'cppType', 'cppAuto', 'cppModifier',
+                \        'cppSTLconstant', 'cppSTLenum', 'cppSTLconstant', 'cppSTLfunctional', 'cppSTLcast', 'cppSTLbool', 'smart_pointers',
+                \        'cPosixFunction2', 'cStorageClass',  'cAnsiFunction', 'cExtraConstants', 'cRepeat',
+                \        'cC11Function', 'cExtentionFunc',  'cPosixFunction', 'cConstant', 'cExtraConstants',
+                \        'cOperator',
                 \   ])
                 " \        'cppSTLfunction', 'cppSTLfunctional', 'cppSTLnamespace',
-    let g:tag_highlight#restored_groups['cpp'] = copy(s:tmp_cpp_lst)
+
+    let g:tag_highlight#restored_groups['cpp'] = s:tmp_cpp_lst
 
     set tags=tags,../tags
 
@@ -1275,6 +1370,10 @@ if IsSourced('tag-highlight.nvim')
         highlight! link tag_highlight_TemplateTag   newTemplateColor
 
         highlight! link tag_highlight_OverloadedOperatorTag  OverloadedOperator
+        highlight! link tag_highlight_OverloadedDeclTag      overloadedDecl
+        highlight! link tag_highlight_NonTypeTemplateParam   nonTypeTemplParam
+        " highlight! link tag_highlight_NonTypeTemplateParam   BoldRed
+        highlight default link tag_highlight_UnknownTag      orangered
 
     endfunction
 

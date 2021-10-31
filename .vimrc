@@ -120,6 +120,7 @@ let g:myNova_BG = '#1B1D1E'
 " Whitelisted filetypes for operator highlighting.
 
 " Set the following to avoid loading the plugin
+let g:operator_highlight_enable = 1
 let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c' ]
 
 "let g:ophigh_highlight_link_group = 'Operator'

@@ -1,6 +1,6 @@
 " NOTE: This file is ignored by gonvim!
 
-let s:linespace = 2
+let s:linespace = 3
 
 if exists('g:GtkGuiLoaded')
     call rpcnotify(1, 'Gui', 'Font', 'dina ttf 8')
@@ -16,7 +16,8 @@ else
             GuiFont Dina:h8
             execute 'GuiLinespace ' . s:linespace
         else
-            GuiFont Dina:h10
+            " GuiFont Dina:h10
+            GuiFont Dina:h7
             execute 'GuiLinespace ' . s:linespace
         endif
     endif

@@ -224,6 +224,10 @@ for ($type)
         $basetype = 'bz2';
         @CMD = ( 'bzip2', "-${lev9}", '-c', '>' );
     }
+    elsif (/^(lz(ip)?)$/n) {
+        $basetype = 'lz';
+        @CMD = ( 'lzip', "-${lev9}", '-s256MiB',  '-c', '>' );
+    }
     elsif (/^(z|Z)$/n) {
         $basetype = 'Z';
         @CMD      = qw( compress -c > );

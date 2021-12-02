@@ -21,7 +21,7 @@ endif
 let s:use_ale = 1
 let s:use_deoplete = 1
 let s:use_async = 0
-let g:use_language_client = 1
+let g:use_language_client = 0
 let s:vim_ale = 1
 
 filetype off
@@ -49,7 +49,7 @@ if dein#load_state(g:load_path)
     call dein#add(g:dein_path, {'merged': v:false})
     call dein#add('haya14busa/dein-command.vim')
 
-    if has('nvim') && 0
+    if has('nvim') && !WINDOWS() && 0
         call dein#add('/usr/share/vim/vimfiles')
     endif
 
@@ -66,6 +66,7 @@ if dein#load_state(g:load_path)
         "call dein#add('roflcopter4/mytags', {'merged': v:false})
         "call dein#add('blahgeek/neovim-colorcoder', {'merged': v:false})
         "call dein#add('arakashic/chromatica.nvim', {'merged': v:false})
+        call dein#add('nvim-treesitter/nvim-treesitter', {'hook_post_update': 'TSUpdate', 'merged': v:false})
     endif
 
     "----------  General  ---------
@@ -192,7 +193,7 @@ if dein#load_state(g:load_path)
     "---------- Refactoring tools and such ----------
     call dein#add('uplus/vim-clang-rename')
 
-    " call dein#add('neoclide/coc.nvim', {'merged': v:false, 'rev': 'master', 'build': 'yarn install --frozen-lockfile'})
+    call dein#add('neoclide/coc.nvim', {'merged': v:false, 'rev': 'master', 'build': 'yarn install --frozen-lockfile'})
     " call dein#disable('neoclide/coc.nvim')
     " call dein#disable('coc.nvim')
     " call dein#disable('coc.nvim_master')
@@ -202,9 +203,10 @@ if dein#load_state(g:load_path)
 "                    \ {'merged': v:false, 'build': 'cargo build'})
     else
         call dein#disable('autozimu/LanguageClient-neovim')
+        if has('nvim')
+            call dein#add('neovim/nvim-lspconfig')
+        endif
     endif
-    call dein#add('Shougo/neosnippet.vim')
-    call dein#add('Shougo/neosnippet-snippets')
     call dein#add('honza/vim-snippets')
     call dein#add('Shougo/context_filetype.vim')
 
@@ -228,13 +230,21 @@ if dein#load_state(g:load_path)
         endif
         if s:use_deoplete == 1
             " call dein#add('ncm2/ncm2', {'merged': v:false})
-            call dein#add('Shougo/deoplete.nvim')
+            " call dein#add('Shougo/deoplete.nvim')
             call dein#add('Shougo/neco-vim')
             call dein#add('Shougo/neoinclude.vim')
             call dein#add('deoplete-plugins/deoplete-zsh')
             call dein#add('deoplete-plugins/deoplete-lsp')
             call dein#add('deoplete-plugins/deoplete-tag')
             call dein#add('deoplete-plugins/deoplete-dictionary')
+
+            if !has('nvim')
+                call dein#add('roxma/nvim-yarp')
+                call dein#add('roxma/vim-hug-neovim-rpc')
+            endif
+
+            call dein#add('Shougo/neosnippet.vim')
+            call dein#add('Shougo/neosnippet-snippets')
 
             call dein#add('Shougo/deoplete-clangx')
             call dein#add('artur-shaik/vim-javacomplete2')
@@ -763,6 +773,7 @@ if IsSourced('ale')
                     \   '-altera-id-dependent-backward-branch',
                     \   '-*fuchsia*',
                     \   '-modernize-use-trailing-return-type',
+                    \   '-bugprone-easily-swappable-parameters',
                     \ ]
 
         let g:ale_c_clangtidy_checks = [
@@ -863,6 +874,10 @@ if IsSourced('ale')
 endif
 
 
+if IsSourced('nvim-lspconfig')
+endif
+
+
 if IsSourced('LanguageClient-neovim')
     if !IsSourced('ale')
         let g:ale_cpp_clangtidy_checks = ['*']
@@ -888,7 +903,7 @@ if IsSourced('LanguageClient-neovim')
                  \     'name': 'clangd',
                  \ }
 
-    let g:LanguageClient_hasSnippetSupport = 0
+    let g:LanguageClient_hasSnippetSupport = 1
 
     " let g:LanguageClient_serverCommands['cpp'] = [
     "             \     'clangd', '--function-arg-placeholders=0', '--clang-tidy',
@@ -919,7 +934,7 @@ if IsSourced('LanguageClient-neovim')
     " let g:LanguageClient_hoverPreview = 'Never'
     " let g:LanguageClient_hoverPreview = 'Auto'
     let g:LanguageClient_completionPreferTextEdit = 1
-    " let g:LanguageClient_setOmnifunc = v:true
+    let g:LanguageClient_setOmnifunc = v:false
     " let g:LanguageClient_useVirtualText = 'All'
     let g:LanguageClient_hideVirtualTextsOnInsert = 1
     let g:LanguageClient_preferredMarkupKind = ['plaintext', 'markdown']
@@ -972,15 +987,16 @@ if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
     nmap <silent> <leader>ld <Plug>(coc-definition)
     nmap <silent> <leader>ly <Plug>(coc-type-definition)
     nmap <silent> <leader>li <Plug>(coc-implementation)
-    nmap <silent> <leader>lr <Plug>(coc-references)
+    nmap <silent> <leader>lrf <Plug>(coc-references)
 
-    xmap <leader>la  <Plug>(coc-codeaction-selected)
-    nmap <leader>la  <Plug>(coc-codeaction-selected)
+    xmap <leader>la <Plug>(coc-codeaction-selected)
+    nmap <leader>la <Plug>(coc-codeaction-selected)
 
     " Remap keys for applying codeAction to the current buffer.
-    nmap <leader>lac <Plug>(coc-codeaction)
+    nmap <leader>lca <Plug>(coc-codeaction)
     " Apply AutoFix to problem on the current line.
-    nmap <leader>lqf  <Plug>(coc-fix-current)
+    nmap <leader>lq  <Plug>(coc-fix-current)
+    vmap <leader>lq  <Plug>(coc-fix-current)
 
     nmap <leader>lrn <Plug>(coc-rename)
 
@@ -999,11 +1015,11 @@ if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
     endfunction
 
     " Use <c-space> to trigger completion.
-    " if has('nvim')
-    "     inoremap <silent><expr> <c-space> coc#refresh()
-    " else
-    "     inoremap <silent><expr> <c-@> coc#refresh()
-    " endif
+    if has('nvim')
+        inoremap <silent><expr> <c-space> coc#refresh()
+    else
+        inoremap <silent><expr> <c-@> coc#refresh()
+    endif
 
     " Make <CR> auto-select the first completion item and notify coc.nvim to
     " format on enter, <cr> could be remapped by other vim plugin
@@ -1024,12 +1040,41 @@ if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
       elseif (coc#rpc#ready())
         call CocActionAsync('doHover')
       else
-        execute '!' . &keywordprg . " " . expand('<cword>')
+        execute '!' . &keywordprg . ' ' . expand('<cword>')
       endif
     endfunction
 
     " Highlight the symbol and its references when holding the cursor.
-    autocmd CursorHold * silent call CocActionAsync('highlight')
+    augroup CocCursor
+        autocmd CursorHold * silent call CocActionAsync('highlight')
+    augroup END
+
+
+  " let g:coc_default_semantic_highlight_groups = 1
+
+  " hi default link CocSem_class         newClassColor
+  " " " hi default link CocSem_comment       Comment
+  " hi default link CocSem_enum          Type
+  " hi default link CocSem_enumMember    Enum
+  " hi default link CocSem_event         Identifier
+  " hi default link CocSem_function      CFuncTag
+  " hi default link CocSem_interface     newTemplateColor
+  " hi default link CocSem_keyword       Keyword
+  " hi default link CocSem_macro         PreProc
+  " hi default link CocSem_method        Method
+  " hi default link CocSem_modifier      StorageClass
+  " hi default link CocSem_namespace     Namespace
+  " hi default link CocSem_number        Number
+  " hi default link CocSem_operator      OverloadedOperator
+  " " " hi default link CocSem_parameter     Identifier
+  " hi default link CocSem_property      CMember
+  " hi default link CocSem_regexp        Normal
+  " hi default link CocSem_string        String
+  " hi default link CocSem_struct        Structure
+  " hi default link CocSem_type          Type
+  " hi default link CocSem_typeParameter OverloadedOperator
+  " " " hi default link CocSem_variable      Identifier
+
 endif
 
 
@@ -1043,7 +1088,9 @@ if IsSourced('deoplete.nvim')
     " endif
 
     " deoplete tab-complete
-    inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+    if !(IsSourced('coc.nvim') || IsSourced('coc.nvim_master'))
+        inoremap <expr><tab> pumvisible() ? "\<c-n>" : "\<tab>"
+    endif
 
     " Use smartcase.
     " let g:deoplete#enable_smart_case = 1
@@ -1051,7 +1098,7 @@ if IsSourced('deoplete.nvim')
     call deoplete#custom#option('smart_case', v:true)
     call deoplete#custom#option('deoplete-options-num_processes', 0)
     call deoplete#custom#option('refresh_always', v:false)
-					
+
 
     " <C-h>, <BS>: close popup and delete backword char.
     inoremap <expr><C-h> deoplete#smart_close_popup()."\<C-h>"
@@ -1078,6 +1125,26 @@ if IsSourced('deoplete.nvim')
 
 
       call deoplete#custom#option('skip_chars', ['('])
+
+      " Plugin key-mappings.
+      " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+      imap <C-k>     <Plug>(neosnippet_expand_or_jump)
+      smap <C-k>     <Plug>(neosnippet_expand_or_jump)
+      xmap <C-k>     <Plug>(neosnippet_expand_target)
+
+      " SuperTab like snippets behavior.
+      " Note: It must be "imap" and "smap".  It uses <Plug> mappings.
+      "imap <expr><TAB>
+      " \ pumvisible() ? "\<C-n>" :
+      " \ neosnippet#expandable_or_jumpable() ?
+      " \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+      smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+                  \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+
+      " For conceal markers.
+      if has('conceal')
+          set conceallevel=2 concealcursor=niv
+      endif
 
     " endif
 
@@ -1287,7 +1354,7 @@ if IsSourced('tag-highlight.nvim')
 
     let g:tag_highlight#enabled = 1
     let g:tag_highlight#highlight = 1
-    let g:tag_highlight#run_ctags = 1
+    let g:tag_highlight#run_ctags = 0
     let g:tag_highlight#verbose = 0
     let g:tag_highlight#recursive = 1
     let g:tag_highlight#no_autoconf = 1
@@ -1355,10 +1422,10 @@ if IsSourced('tag-highlight.nvim')
 
         highlight! link goConstantTag               Enum
         highlight! link goGlobalVarTag              GlobalVarTag
-        highlight! link goInterfaceTag              newClassColor
         highlight! link pythonGlobalVarTag          Enum
-        highlight! link rustMacroTag                newClassColor
-        highlight! link tag_highlight_ClassTag      magentaIGuess
+        highlight! link goInterfaceTag              NewClassColor
+        highlight! link rustMacroTag                NewClassColor
+        highlight! link tag_highlight_ClassTag      MagentaIGuess
         " highlight! link tag_highlight_ClassTag      newClassColor
         highlight! link tag_highlight_EnumTag       Enum
         highlight! link tag_highlight_FunctionTag   CFuncTag
@@ -1367,11 +1434,12 @@ if IsSourced('tag-highlight.nvim')
         highlight! link tag_highlight_MethodTag     Method
         highlight! link tag_highlight_ModuleTag     Namespace
         highlight! link tag_highlight_NamespaceTag  Namespace
-        highlight! link tag_highlight_TemplateTag   newTemplateColor
+        " highlight! link tag_highlight_TemplateTag   NewTemplateColor
+        highlight! link tag_highlight_TemplateTag   NewClassColor
 
         highlight! link tag_highlight_OverloadedOperatorTag  OverloadedOperator
-        highlight! link tag_highlight_OverloadedDeclTag      overloadedDecl
-        highlight! link tag_highlight_NonTypeTemplateParam   nonTypeTemplParam
+        highlight! link tag_highlight_OverloadedDeclTag      OverloadedDecl
+        highlight! link tag_highlight_NonTypeTemplateParam   NonTypeTemplParam
         " highlight! link tag_highlight_NonTypeTemplateParam   BoldRed
         highlight default link tag_highlight_UnknownTag      orangered
 
@@ -1382,6 +1450,26 @@ if IsSourced('tag-highlight.nvim')
     augroup END
 
     nnoremap <leader>tag :THLUpdate<CR>
+endif
+
+
+if IsSourced('nvim-treesitter')
+    lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  --ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
+  --ignore_install = { "javascript" }, -- List of parsers to ignore installing
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    disable = { "c", "cpp" },   -- list of language that will be disabled
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
 endif
 
 

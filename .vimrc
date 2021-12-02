@@ -13,23 +13,30 @@ else
     let g:_platform = 'OTHER'
 endif
 
+let s:is_linux      = has('unix') && !has('macunix') && g:_platform ==# 'Linux'
+let s:is_windows    = has('win16') || has('win32') || has('win64')
+let s:is_macos      = has('macunix')
+let s:is_cygwin     = has('win32unix')
+let s:is_win_or_cyg = s:is_windows || s:is_cygwin
+let s:is_bsd        = g:_platform ==# 'BSD'
+
 func! LINUX()
-    return (has('unix') && !has('macunix') && g:_platform ==# 'Linux')
+    return s:is_linux
 endf
 func! WINDOWS()
-    return (has('win16') || has('win32') || has('win64'))
+    return s:is_windows
 endf
 func! OSX()
-    return has('macunix')
+    return s:is_macos
 endf
 func! CYGWIN()
-    return has('win32unix')
+    return s:is_cygwin
 endf
 func! WIN_OR_CYG()
-    return WINDOWS() || CYGWIN()
+    return s:is_win_or_cyg
 endf
 func! BSD()
-    return g:_platform ==# 'BSD'
+    return s:is_bsd
 endf
 
 " Basics
@@ -877,8 +884,8 @@ augroup AssemblySettings
     autocmd Filetype asm,nasm setlocal sw=0 sts=0 noexpandtab
 augroup END
 
-" syntax match arsehole "\%(ass\|fuck\)"
-" syntax match arsehole "\v%(ass|fuck)"
+" syntax match arsehole +\%(ass\|fuck\)+
+" syntax match arsehole +\v%(ass|fuck)+
 
 let g:huge_number = (-(4294967295 * 2))
 let g:nasm_ctx_outside_macro = 1

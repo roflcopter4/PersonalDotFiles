@@ -442,7 +442,7 @@ case "${_UNAME}" in
             fi
         fi
 
-        alias make='make --no-print-directory'
+        alias make="make --no-print-directory -O -j\"$(nproc)\""
         ;;
 
     FreeBSD | DragonFly)
@@ -495,7 +495,7 @@ fi
 alias valgrindall='valgrind -v --show-below-main=yes --leak-check=full --expensive-definedness-checks=yes \
 --read-inline-info=yes --read-var-info=yes --num-callers=30 --vex-iropt-level=2 \
 --px-default=allregs-at-each-insn --px-file-backed=allregs-at-each-insn --vex-iropt-unroll-thresh=400 --vex-guest-max-insns=100 \
---track-origins=no --trace-children=yes --show-leak-kinds=definite,indirect \
+--track-origins=no --trace-children=no --show-leak-kinds=all \
 '
 
 

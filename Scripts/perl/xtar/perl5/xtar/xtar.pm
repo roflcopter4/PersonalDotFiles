@@ -24,7 +24,7 @@ use xtar::OutPath;
 use xtar::Colors;
 use xtar::Utils;
 
-use 5.34.0; use warnings; use strict;
+use 5.32.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 

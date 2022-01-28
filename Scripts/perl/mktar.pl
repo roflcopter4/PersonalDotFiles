@@ -4,23 +4,24 @@ use warnings; use strict; use v5.22;
 use constant true  => 1;
 use constant false => 0;
 
-use Cwd qw( getcwd );
+use Cwd qw{getcwd};
 use Carp;
 use DateTime;
 # use Path::Class;
 use File::Which;
 use File::Basename;
-# use File::Copy::Recursive qw( fcopy );
-use File::Temp qw( tempfile tempdir );
-use File::Spec::Functions qw( rel2abs abs2rel catfile );
-use Getopt::Long qw(:config gnu_getopt no_ignore_case);
+# use File::Copy::Recursive qw(fcopy);
+use File::Temp qw{tempfile tempdir};
+use File::Spec::Functions qw{rel2abs abs2rel catfile};
+use Getopt::Long qw{:config gnu_getopt no_ignore_case};
 
 # $File::Copy::Recursive::CopyLink = true;
 
 ###############################################################################
 
+our %opt;
 our $DEBUG;
-our ( $TopDir, $BaseDir, $Verbose );
+our ($TopDir, $BaseDir);
 our $TimeStamp = time;
 our $CWD       = getcwd;
 our $TmpDir;
@@ -34,29 +35,30 @@ sub show_usage
     $status = shift or $status = 0;
     my $THIS = basename $0;
     say "USAGE: $THIS [OPTIONS] FILE(S)...\n";
-    print << 'EOF';
+    print STDOUT <<'_EOF_';
  -h, --help       Show this help and exit
  -V, --version    Show version info and exit
  -t, --type       Specify archive type (see list below) - defaults to xz
- -T, --tar        Specify tar binary to use
  -l, --level      Specify the compression 'level' to pass to the program
+ -e, --extreme    Use an 'extreme' compression setting, if available (eg. xz)
  -o, --output     Specify the basename of the output file (without extension)
+ -N, --notar      Don not tar the files first. SUITABLE FOR ZIP OR 7ZIP ONLY.
+ -T, --tar        Specify tar binary to use
  -b, --bsdtar     Shorthand for --tar=bsdtar
  -g, --gtar       Shorthand for --tar=gtar
- -N, --notar      Don't tar the files first. SUITABLE FOR ZIP OR 7ZIP ONLY.
 
 Types recognized: xz, bzip2, gzip, Z, 7zip, zpaq, tzpaq, zip.
 Most types have a few alternate spellings that are acceptable.
 Zpaq archives are the only one not created as a tar.(type) archive because the
 zpaq program refuses to take stdin. Use tzpaq to force creatoion of a tarball.
-EOF
+_EOF_
     exit $status;
 }
 
 
 sub get_odir
 {
-    if ( -w $CWD ) {
+    if (-w $CWD) {
         return rel2abs($CWD);
     }
     else {
@@ -73,14 +75,14 @@ sub get_tempdir
     my $C = 1;
     my $dir;
     
-    if ( $target_info[0] == [stat '/tmp']->[0] ) {
-        $dir = tempdir( CLEANUP => $C );
+    if ($target_info[0] == [stat '/tmp']->[0]) {
+        $dir = tempdir( CLEANUP => $C);
     }
-    elsif ( -w $CWD ) {
-        $dir = tempdir( CLEANUP => $C, DIR => $CWD );
+    elsif (-w $CWD) {
+        $dir = tempdir( CLEANUP => $C, DIR => $CWD);
     }
-    elsif ( $target_info[0] == [stat $ENV{'HOME'}]->[0] ) {
-        $dir = tempdir( CLEANUP => $C, DIR => $ENV{'HOME'} );
+    elsif ($target_info[0] == [stat $ENV{'HOME'}]->[0]) {
+        $dir = tempdir( CLEANUP => $C, DIR => $ENV{'HOME'});
     }
     else {
         print STDERR <<'EOF';
@@ -104,29 +106,29 @@ sub sayG
 
 sub link_file
 {
-    my ( $file, $target ) = ( shift, shift ) or confess("Invalid args.");
+    my ($file, $target) = (shift, shift) or confess("Invalid args.");
     $file = rel2abs($file);
     $target = rel2abs($target);
     (
-        ( -w $file ) and (
-            $Verbose && $DEBUG && say STDERR "link '$file' to '$target'"
+        (-w $file) and (
+            $opt{verbose} && $DEBUG && say STDERR "link '$file' to '$target'"
             or true
-        )
-        and link( $file, $target )
-    ) or (
+       )
+        and link( $file, $target)
+   ) or (
         # (
             # $DEBUG && say STDERR "Failed to link '$file' to '$target'. $!"
             # or true
-        # )
+        #)
         true
-        and fcopy( $file, $target )
+        and fcopy( $file, $target)
         and (
                 $DEBUG && say STDERR 'Successful copy.'
                 or true
-            )
-    ) or (
+           )
+   ) or (
         say STDERR "Failed to copy '$file' to '$target!'"
-    )
+   )
 }
 
 
@@ -145,62 +147,61 @@ my $wc = eval {
     1;
 };
 
-my ( $procs, $UseCores );
+my ($procs, $UseCores);
 
-if ( $rc ) {
+if ($rc) {
     $procs = new Unix::Processors;
     $UseCores = $procs->max_online;
 }
-elsif ( which( 'nproc' ) ) {
+elsif (which( 'nproc')) {
     $procs = `nproc`;
     chomp $procs;
-    $UseCores = int( $procs );
+    $UseCores = int($procs);
 }
-elsif ( $wc ) {
-    $UseCores = Win32::SystemInfo::ProcessorInfo( 'NumProcessors' );
+elsif ($wc) {
+    $UseCores = Win32::SystemInfo::ProcessorInfo('NumProcessors');
 }
 else {
     $UseCores = 4; # Just pick a number I guess.
 }
 
-my $v7z  = '-bso0 -bsp0';
+my $v7z = '-bso0 -bsp0';
 
 # Some sensible defaults
-my $type = 'xz';
+$opt{type} = 'xz';
 my $lev9 = 9;
 my $lev5 = 4;
 
-my ( $help, $version, $output, $level, $TAR, $gtar, $bsdtar, $notar );
-
 GetOptions(
-    'h|help'     => \$help,
-    'V|version'  => \$version,
-    'v|verbose'  => \$Verbose,
-    't|type=s',  => \$type,
-    'T|tar=s'    => \$TAR,
-    'l|level=i'  => \$level,
-    'o|output=s' => \$output,
-    'b|bsdtar'   => \$bsdtar,
-    'g|gtar'     => \$gtar,
-    'N|notar'    => \$notar,
+    'h|help'     => \$opt{help},
+    'V|version'  => \$opt{version},
+    'v|verbose'  => \$opt{verbose},
+    't|type=s',  => \$opt{type},
+    'T|tar=s'    => \$opt{tar},
+    'l|level=i'  => \$opt{level},
+    'e|extreme'  => \$opt{extreme},
+    'o|output=s' => \$opt{output},
+    'b|bsdtar'   => \$opt{bsdtar},
+    'g|gtar'     => \$opt{gtar},
+    'N|notar'    => \$opt{notar},
     'd|debug'    => \$DEBUG
 ) or show_usage(1);
 
-if ( defined($level) ) {
-    if ( $level <= 9 ) { $lev9 = $level }
-    if ( $level <= 5 ) { $lev5 = $level }
+if (defined($opt{level})) {
+    if ($opt{level} <= 9) { $lev9 = $opt{level} }
+    if ($opt{level} <= 5) { $lev5 = $opt{level} }
 }
 
-if ($version) { say "mktar version 3.0 (perl)" and exit 0 }
-if ($help)    { show_usage(0) }
+if ($opt{version}) { say "mktar version 3.0 (perl)" and exit 0 }
+if ($opt{help})    { show_usage(0) }
 
-if    ($bsdtar) { $TAR = 'bsdtar' }
-elsif ($gtar)   { $TAR = 'gtar' }
+if    ($opt{bsdtar}) { $opt{tar} = 'bsdtar' }
+elsif ($opt{gtar})   { $opt{tar} = 'gtar' }
 
 unless (@ARGV) { die "Error: No input files\n" }
 
-if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
-    $output = shift;
+if (not defined $opt{output} and @ARGV > 1 and not -e $ARGV[0]) {
+    $opt{output} = shift;
     unless (@ARGV) { die "Error: No input files\n" }
 }
 
@@ -208,57 +209,62 @@ if ( not defined $output and @ARGV > 1 and not -e $ARGV[0] ) {
 ###############################################################################
 # Check validity of archive type
 
-my ( $basetype, @CMD, $tmp );
+my ($basetype, @CMD, $tmp);
 
-for ($type)
+for ($opt{type})
 {
     if (/^(xz)$/n) {
         $basetype = 'xz';
-        @CMD = ( 'xz', "-T${UseCores}", "-${lev9}", '>' );
+        $lev9 = '9e' if $opt{extreme};
+        @CMD = ('xz', "-T${UseCores}", "-${lev9}", '>');
     }
     elsif (/^(gz|gzip)$/n) {
         $basetype = 'gz';
-        @CMD = ( 'gzip', "-${lev9}", '-c', '>' );
+        @CMD = ('gzip', "-${lev9}", '-c', '>');
     }
     elsif (/^(bz|bz2|bzip|bzip2)$/n) {
         $basetype = 'bz2';
-        @CMD = ( 'bzip2', "-${lev9}", '-c', '>' );
+        @CMD = ('bzip2', "-${lev9}", '-c', '>');
     }
     elsif (/^(lz(ip)?)$/n) {
         $basetype = 'lz';
-        @CMD = ( 'lzip', "-${lev9}", '-s256MiB',  '-c', '>' );
+        @CMD = ('lzip', "-${lev9}");
+        push (@CMD, '-s512M') if $lev9 == 9;
+        push (@CMD, '-m273') if $lev9 == 9;
+        push (@CMD, $_) foreach ('-c', '>');
     }
     elsif (/^(z|Z)$/n) {
         $basetype = 'Z';
-        @CMD      = qw( compress -c > );
+        @CMD      = qw( compress -c >);
     }
     elsif (/^(zip)$/n) {
         $basetype = 'zip';
-        $tmp = ( $notar ) ? '-r' : '>';
-        @CMD = ( "zip -${lev9}", $tmp );
-        #$notar = 1;
+        $tmp = ($opt{notar}) ? '-r' : '>';
+        @CMD = ("zip -${lev9}", $tmp);
+        #$opt{notar} = 1;
     }
     elsif (/^(7z|7zip)$/n) {
         $basetype = '7z';
-        $tmp      = ( $notar ) ? '' : '-si';
-        @CMD      = ( '7z', 'a', $v7z, qw( -ms=on -md=512m -mfb=256 -m0=lzma2 ),
-                      "-mmt=${UseCores}", "-mx=${lev9}", $tmp );
+        $tmp      = ($opt{notar}) ? '' : '-si';
+        @CMD      = ('7z', 'a', $v7z, qw(-ms=on -m0=lzma2 -mlc=4 -md=1536m -mmc=10000 -mfb=273),
+                     "-mmt=${UseCores}", "-mx=${lev9}", "-myx=${lev9}", $tmp);
     }
     elsif (/^(zpaq|zq|zp)$/n) {
-        # if ($notar) { $basetype = 'zpaq' }
+        # if ($opt{notar}) { $basetype = 'zpaq' }
         # else        { $basetype = 'tzpaq' }
         $basetype = 'zpaq';
+        $lev5     = ($opt{level} >= 5) ? 4 : $opt{level};
     }
     elsif (/^(tzpaq|tzq|tzp)$/n) {
         $basetype = 'tzpaq';
     }
     else {
-        say STDERR "Filetype '$type' not recognized.";
+        say STDERR "Filetype '$opt{type}' not recognized.";
         show_usage(2);
     }
 }
 
-if ( $notar and not $type =~ /^(zip|7z|zpaq)$/ ) {
+if ($opt{notar} and not $opt{type} =~ /^(zip|7z|zpaq)$/) {
     die "Error: Only zip, 7zip, and zpaq can make archives without tar.";
 }
 
@@ -268,31 +274,31 @@ if ( $notar and not $type =~ /^(zip|7z|zpaq)$/ ) {
 
 foreach my $file (@ARGV) {
     my @target_info = stat $ARGV[0];
-    unless ( -e $file ) {
+    unless (-e $file) {
         say STDERR "Fatal error: File '$file' does not exist.";
         exit 127;
     }
 
-    unless ( $target_info[0] == [stat $file]->[0] ) {
+    unless ($target_info[0] == [stat $file]->[0]) {
         say STDERR 'Fatal error: This script requires all targets',
             ' to be on the same filesystem.';
         exit 1;
     }
 }
 
-my ( $OutDir, $OutName );
-if ( defined($output) ) {
-    if ( $output =~ m|^/| ) {
-        $OutDir  = dirname $output;
-        $OutName = basename $output;
+my ($OutDir, $OutName);
+if (defined($opt{output})) {
+    if ($opt{output} =~ m|^/|) {
+        $OutDir  = dirname $opt{output};
+        $OutName = basename $opt{output};
     }
-    elsif ( $output =~ m|/| ) {
-        $OutDir  = dirname( rel2abs($output) );
-        $OutName = basename $output;
+    elsif ($opt{output} =~ m|/|) {
+        $OutDir  = dirname( rel2abs($opt{output}));
+        $OutName = basename $opt{output};
     }
     else {
         $OutDir  = get_odir;
-        $OutName = $output;
+        $OutName = $opt{output};
     }
 }
 else {
@@ -303,17 +309,17 @@ else {
     $OutName = 'archive_' . $dt->dmy . '_' . $time;
 }
 
-$TAR = 'tar' unless ( defined($TAR) and which($TAR) );
+$opt{tar} = 'tar' unless (defined($opt{tar}) and which($opt{tar}));
 
 my $CP;
 system('cp --help >/dev/null 2>&1');
-if ( $? == 0 ) {
+if ($? == 0) {
     $CP = 'cp';
 }
 else {
     system('gcp --help >/dev/null 2>&1');
-    if ( $? == 0 ) { $CP = 'gcp' }
-    else           { die "ERROR: This script requires GNU `cp(1)'.\n" }
+    if ($? == 0) { $CP = 'gcp' }
+    else         { die "ERROR: This script requires GNU `cp(1)'.\n" }
 }
 
 
@@ -321,26 +327,26 @@ else {
 # Set everything up
 
 my $single;
-if ( @ARGV == 1 ) {
-    $TopDir = basename( $ARGV[0] );
+if (@ARGV == 1) {
+    $TopDir = basename( $ARGV[0]);
     $single = true;
-    $OutName = $TopDir unless ( defined($output) );
+    $OutName = $TopDir unless (defined($opt{output}));
 }
 else {
     $TopDir = $OutName;
     $single = false;
 }
 
-if    ( $basetype eq 'zpaq' )  { $OutName .= '.zpaq' }
-elsif ( $basetype eq 'tzpaq' ) { $OutName .= '.tar.zpaq' }
-elsif ( $notar )               { $OutName .= ".${basetype}" }
-else                           { $OutName .= ".tar.${basetype}" }
+if    ($basetype eq 'zpaq')  { $OutName .= '.zpaq' }
+elsif ($basetype eq 'tzpaq') { $OutName .= '.tar.zpaq' }
+elsif ($opt{notar})               { $OutName .= ".${basetype}" }
+else                         { $OutName .= ".tar.${basetype}" }
 
 my $TDirFull;
 my $ONameFull = "${OutDir}/${OutName}";
 my $RelName   = $ONameFull =~ s|$CWD/(.*)|$1|r;
 
-if ( $single and -d $ARGV[0] ) {
+if ($single and -d $ARGV[0]) {
     $TDirFull = rel2abs($ARGV[0]);
     chdir dirname($TDirFull);
 }
@@ -348,33 +354,33 @@ else {
     $TmpDir   = get_tempdir();
     $TDirFull = "${TmpDir}/${TopDir}";
 
-    say "mkdir '$TDirFull'" if $Verbose;;
+    say "mkdir '$TDirFull'" if $opt{verbose};;
     mkdir $TDirFull or croak 'Failed to make temporary directory.';
 
     while (@ARGV) {
         my $arg = shift;
         my $TMP = $TDirFull;
 
-        # if ( -d $arg ) {
+        # if (-d $arg) {
         #     my $root = dir($arg);
         # 
         #     $root->traverse_if(
         #         sub {
-        #             my ( $child, $cont ) = @_;
+        #             my ($child, $cont) = @_;
         #             my $relto = ($single) ? $root : $root->parent();
         # 
-        #             # return unless ( -r $child );
+        #             # return unless (-r $child);
         # 
-        #             if ( $child->is_dir ) {
-        #                 my $target = catfile( $TMP, $child->relative($relto) );
-        #                 unless ( -e $target ) {
+        #             if ($child->is_dir) {
+        #                 my $target = catfile( $TMP, $child->relative($relto));
+        #                 unless (-e $target) {
         #                     mkdir $target
         #                       or confess "Failed to make directory '$target'.\n$!";
         #                 }
         #             }
         #             else {
-        #                 my $target = catfile( $TMP, $child->relative($relto) );
-        #                 link_file( $child, $target );
+        #                 my $target = catfile( $TMP, $child->relative($relto));
+        #                 link_file( $child, $target);
         #             }
         # 
         #             return $cont->();
@@ -385,40 +391,40 @@ else {
         #             # Process only readable items
         #             return (-r $child);
         #         }
-        #     );
+        #    );
             # $root->recurse(
             #     callback => sub {
             #         my $file = shift;
             #         my $relto = ($single) ? $root : $root->parent();
             # 
-            #         return unless ( -r $file );
+            #         return unless (-r $file);
             # 
-            #         if ( $file->is_dir ) {
-            #             my $target = catfile( $TMP, $file->relative($relto) );
-            #             unless ( -e $target ) {
+            #         if ($file->is_dir) {
+            #             my $target = catfile( $TMP, $file->relative($relto));
+            #             unless (-e $target) {
             #                 mkdir $target
             #                   or confess "Failed to make directory '$target'.\n$!";
             #             }
             #         }
             #         else {
-            #             my $target = catfile( $TMP, $file->relative($relto) );
-            #             link_file( $file, $target );
+            #             my $target = catfile( $TMP, $file->relative($relto));
+            #             link_file( $file, $target);
             #         }
             #     }
-            # );
+            #);
         # }
         # else {
         #     my $target = catfile($TMP, basename($arg));
-        #     link_file( $arg, $target );
+        #     link_file( $arg, $target);
         # }
 
-        say "$CP -Rla $arg $TDirFull 2>/dev/null" if $Verbose;
-        say "$CP -Rna $arg $TDirFull 2>/dev/null" if $Verbose;
+        say "$CP -Rla $arg $TDirFull 2>/dev/null" if $opt{verbose};
+        say "$CP -Rna $arg $TDirFull 2>/dev/null" if $opt{verbose};
         system "$CP -Rla $arg $TDirFull 2>/dev/null";
         system "$CP -Rna $arg $TDirFull 2>/dev/null";
     }
 
-    say "cd '$TmpDir'" if $Verbose;
+    say "cd '$TmpDir'" if $opt{verbose};
     chdir $TmpDir or croak 'Failed to cd to the temporary directory!';
 }
 
@@ -429,15 +435,15 @@ else {
 SKIP:
 
 # zpaq is "special".
-if ( $basetype eq 'zpaq' ) {
+if ($basetype eq 'zpaq') {
     sayG   "zpaq a $RelName $TopDir -m$lev5 -t$UseCores >/dev/null 2>&1";
     system "zpaq a '$ONameFull' '$TopDir' -m$lev5 -t$UseCores >/dev/null 2>&1";
 }
-elsif ( $basetype eq 'tzpaq' ) {
-    my ( $FH, $tmpnam ) = tempfile(SUFFIX => ".tar", TMPDIR => 1);
+elsif ($basetype eq 'tzpaq') {
+    my ($FH, $tmpnam) = tempfile(SUFFIX => ".tar", TMPDIR => 1);
 
-    sayG   "$TAR -cf $tmpnam $TopDir";
-    system "$TAR -cf '$tmpnam' '$TopDir' 2>/dev/null";
+    sayG   "$opt{tar} -cf $tmpnam $TopDir";
+    system "$opt{tar} -cf '$tmpnam' '$TopDir' 2>/dev/null";
 
     sayG   "zpaq a $RelName $tmpnam -m$lev5 -t$UseCores";
     system "zpaq a '$ONameFull' '$tmpnam' -m$lev5 -t$UseCores >/dev/null 2>&1";
@@ -445,14 +451,14 @@ elsif ( $basetype eq 'tzpaq' ) {
     unlink $tmpnam or cluck("ERROR: Failed to unlink file '$tmpnam'.");
 }
 # Any other commands that can make an archive without tar.
-elsif ( $notar ) {
+elsif ($opt{notar}) {
     sayG   "@CMD $RelName $TopDir";
     system "@CMD '$ONameFull' '$TopDir' >/dev/null";
 }
 # Normal programs.
 else {
-    sayG   "$TAR -cf - $TopDir | @CMD $RelName";
-    system "$TAR -cf - '$TopDir' 2>/dev/null | @CMD '$ONameFull'";
+    sayG   "$opt{tar} -cf - $TopDir | @CMD $RelName";
+    system "$opt{tar} -cf - '$TopDir' 2>/dev/null | @CMD '$ONameFull'";
 }
 
 # Make triply certain we are able to rid of the temporary directory.

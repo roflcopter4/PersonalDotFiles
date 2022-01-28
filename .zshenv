@@ -128,11 +128,11 @@ esac
 if [[ -o interactive ]] && [[ -z "$_PAGER_OPTS_SET" ]]; then
     typeset -a lp; lp=( ${^path}/lesspipe(N) )
     if [[ -x "${HOME}/.local/bin/lesspipe.sh" ]]; then
-        export LESSOPEN="|${HOME}/.local/bin/lesspipe.sh %s"
+        export LESSOPEN="||${HOME}/.local/bin/lesspipe.sh %s"
     elif (( $#lp > 0 )) && [[ -x $lp[1] ]]; then
-        export LESSOPEN="|lesspipe %s"
+        export LESSOPEN="||lesspipe %s"
     elif [[ -x /usr/bin/lesspipe.sh ]]; then
-        export LESSOPEN="|lesspipe.sh %s"
+        export LESSOPEN="||lesspipe.sh %s"
     fi
     command -v highlight &>/dev/null && export LESSCOLORIZER="highlight -t8 --out-format=truecolor --force --style=myMolokai"
     unset lp
@@ -145,8 +145,8 @@ fi
 
 case "$SYSID" in
     gentoo|laptop-gentoo|ArchLinux|Artix|WSL_Ubuntu)
-        export LESSOPEN="|/usr/local/sbin/lesspipe.sh %s"
-        alias less2="LESSOPEN='|/usr/bin/lesspipe %s' less"
+        export LESSOPEN="||/usr/local/sbin/lesspipe.sh %s"
+        alias less2="LESSOPEN='||/usr/bin/lesspipe %s' less"
         ;;
 esac
 

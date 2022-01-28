@@ -131,7 +131,8 @@ let g:operator_highlight_enable = 1
 let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c' ]
 
 "let g:ophigh_highlight_link_group = 'Operator'
-let g:ophigh_highlight_link_group = 'OperatorChars'
+" let g:ophigh_highlight_link_group = 'OperatorChars'
+let g:ophigh_highlight_link_group = 'BoldGrey'
 "let g:ophigh_color_gui = '#d33682'
 "let g:ophigh_color_gui = '#42A5F5'  " Lightish-blue
 
@@ -427,7 +428,7 @@ set smartcase               " Case sensitive when uc present
 
 set autoindent              " Indent at the same level of the previous line
 set smartindent             " Better autoindent
-set cindent
+" set cindent
 set breakindent
 
 set textwidth=80
@@ -643,11 +644,13 @@ else
 
     set termguicolors
 
-    if IsSourced('PersonalVimStuff')
-        colo myMolokai4
-    else
-        colo chroma
-        set background=dark
+    if !IsSourced('tag-highlight.nvim')
+        if IsSourced('PersonalVimStuff')
+            colo myMolokai4
+        else
+            colo chroma
+            set background=dark
+        endif
     endif
 
     if !has('nvim') && has('gui_running')
@@ -877,11 +880,20 @@ if has('clipboard')
     endif
 endif
 
+function! s:StupidFloatingWindows()
+    if &filetype ==# ''
+        setlocal textwidth=120
+    endif
+endfunction
+
 augroup CMakeSyntaxFix
     autocmd BufReadPost CMake* :syntax enable
 augroup END
 augroup AssemblySettings
     autocmd Filetype asm,nasm setlocal sw=0 sts=0 noexpandtab
+augroup END
+augroup StupidFloatingWindows
+    autocmd BufNew * call s:StupidFloatingWindows()
 augroup END
 
 " syntax match arsehole +\%(ass\|fuck\)+

@@ -284,6 +284,7 @@ alias dmesg='dmesg --color=always'
 alias dmesgl='dmesg | \less -r'
 alias suvi='sudoedit'
 alias free='free -wh'
+alias od='command od -Ax -w32'
 
 # God I am lazy
 mkalias -A 'CO' '/usr/libexec/cw/configure' './configure'

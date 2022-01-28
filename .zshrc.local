@@ -49,6 +49,7 @@ local SourceIfExist() {
     [[ -f "$1" ]] && source "$1"
 }
 
+export fpath=($fpath "${HOME}/.zsh.d")
 
 # SOME SPECIFIC CONFIG I CAN'T PRESENTLY BE BOTHERED TO PUT SOMEWHERE ELSE
 zstyle ':completion:*'               menu select=2

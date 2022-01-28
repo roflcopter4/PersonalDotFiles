@@ -82,7 +82,7 @@ IndentWidth: 6
 # ##END##
 
 UseTab: Never
-ColumnLimit: 90
+ColumnLimit: 110
 
 # ##Custom##
 #BreakBeforeBraces: Custom

@@ -1,6 +1,6 @@
 package xtar::main;
 
-use 5.34.0; use warnings; use strict;
+use 5.32.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;

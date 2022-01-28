@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#! perl
 use 5.28.0; use warnings; use strict;
 
 use Carp;

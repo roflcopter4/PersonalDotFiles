@@ -131,8 +131,8 @@ let g:operator_highlight_enable = 1
 let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c' ]
 
 "let g:ophigh_highlight_link_group = 'Operator'
-" let g:ophigh_highlight_link_group = 'OperatorChars'
-let g:ophigh_highlight_link_group = 'BoldGrey'
+let g:ophigh_highlight_link_group = 'OperatorChars'
+" let g:ophigh_highlight_link_group = 'BoldGrey'
 "let g:ophigh_color_gui = '#d33682'
 "let g:ophigh_color_gui = '#42A5F5'  " Lightish-blue
 

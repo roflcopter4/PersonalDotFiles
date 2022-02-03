@@ -34,7 +34,8 @@ AllowShortCaseLabelsOnASingleLine: false
 AllowShortIfStatementsOnASingleLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: false
+# AllowShortFunctionsOnASingleLine: Inline
 # AllowShortFunctionsOnASingleLine: All
 
 # AlwaysBreakAfterReturnType: AllDefinitions

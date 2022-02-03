@@ -564,6 +564,7 @@ if IsSourced('rainbow') || 1
     call s:ExtRainbowConf({
          \      'cpp': {
          \           'parentheses': ['start=/(/ end=/)/ fold'],
+         \           'bold': 0,
          \      }})
     call s:ExtRainbowConf({
          \      'antlr4': {
@@ -823,9 +824,11 @@ if IsSourced('ale')
 
     " let s:ALE_C = ['gcc', 'clang', 'clangtidy', 'cppcheck', 'flawfinder']
 
-    let s:ale_linters_c = {'c': ['clangtidy'],
-                \ 'cpp': ['clangtidy']
-                \ }
+    let s:ale_linters_c = {'c': [], 'cpp': []}
+
+    " let s:ale_linters_c = {'c': ['clangtidy'],
+    "             \ 'cpp': ['clangtidy']
+    "             \ }
     " let s:ale_linters_c = {'c': ['clangd', 'clangtidy'],
     "                      \ 'cpp': ['clangd', 'clangtidy']
     "                      \ }

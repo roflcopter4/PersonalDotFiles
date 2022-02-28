@@ -23,7 +23,7 @@ MiscDefaultWorkingDir=
 MiscRewrapOnResize=TRUE
 MiscUseShiftArrowsToScroll=FALSE
 MiscSlimTabs=TRUE
-FontName=Dina 10
+FontName=Dina TTF 10
 ScrollingUnlimited=TRUE
 ScrollingOnOutput=FALSE
 Encoding=UTF-8
@@ -36,4 +36,6 @@ MiscSearchDialogOpacity=100
 MiscShowUnsafePasteDialog=TRUE
 ShortcutsNoHelpkey=TRUE
 ShortcutsNoMenukey=TRUE
+MiscRightClickAction=TERMINAL_RIGHT_CLICK_ACTION_CONTEXT_MENU
+CellHeightScale=1.050000
 

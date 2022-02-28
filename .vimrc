@@ -663,7 +663,7 @@ endif
 
 " ================================================================================================================
 
-set fileformats=unix,dos,mac
+set fileformats=unix,dos
 
 augroup MyCrap
     autocmd!
@@ -724,8 +724,8 @@ command Config e $MYVIMRC
 command Plugins :execute 'e '. fnameescape(expand("~/.vimplugins"))
 
 nnoremap <leader>nl :call ToggleList()<CR>
-nnoremap <leader>jj :pc<CR>
-nnoremap <leader>k :pc<CR>
+" nnoremap <leader>jj :pc<CR>
+" nnoremap <leader>k :pc<CR>
 
 " ================================================================================================================
 " Neovim Terminal Config
@@ -800,15 +800,14 @@ command! -range IfZeroRange <line1>,<line2>call DoIfZeroRange()
 noremap <silent> <leader>cf :IfZeroRange<CR>
 command! RecacheRunetimepath call dein#recache_runtimepath()
 
-nnoremap <leader>. /\v
 nnoremap ,, @:
 nnoremap <leader>aa :.Autoformat<CR>
 nnoremap <leader>af :Autoformat<CR>
 nnoremap <leader>sj <leader>ysVj{
 vnoremap <leader>aa :Autoformat<CR>
 
-nnoremap <leader>::<space> q:
-nnoremap q: :
+" nnoremap <leader>::<space> q:
+" nnoremap q: :
 
 set textwidth=89
 
@@ -872,13 +871,13 @@ nnoremap <silent> <leader>ab :call BracesBeGone()<CR>
 "             \   'cache_enabled': 1,
 "             \ }
 
-if has('clipboard')
-    if has('unnamedplus')
-        set clipboard=unnamed,unnamedplus,""
-    else
-        set clipboard=unnamed
-    endif
-endif
+" if has('clipboard')
+"     if has('unnamedplus')
+"         set clipboard=unnamed,unnamedplus,""
+"     else
+"         set clipboard=unnamed
+"     endif
+" endif
 
 function! s:StupidFloatingWindows()
     if &filetype ==# ''
@@ -892,9 +891,9 @@ augroup END
 augroup AssemblySettings
     autocmd Filetype asm,nasm setlocal sw=0 sts=0 noexpandtab
 augroup END
-augroup StupidFloatingWindows
-    autocmd BufNew * call s:StupidFloatingWindows()
-augroup END
+" augroup StupidFloatingWindows
+"     autocmd BufNew * call s:StupidFloatingWindows()
+" augroup END
 
 " syntax match arsehole +\%(ass\|fuck\)+
 " syntax match arsehole +\v%(ass|fuck)+
@@ -922,7 +921,7 @@ if exists('g:gnvim') && g:gnvim == 1
     set guicursor=n-v-c:block-Cursor/lCursor-blinkon0,ve:ver35-Cursor,o:hor50-Cursor,i-ci:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,sm:block-Cursor
 else
     set guifont=Dina:h7
-    set linespace=2
+    set linespace=3
 endif
 
 let g:yacc_uses_golang = 1
@@ -935,5 +934,10 @@ function! s:DiffWithSaved()
   execute 'setlocal bt=nofile bh=wipe nobl noswf ro ft=' . filetype
 endfunction
 com! DiffSaved call s:DiffWithSaved()
+
+
+set cinoptions=N-s
+set formatoptions-=o
+
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

@@ -24,13 +24,20 @@ use 5.32.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
 
-our $found_file_unpack = false;
+our ($found_file_unpack, $found_file_libmagic);
 try {
-    $xtar::File::found_file_unpack = true;
     require File::Unpack and File::Unpack->import();
+    $xtar::File::found_file_unpack = true;
 }
 catch {
     $xtar::File::found_file_unpack = false;
+};
+
+try {
+    require File::LibMagic and File::LibMagic->import();
+    $xtar::File::found_file_libmagic = true;
+} catch {
+    $xtar::File::found_file_libmagic = false;
 };
 
 ##############################################################################
@@ -252,6 +259,11 @@ sub find_mimetype :prototype($\$) ($self, $counter)
             my $m      = $unpack->mime( file => $self->fullpath );
             # my $index  = ((${${counter}})++ == 1) ? 0 : 2;
             $app = $m->[0];
+        } elsif ( $found_file_libmagic == true ) {
+            err 'Using File::LibMagic' if $xtar::xtar::DEBUG;
+            my $magic = File::LibMagic->new();
+            my $info  = $magic->info_from_filename($self->fullpath);
+            $app = $info->{mime_type};
         } else {
             err 'No File::Unpack' if $xtar::xtar::DEBUG;
             $$counter = 2;

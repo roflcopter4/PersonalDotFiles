@@ -37,7 +37,7 @@ zplug "Jxck/dotfiles", as:command, use:"bin/{histuniq,color}"
 
 # Oh-My-Zsh plugins
 zplug "plugins/compleat",             from:oh-my-zsh
-zplug "plugins/copydir",              from:oh-my-zsh 
+zplug "plugins/copypath",             from:oh-my-zsh 
 zplug "plugins/cp",                   from:oh-my-zsh
 zplug "plugins/zsh-navigation-tools", from:oh-my-zsh
 # zplug "plugins/rust", from:oh-my-zsh

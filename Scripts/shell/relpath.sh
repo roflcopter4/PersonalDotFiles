@@ -1,67 +1,100 @@
 #!/bin/sh
+# shellcheck shell=sh
+
+symlinks=false
+linkmode=false
+makelink=false
+dryrun=false
+OPTIND=0
 
 output() {
-    link=$1
-    target=$2
-    rpath=$3
+    target="$1"
+    rpath="$2"
 
-    if $link; then
-        echo "$target" "$rpath"
+    if $makelink; then
+        echo ln -s "'${rpath}'" "'${target}'"
+        if ! $dryrun; then
+            ln -s "${rpath}" "${target}"
+        fi
+    elif $linkmode; then
+        echo "${rpath}" "${target}"
     else
-        echo "$rpath"
+        echo "${rpath}"
     fi
 }
 
-symlinks=
-link=false
-
-while getopts 'hsl' arg "$@"; do
-    case "$arg" in
-        (h)
-            THIS=$(basename "$0")
-            cat <<EOF
-USAGE ${THIS} [OPTIONS] <FILE> <RELATIVE-FROM-DIR>
+showhelp() {
+    location=$(basename "$0")
+    cat <<EOF
+USAGE ${location} [OPTIONS] <FILE> <RELATIVE-FROM-DIR>
 The behavior is the same as with \`ln(1)' The only options are \`-s' to disable
 resolving symlinks and -l that will print both the target and the source in a
 manner that could be used with \`ln(1)'.
 EOF
-            exit 0
-            ;;
-        (s)
-            symlinks='-s'
-            ;;
-        (l)
-            link=true
-            ;;
-        (*)
-            exit 2
-            ;;
+    exit "${1:-1}"
+}
+
+
+while getopts 'hslnL' arg "$@"; do
+    case "$arg" in
+    h) showhelp 0    ;;
+    l) linkmode=true ;;
+    n) dryrun=true   ;;
+    L) linkmode=true makelink=true ;;
+    s) { $symlinks && symlinks=false; } || symlinks=true ;;
+    *) 
+        echo "Invalid option '${arg}'" >&2
+        showhelp 1
+        ;;
     esac
 done
 [ $OPTIND -gt 0 ] && shift $((OPTIND - 1))
 
 
-[ $# -lt 2 ] && echo "Insufficient paramaters." >&2 && exit 1
+if [ $# -lt 2 ]; then
+    echo "Insufficient paramaters." >&2
+    showhelp 2
+fi
 
-rpath=
-target=$(realpath $symlinks "$1")
-this=$(realpath $symlinks "$2")
+{ $symlinks && symlinks=''; } || symlinks='-s'
 
-[ ".${this}" = ".${target}" ] && echo '.' && return
+rpath=''
+target=$(realpath ${symlinks} "$1")
+location=$(realpath ${symlinks} "$2")
+orig_location="${location}"
 
-while appendix="${target#"${this}/"}"
-      [ ".${this}" != './' ] &&
-      [ ".${appendix}" = ".${target}" ] &&
-      [ ".${appendix}" != ".${this}" ]
-do
-    this="${this%/*}"
-    rpath="${rpath}${rpath:+/}.."
-done
+if ! [ -e "${target}" ]; then
+    echo "File ${1} does not exist." >&2
+    exit 1
+fi
+
+if ! $linkmode; then
+    if ! [ -e "${location}" ]; then
+        echo "File ${2} does not exist." >&2
+        exit 1
+    fi
+fi
+
+[ -d "${location}" ] || location="${location%/*}"
+
+if [ "${location}" = "${target}" ]; then
+    rpath='.'
+else
+    while
+        appendix="${target#"${location}/"}"
+        [ "${location}"     != '/' ] &&
+        [ "${appendix}"  = "${target}" ] &&
+        [ "${appendix}" != "${location}" ]
+    do
+        location="${location%/*}"
+        rpath="${rpath}${rpath:+/}.."
+    done
+fi
 
 # Unnecessary '#/' to make 100% sure that there is never a leading '/'.
-if [ ".${this}" = ".${appendix}" ]; then
-    output "$link" "$target" "${rpath#/}"
+if [ "${location}" = "${appendix}" ]; then
+    output "${orig_location}" "${rpath#/}"
 else
     rpath="${rpath}${rpath:+${appendix:+/}}${appendix}"
-    output "$link" "$target" "${rpath#/}"
+    output "${orig_location}" "${rpath#/}"
 fi

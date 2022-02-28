@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 package xtar::main;
 
 use 5.28.0; use warnings; use strict;
@@ -37,8 +38,9 @@ $Carp::Verbose = 1;
 #     # eval 'use xtar::Colors;';
 #     # eval 'use xtar::Utils;';
 # }
-#
-#use lib "/home/bml/personaldotfiles/Scripts/perl/xtar";
+
+
+use lib "/home/bml/personaldotfiles/Scripts/perl/xtar";
 
 use xtar::xtar;
 use xtar::Colors;

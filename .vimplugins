@@ -188,7 +188,7 @@ if dein#load_state(g:load_path)
     call dein#add('junegunn/fzf.vim', {'merged': v:false})
 
     " Organization:
-    call dein#add('chimay/wheel')
+    " call dein#add('chimay/wheel')
      
 
     "---------- Refactoring tools and such ----------
@@ -475,6 +475,8 @@ if IsSourced('ctrlp.vim')
     if filereadable(expand('~/personaldotfiles/.Vim/ctrlp.vim'))
         :source ~/personaldotfiles/.Vim/ctrlp.vim
     endif
+
+    nunmap <leader>pl
 endif
 
 
@@ -708,7 +710,7 @@ if IsSourced('ale')
     let g:ale_lint_on_insert_leave = 1
     let g:ale_linters_explicit = 0
     let g:ale_open_list = 0
-    let g:ale_sh_shell_default_shell = 'sh'
+    let g:ale_sh_shell_default_shell = '/bin/bash'
     " let g:ale_list_window_size = 4
     " let g:ale_c_parse_makefile = 0
 
@@ -718,7 +720,7 @@ if IsSourced('ale')
     " let g:ale_floating_window_border = ['│', '─', '╭', '╮', '╯', '╰']
 
     let g:ale_completion_enabled = 0
-    let g:ale_nasm_nasm_options = '-felf64 "-I./inc/"'
+    let g:ale_nasm_nasm_options = '-felf64 ''-I/usr/local/include/nasm/'' ''-I/usr/local/include/nasm/nasmx/'''
 
     " No stupid popup windows
     " let g:ale_loclist_msg_format = ''
@@ -1409,7 +1411,7 @@ if IsSourced('tag-highlight.nvim')
                 \   '__attribute__', '__extension__',
                 \   'fork', 'vfork', 'main', 'assert',
                 \   'concept', 'requires', 'mutable',
-                \   'maybe_unused', 'nodiscard',
+                \   'maybe_unused', 'nodiscard', 'errno', 'weak_ptr',
                 \   'unique_ptr', 'shared_ptr', 'static_pointer_cast', 'const_pointer_cast',
                 \   'dynamic_pointer_cast', 'reinterpret_pointer_cast',
                 \ ]
@@ -1439,10 +1441,12 @@ if IsSourced('tag-highlight.nvim')
                 \ 'va_end', 'va_start', 'vfprintf', 'vfscanf', 'vfwprintf', 'vfwscanf', 'vprintf', 'vscanf', 'vsnprintf', 'vsprintf', 'vsscanf', 'vswprintf', 'vswscanf', 'vwprintf', 'vwscanf', 'wcrtomb', 'wcscat', 'wcschr', 'wcscmp',
                 \ 'wcscoll', 'wcscpy', 'wcscspn', 'wcsftime', 'wcsfxtime', 'wcslen', 'wcsncat', 'wcsncmp', 'wcsncpy', 'wcspbrk', 'wcsrchr', 'wcsrtombs', 'wcsspn', 'wcsstr', 'wcstod', 'wcstof', 'wcstoimax', 'wcstok', 'wcstol',
                 \ 'wcstold', 'wcstoll', 'wcstombs', 'wcstoul', 'wcstoull', 'wcstoumax', 'wcsxfrm', 'wctob', 'wctomb', 'wctrans', 'wctype', 'wmemchr', 'wmemcmp', 'wmemcpy', 'wmemmove', 'wmemset', 'wprintf', 'write', 'wscanf',
-                \ 'zonetime', 'asprintf', 'vasprintf', 'pipe2',
+                \ 'zonetime', 'asprintf', 'vasprintf', 'errno',
                 \ ])
 
     " call extend(g:tag_highlight#ignored_tags['cpp'], ['noreturn', 'nodiscard'])
+    let g:tag_highlight#ignored_tags['c'] = sort(g:tag_highlight#ignored_tags['c'])
+    let g:tag_highlight#ignored_tags['cpp'] = sort(g:tag_highlight#ignored_tags['cpp'])
 
     let g:ale_fixers = { 'c': ['clangtidy'], 'cpp': ['clangtidy'] }
 
@@ -1460,13 +1464,13 @@ if IsSourced('tag-highlight.nvim')
                 \   [
                     \        'cppStorageClass', 'cppAuto', 'cppModifier',
                     \        'smart_pointers',
-                    \        'cPosixFunction2', 'cStorageClass',  'cAnsiFunction', 'cExtraConstants', 'cRepeat',
-                    \        'cC11Function', 'cExtentionFunc',  'cPosixFunction', 'cConstant', 'cExtraConstants',
+                    \        'cStorageClass',  'cAnsiFunction', 'cExtraConstants', 'cRepeat',
+                    \        'cC11Function', 'cExtentionFunc',  'cConstant', 'cExtraConstants',
                     \        'cOperator',
                     \   ])
-    " \        'cppSTLfunction', 'cppSTLfunctional', 'cppSTLnamespace',
+    " \        'cppSTLfunction', 'cppSTLfunctional', 'cppSTLnamespace', 'cPosixFunction', 'cPosixFunction2',
 
-    let g:tag_highlight#restored_groups['cpp'] = s:tmp_cpp_lst
+    let g:tag_highlight#restored_groups['cpp'] = (s:tmp_cpp_lst)
 
     set tags=tags,../tags
 

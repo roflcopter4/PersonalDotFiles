@@ -1,0 +1,5 @@
+#!/bin/sh
+
+PERL5LIB="${PERL5LIB}:${HOME}/personaldotfiles/Scripts/perl/xtar/perl5"
+export PERL5LIB
+exec perl "${HOME}/personaldotfiles/Scripts/perl/xtar/xtar.pl" "$@"

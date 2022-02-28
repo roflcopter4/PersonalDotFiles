@@ -1,3 +1,4 @@
+#!/usr/bin/env perl
 package xtar::main;
 
 use 5.32.0; use warnings; use strict;

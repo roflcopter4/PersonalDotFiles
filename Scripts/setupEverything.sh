@@ -1,29 +1,20 @@
 #!/bin/sh
 
 printf -- '-----  Setting up Vim.  -----\n\n'
-"$HOME/personaldotfiles/Scripts/Setup/setupVim.sh"
+"${HOME}/personaldotfiles/Scripts/Setup/setupVim.sh"
 
 printf -- '\n-----  Linking all dotfiles.  -----\n\n'
-"$HOME/personaldotfiles/Scripts/Setup/setupDotfiles.sh" "$1"
+"${HOME}/personaldotfiles/Scripts/Setup/setupDotfiles.sh" "$1"
 
 printf -- '\n-----  Linking bin scripts.  -----\n\n'
-"$HOME/personaldotfiles/Scripts/Setup/setupBinScripts.sh" "$1"
-
-# printf -- '\n----- Linking perl scripts -----\n\n'
-# echo 'Linking mktar'
-# ln -sf "${HOME}/personaldotfiles/Scripts/perl/mktar.pl"        "${HOME}/.local/bin/mktar"
-# echo 'Linking clang-format'
-# ln -sf "${HOME}/personaldotfiles/Scripts/perl/clang-format.pl" "${HOME}/.local/bin/clang-format"
-# echo 'Linking mpip'
-# ln -sf "${HOME}/personaldotfiles/Scripts/perl/my_gpip.pl.pl"   "${HOME}/.local/bin/mpip"
+"${HOME}/personaldotfiles/Scripts/Setup/setupBinScripts.sh" "$1"
 
 if [ -x '/bin/fish' ]; then
     printf -- '\n-----  Setting up fish -----\n\n'
-    "$HOME/personaldotfiles/Scripts/Setup/setupFish.sh"
+    "${HOME}/personaldotfiles/Scripts/Setup/setupFish.sh"
 fi
 
-
-printf -- '\n----- Some miscalaneous config --\n\n'
+printf -- '%b\n' '\n----- Some miscalaneous config --\n\n'
 
 if grep -q -Er '^\s*compinit (-[^C])+ [^-]' "${HOME}/.zplug/"*
 then
@@ -41,8 +32,9 @@ if ! [ -f "${HOME}/.config/xfce4/terminal/terminalrc" ]; then
     ln -sf "${HOME}/personaldotfiles/dotconfig/xfce4/terminal/"* "${HOME}/.config/xfce4/terminal/"
 fi
 
-if ! [ -d "${HOME}/random" ]; then
-    command -v 'git' >/dev/null 2>&1 && git clone 'https://github.com/roflcopter4/random' "${HOME}/random"
+if ! [ -f "${HOME}/.config/clangd/config.yaml" ]; then
+    mkdir -p "${HOME}/.config/clangd"
+    ln -sf "${HOME}/personaldotfiles/dotconfig/clangd/config.yaml" "${HOME}/.config/clangd/"
 fi
 
-# ln -sf "${HOME}/random/code/perl/xtar/Xtar-41.pl" "${HOME}/.local/bin/xtar"
+rm -f "${HOME}/.zplug/log/lock"*

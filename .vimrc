@@ -911,7 +911,7 @@ let g:gonvim_draw_tabline = 0
 let g:gonvim_draw_lint = 0
 
 augroup CHeaderType
-    autocmd BufRead *.h set ft=cpp
+    autocmd BufRead *.h set ft=c
 augroup END
 
 if exists('g:gnvim') && g:gnvim == 1
@@ -938,6 +938,10 @@ com! DiffSaved call s:DiffWithSaved()
 
 set cinoptions=N-s
 set formatoptions-=o
+
+augroup FOptKillme
+    autocmd BufEnter * setlocal formatoptions-=o
+augroup END
 
 
 " '<,'>sort/v(^extern .{-})@<=[a-zA-Z_]w+((.*);)@=/

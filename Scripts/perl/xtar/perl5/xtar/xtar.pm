@@ -7,15 +7,15 @@ use constant false => 0;
 use Carp;
 use Clone 'clone';
 use Cwd 'getcwd';
-use File::Which;
 use Data::Dumper;
-use String::ShellQuote;
-use File::Copy qw{mv};
-use File::Path qw{make_path};
-use File::Temp qw{tempdir cleanup};
-use File::Spec::Functions qw{rel2abs splitpath catfile};
+use File::Copy 'mv';
 use File::Copy::Recursive 'dircopy';
+use File::Path 'make_path';
+use File::Spec::Functions qw{rel2abs splitpath catfile};
+use File::Temp qw{tempdir cleanup};
+use File::Which;
 use Scalar::Util 'looks_like_number';
+use String::ShellQuote;
 
 $Carp::Verbose = 1;
 
@@ -27,6 +27,9 @@ use xtar::Utils;
 use 5.32.0; use warnings; use strict;
 use feature 'signatures';
 no warnings 'experimental::signatures';
+use utf8;
+# use open qw(:std :utf8);
+no feature 'indirect';
 
 #########################################################################################
 

@@ -294,6 +294,8 @@ if dein#load_state(g:load_path)
 
     " call dein#local(expand('~/.vim/bundles/findent'))
 
+    call dein#add(expand('~/files/projects/emlsp-win/Vim'), {'merged': v:false})
+
     " call dein#install()
 
     call dein#end()
@@ -672,6 +674,7 @@ if IsSourced('vim-airline')
     "let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
 
     let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#coc#enabled = 0
     " let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 
     " let g:airline#extensions#tabline#fnametruncate = 7
@@ -1403,17 +1406,21 @@ if IsSourced('tag-highlight.nvim')
     let g:tag_highlight#ignored_tags = {
                 \   'c': ['static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \         '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__',
-                \         'alignof', 'alignas', 'Auto', 'main', 'stat', 'fork', 'vfork', 'bool']
+                \         'alignof', 'alignas', 'Auto', 'main', 'stat', 'fork', 'vfork', 'bool', '__noreturn__',
+                \   ]
                 \ }
 
     let g:tag_highlight#ignored_tags['cpp'] = [
                 \   'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \   '__attribute__', '__extension__',
                 \   'fork', 'vfork', 'main', 'assert',
+                \   'posix_spawn', 'posix_spawnp',
                 \   'concept', 'requires', 'mutable',
                 \   'maybe_unused', 'nodiscard', 'errno', 'weak_ptr',
                 \   'unique_ptr', 'shared_ptr', 'static_pointer_cast', 'const_pointer_cast',
                 \   'dynamic_pointer_cast', 'reinterpret_pointer_cast',
+                \   'execv', 'execvp', 'execvpe', 'execl', 'execlp', 'execlpe', 'dup', 'dup2', 'waitpid', 'fstat',
+                \   'xmalloc', 'xcalloc', 'xrealloc', 'xfree', 'pause',
                 \ ]
 
     call extend(g:tag_highlight#ignored_tags['c'], [

@@ -2,6 +2,9 @@
 package xtar::main;
 
 use 5.32.0; use warnings; use strict;
+use utf8;
+# use open qw(:std :utf8);
+no feature 'indirect';
 use feature 'signatures';
 no warnings 'experimental::signatures';
 use constant true  => 1;
@@ -137,6 +140,7 @@ OPTIONS
  -T, --tar=ARG   Explicity specify the tar binary to use.
  -b, --bsdtar    Use bsdtar over 'tar' if it exists, otherwise fall back to tar.
  -g, --gtar      Use gtar if it exists, otherwise fall back to tar.
+ -C, --clobber
  -f, --force     If completely unable to identify a type, try to extract through
                  trial and error using all commands available (safe but slow).
  -o, --out=DIR   Explicitly specify output directory. If it already exists,

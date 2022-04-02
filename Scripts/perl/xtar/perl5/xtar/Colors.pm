@@ -1,8 +1,11 @@
 package xtar::Colors;
-use 5.28.0; use warnings; use strict;
+use 5.32.0; use warnings; use strict;
 use Exporter 'import';
 use feature 'signatures';
 no warnings 'experimental::signatures';
+use utf8;
+use open qw(:std :utf8);
+no feature 'indirect';
 
 use constant true  => 1;
 use constant false => 0;

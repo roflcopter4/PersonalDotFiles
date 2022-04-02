@@ -44,7 +44,7 @@ AlwaysBreakTemplateDeclarations: true
 BreakBeforeBinaryOperators: None
 BreakStringLiterals: true
 
-# PenaltyBreakAssignment: 1000
+PenaltyBreakAssignment: 30
 # PenaltyExcessCharacter: 3
 # PenaltyBreakBeforeFirstCallParameter: 500
 
@@ -83,7 +83,7 @@ IndentWidth: 6
 # ##END##
 
 UseTab: Never
-ColumnLimit: 110
+ColumnLimit: 90
 
 # ##Custom##
 #BreakBeforeBraces: Custom

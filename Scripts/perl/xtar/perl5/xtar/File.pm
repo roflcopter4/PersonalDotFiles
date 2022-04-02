@@ -1,6 +1,7 @@
 package xtar::File;
 
 use Moose;
+use MooseX::LazyRequire;
 
 use constant true  => 1;
 use constant false => 0;
@@ -21,6 +22,9 @@ use xtar::Colors;
 use xtar::Utils;
 
 use 5.32.0; use warnings; use strict;
+use utf8;
+# use open qw(:std :utf8);
+no feature 'indirect';
 use feature 'signatures';
 no warnings 'experimental::signatures';
 

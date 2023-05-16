@@ -19,7 +19,7 @@ if (!has('nvim') && s:VimUsesPowerline == 1) || (has('nvim') && s:NeoVimUsesPowe
 endif
 
 let s:use_ale = 1
-let s:use_deoplete = 1
+let s:use_deoplete = 0
 let s:use_async = 0
 let g:use_language_client = 0
 let s:vim_ale = 1
@@ -81,7 +81,7 @@ if dein#load_state(g:load_path)
     call dein#add('kana/vim-textobj-user')
     " Undotree is a bit broken
     "call dein#add('mbbill/undotree')
-    call dein#add('osyo-manga/vim-over')
+    " call dein#add('osyo-manga/vim-over')
     call dein#add('powerline/fonts')
     call dein#add('rhysd/conflict-marker.vim')
     call dein#add('scrooloose/nerdtree')
@@ -154,7 +154,7 @@ if dein#load_state(g:load_path)
     "---------- Moar Languages ------
     call dein#add('chaimleib/vim-renpy')
     call dein#add('dag/vim-fish')
-    call dein#add('fatih/vim-go')
+    call dein#add('fatih/vim-go', {'merged': v:false})
     call dein#add('fsharp/vim-fsharp')
     call dein#add('gentoo/gentoo-syntax')
     call dein#add('rsmenon/vim-mathematica')
@@ -195,9 +195,9 @@ if dein#load_state(g:load_path)
     call dein#add('uplus/vim-clang-rename')
 
     call dein#add('neoclide/coc.nvim', {
-                \    'merged': v:false, 
-                \    'rev': 'master', 
-                \    'build': 'yarn install --frozen-lockfile',})
+               \    'merged': v:false, 
+               \    'rev': 'master', 
+               \    'build': 'yarn install --frozen-lockfile',})
     " call dein#disable('neoclide/coc.nvim')
     " call dein#disable('coc.nvim')
     " call dein#disable('coc.nvim_master')
@@ -232,7 +232,7 @@ if dein#load_state(g:load_path)
             " call dein#add('Valloric/YouCompleteMe', {'merged': v:false})
             " call dein#add('neomake/neomake', {'merged': v:false})
         endif
-        if s:use_deoplete == 0
+        if s:use_deoplete == 1
             " call dein#add('ncm2/ncm2', {'merged': v:false})
             call dein#add('Shougo/deoplete.nvim')
             call dein#add('Shougo/neco-vim')
@@ -583,6 +583,7 @@ if IsSourced('rainbow') || 1
         "\          'guifgs': ['Sienna2', 'DarkTurquoise',  'Magenta', 'goldenrod1'],
 
     call s:ExtRainbowConf({'css': 0 })
+    call s:ExtRainbowConf({'customasm': 0 })
 
     " \ 'guifgs': ['chartreuse3', 'DeepSkyBlue2', 'darkorange1', 'orchid2',
     " 'orange'],
@@ -667,19 +668,61 @@ if IsSourced('vim-airline')
         let g:airline_powerline_fonts = 1
     endif
 
-    let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
-    let g:airline#extensions#tagbar#enabled = 1
+    "let g:airline_section_z = '%p%%%{g:airline_symbols.maxlinenr}%3l/%L :%v'
+    "let g:airline#extensions#tagbar#enabled = 1
+    "let g:airline#extensions#tabline#buffer_nr_show = 1
+    ""let g:airline#extensions#whitespace#enabled = 0
+    ""let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
+
+    "let g:airline#extensions#tabline#enabled = 1
+    "" let g:airline#extensions#coc#enabled = 0
+
+    "let g:airline#extensions#coc#enabled = 1
+    "let g:airline#extensions#coc#error_symbol = 'E:'
+    "let g:airline#extensions#coc#warning_symbol = 'W:'
+    "let g:airline#extensions#coc#show_coc_status = 0
+
+    "" let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+
+    "" let g:airline#extensions#tabline#fnametruncate = 7
+    "let g:airline#extensions#tabline#fnamemod = ':t'
+    "let airline#extensions#tabline#middle_click_preserves_windows = 1
+
+    let g:airline#extensions#default#enabled = 1
+    let g:airline#extensions#tagbar#enabled = 0
+    let g:airline#extensions#bufferline#enabled = 1
+
+    let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#tabline#show_tabs = 0
     let g:airline#extensions#tabline#buffer_nr_show = 1
+    let g:airline#extensions#tabline#buffer_idx_mode = 1
+    let g:airline#extensions#tabline#fnamemod = ':t'
+    let g:airline#extensions#tabline#middle_click_preserves_windows = 1
+
+    let g:airline#extensions#bufferline#enabled = 0
+    let g:airline#extensions#bufferline#overwrite_variables = 0
+
+    " let g:airline#extensions#tabline#fnametruncate = 7
+    " let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+
     "let g:airline#extensions#whitespace#enabled = 0
     "let g:airline#extensions#whitespace#checks = [ 'trailing', 'indent', 'long', 'mixed-indent-file' ]
 
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#coc#enabled = 0
-    " let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+    let g:airline#extensions#coc#enabled = 1
+    let g:airline#extensions#coc#error_symbol = 'E:'
+    let g:airline#extensions#coc#warning_symbol = 'W:'
+    let g:airline#extensions#coc#show_coc_status = 0
 
-    " let g:airline#extensions#tabline#fnametruncate = 7
-    let g:airline#extensions#tabline#fnamemod = ':t'
-    let airline#extensions#tabline#middle_click_preserves_windows = 1
+    nmap <leader>1 <Plug>AirlineSelectTab1
+    nmap <leader>b2 <Plug>AirlineSelectTab2
+    nmap <leader>b3 <Plug>AirlineSelectTab3
+    nmap <leader>b4 <Plug>AirlineSelectTab4
+    nmap <leader>b5 <Plug>AirlineSelectTab5
+    nmap <leader>b6 <Plug>AirlineSelectTab6
+    nmap <leader>b7 <Plug>AirlineSelectTab7
+    nmap <leader>b8 <Plug>AirlineSelectTab8
+    nmap <leader>b9 <Plug>AirlineSelectTab9
+    nmap <leader>b0 <Plug>AirlineSelectTab0
 
     nnoremap <silent> <leader>al :AirlineRefresh<CR>
     if IsSourced('vim-airline-themes') && $TERM !=# 'linux'
@@ -841,10 +884,11 @@ if IsSourced('ale')
     "# }}}
 
     "# Python {
-    let s:ale_linters_py = {'python': ['flake8', 'pyflakes']}
+    " let s:ale_linters_py = {'python': []}
+    " let s:ale_linters_py = {'python': ['flake8', 'pyflakes']}
     " let s:ale_linters_py = {'python': ['flake8', 'pyflakes', 'mypy']}
     " let s:ale_linters_py = {'python': ['mypy', 'prospector', 'pyls', 'pyflakes', 'pep8']}
-    " let s:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
+    let s:ale_linters_py = {'python': ['mypy', 'prospector', 'pyflakes', 'pep8']}
     let g:ale_python_pylint_executable = '/dev/null'   " FUCK PYLINT
     let g:ale_python_flake8_options = '--ignore=E121,E123,E126,E226,E24,E704,W503,W504,E501'
 
@@ -859,8 +903,8 @@ if IsSourced('ale')
     "# Go {
     " let s:ale_linters_go = {'go': ['gopls', 'golangci-lint', 'govet', 'gofmt']}
     " let s:ale_linters_go = {'go': ['gopls', 'govet', 'gofmt', 'gobuild']}
-    let s:ale_linters_go = {'go': ['govet', 'gofmt', 'gobuild']}
-    " let s:ale_linters_go = {'go': []}
+    " let s:ale_linters_go = {'go': ['govet', 'gofmt', 'gobuild']}
+    let s:ale_linters_go = {'go': []}
 
     "# }
 
@@ -1001,6 +1045,7 @@ if IsSourced('LanguageClient-neovim')
 endif
 
 
+" COCSEARCH
 if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
     nmap <silent> <leader>ld <Plug>(coc-definition)
     nmap <silent> <leader>ly <Plug>(coc-type-definition)
@@ -1018,52 +1063,80 @@ if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
 
     nmap <leader>lrn <Plug>(coc-rename)
 
+    inoremap <silent><expr> <C-n> coc#pum#visible() ? coc#pum#next(1) : "\<C-n>"
+    inoremap <silent><expr> <C-p> coc#pum#visible() ? coc#pum#prev(1) : "\<C-p>"
+    inoremap <silent><expr> <down> coc#pum#visible() ? coc#pum#next(0) : "\<down>"
+    inoremap <silent><expr> <up> coc#pum#visible() ? coc#pum#prev(0) : "\<up>"
+    inoremap <silent><expr> <PageDown> coc#pum#visible() ? coc#pum#scroll(1) : "\<PageDown>"
+    inoremap <silent><expr> <PageUp> coc#pum#visible() ? coc#pum#scroll(0) : "\<PageUp>"
+    inoremap <silent><expr> <C-e> coc#pum#visible() ? coc#pum#cancel() : "\<C-e>"
+    inoremap <silent><expr> <C-y> coc#pum#visible() ? coc#pum#confirm() : "\<C-y>"
+
     " Use tab for trigger completion with characters ahead and navigate.
     " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
     " other plugin before putting this into your config.
 
     "inoremap <silent><expr> <TAB>
-    "            \ pumvisible() ? "\<C-n>"
-    "            \              : <SID>check_back_space() ? "\<TAB>"
-    "            \                                        : coc#refresh()
+    "           \ pumvisible() ? "\<C-n>"
+    "           \              : <SID>check_back_space() ? "\<TAB>"
+    "           \                                        : coc#refresh()
+    "inoremap <expr><TAB>   pumvisible() ? "\<C-n>" : "\<TAB>"
     "inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-    inoremap <silent><expr> <S-TAB>
-                \ pumvisible() ? "\<C-n>"
-                \              : <SID>check_back_space() ? "\<TAB>"
-                \                                        : coc#refresh()
+    function! CheckBackSpace() abort
+        let l:col = col('.') - 1
+        return (l:col == 0) || (getline('.')[l:col - 1]  =~# "\s")
+    endfunction
+    
+    " imap <silent><expr> <TAB>
+    "           \ coc#pum#visible() ? "\<C-n>"
+    "           \              : CheckBackSpace() ? "\<TAB>"
+    "           \                                        : coc#refresh()
+    "inoremap <expr><TAB>   pumvisible() ? "\<C-n>" : "\<TAB>"
+    "inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-    inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+    " " Use <c-space> to trigger completion.
+    " if has('nvim')
+    "     inoremap <silent><expr> <c-space> coc#refresh()
+    "     inoremap <silent><expr> <C-j> coc#refresh()
+    " else
+    "     inoremap <silent><expr> <c-@> coc#refresh()
+    " endif
 
+    " Insert <tab> when previous text is space, refresh completion if not.
+    " inoremap <silent><expr> <TAB>
+    "            \ coc#pum#visible() ? coc#pum#next(1)
+    "            \                   : CheckBackSpace() ? "\<Tab>"
+    "            \                                      : coc#refresh()
+    "imap <silent><expr> <TAB>
+    "            \ coc#pum#visible() ? coc#pum#next(1)
+    "            \                   : "\<Tab>"
 
-    function! s:check_back_space() abort
+    imap <expr> <S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+    " inoremap <expr> <CR> coc#pum#visible() ? coc#_select_confirm() : "\<CR>"
+
+    command! -nargs=0 CompleteOff let b:coc_suggest_disable = 1
+
+    "imap <silent><expr> <TAB>
+    "            \ coc#pum#visible() ? coc#_select_confirm() :
+    "            \ coc#expandableOrJumpable() ?
+    "            \ "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+    "            \ CheckBackspace() ? "\<TAB>" :
+    "            \ coc#refresh()
+
+    function! CheckBackspace() abort
         let col = col('.') - 1
         return !col || getline('.')[col - 1]  =~# '\s'
     endfunction
 
-    " Use <c-space> to trigger completion.
-    if has('nvim')
-        inoremap <silent><expr> <c-space> coc#refresh()
-        inoremap <silent><expr> <C-j> coc#refresh()
-    else
-        inoremap <silent><expr> <c-@> coc#refresh()
-    endif
-
-    " Make <CR> auto-select the first completion item and notify coc.nvim to
-    " format on enter, <cr> could be remapped by other vim plugin
-
-    " inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm()
-    "             \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-    "inoremap <silent><expr> <CR> pumvisible() ? coc#_select_confirm() 
-    "            \                             : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+    let g:coc_snippet_next = '<tab>'
 
     " Use `[g` and `]g` to navigate diagnostics
     " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
     nmap <silent> [g <Plug>(coc-diagnostic-prev)
     nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-    " Use K to show documentation in preview window.
+    " Use <leader>h to show documentation in preview window.
     nnoremap <silent> <leader>h  :call <SID>show_documentation()<CR>
 
     function! s:show_documentation()
@@ -1081,9 +1154,7 @@ if IsSourced('coc.nvim') || IsSourced('coc.nvim_master')
         autocmd CursorHold * silent call CocActionAsync('highlight')
     augroup END
 
-
     " let g:coc_default_semantic_highlight_groups = 1
-
     " hi default link CocSem_class         newClassColor
     " " " hi default link CocSem_comment       Comment
     " hi default link CocSem_enum          Type
@@ -1170,8 +1241,8 @@ if IsSourced('deoplete.nvim')
     " \ pumvisible() ? "\<C-n>" :
     " \ neosnippet#expandable_or_jumpable() ?
     " \    "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-    smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
-                \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+    "smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+    "            \ "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
 
     " For conceal markers.
     if has('conceal')
@@ -1403,57 +1474,57 @@ if IsSourced('tag-highlight.nvim')
                 \     expand('~/random/school'),     expand('~/Downloads'), expand('~/documents'),
                 \ ]
 
-    let g:tag_highlight#ignored_tags = {
-                \   'c': ['static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
-                \         '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__',
-                \         'alignof', 'alignas', 'Auto', 'main', 'stat', 'fork', 'vfork', 'bool', '__noreturn__',
-                \   ]
-                \ }
+    let g:tag_highlight#ignored_tags = {}
+    let g:tag_highlight#ignored_tags['c'] = [
+                \   'static_assert', 'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
+                \   '__attribute__', 'TRUE', 'FALSE', 'auto_type', '__auto_type', '__extension__',
+                \   'alignof', 'alignas', 'Auto', 'fork', 'vfork', 'bool', '__noreturn__', 'errno',
+                \   'xmalloc', 'xcalloc', 'xrealloc', 'xfree', 'fork', 'vfork', 'assert', 'maybe_unused', 'nodiscard', 'unlikely', 'likely',
+                \ ]
 
     let g:tag_highlight#ignored_tags['cpp'] = [
                 \   'malloc', 'calloc', 'realloc', 'reallocarray', 'free',
                 \   '__attribute__', '__extension__',
-                \   'fork', 'vfork', 'main', 'assert',
+                \   'fork', 'vfork', 'assert',
                 \   'posix_spawn', 'posix_spawnp',
                 \   'concept', 'requires', 'mutable',
                 \   'maybe_unused', 'nodiscard', 'errno', 'weak_ptr',
                 \   'unique_ptr', 'shared_ptr', 'static_pointer_cast', 'const_pointer_cast',
                 \   'dynamic_pointer_cast', 'reinterpret_pointer_cast',
-                \   'execv', 'execvp', 'execvpe', 'execl', 'execlp', 'execlpe', 'dup', 'dup2', 'waitpid', 'fstat',
-                \   'xmalloc', 'xcalloc', 'xrealloc', 'xfree', 'pause',
+                \   'xmalloc', 'xcalloc', 'xrealloc', 'xfree',
                 \ ]
 
-    call extend(g:tag_highlight#ignored_tags['c'], [
-                \ 'DIVU_', 'DIV_', 'MODU_', 'MOD_', 'MULU_', 'MUL_', 'abort', 'abs', 'acos', 'acosf', 'acosh', 'acoshf', 'acoshl', 'acosl', 'asctime', 'asin', 'asinf', 'asinh', 'asinhf',
-                \ 'asinhl', 'asinl', 'atan', 'atan2', 'atan2f', 'atan2l', 'atanf', 'atanh', 'atanhf', 'atanhl', 'atanl', 'atexit', 'atof', 'atoi', 'atol', 'atoll', 'bsearch', 'btowc', 'cabs', 'cabsf', 'cabsl', 'cacos', 'cacosf',
-                \ 'cacosh', 'cacoshf', 'cacoshl', 'cacosl', 'carg', 'cargf', 'cargl', 'casin', 'casinf', 'casinh', 'casinhf', 'casinhl', 'casinl', 'catan', 'catanf', 'catanh', 'catanhf', 'catanhl', 'catanl', 'cbrt', 'cbrtf', 'cbrtl',
-                \ 'ccos', 'ccosf', 'ccosh', 'ccoshf', 'ccoshl', 'ccosl', 'ceil', 'ceilf', 'ceill', 'cexp', 'cexpf', 'cexpl', 'cimag', 'cimagf', 'cimagl', 'clearerr', 'clock', 'clog', 'clogf', 'clogl', 'close', 'conj', 'conjf',
-                \ 'conjl', 'copysign', 'copysignf', 'copysignl', 'cos', 'cosf', 'cosh', 'coshf', 'coshl', 'cosl', 'cpow', 'cpowf', 'cpowl', 'cproj', 'cprojf', 'cprojl', 'creal', 'crealf', 'creall', 'csin', 'csinf', 'csinh', 'csinhf',
-                \ 'csinhl', 'csinl', 'csqrt', 'csqrtf', 'csqrtl', 'ctan', 'ctanf', 'ctanh', 'ctanhf', 'ctanhl', 'ctanl', 'ctime', 'difftime', 'div', 'dup', 'dup2', 'erf', 'erfc', 'erfcf', 'erfcl', 'erff', 'erfl', 'exit', 'exp',
-                \ 'exp2', 'exp2f', 'exp2l', 'expf', 'expl', 'expm1', 'expm1f', 'expm1l', 'fabs', 'fabsf', 'fabsl', 'fclose', 'fcntl', 'fdim', 'fdimf', 'fdiml', 'feclearexcept', 'fegetenv', 'fegetexceptflag', 'fegetround',
-                \ 'feholdexcept', 'feof', 'feraiseexcept', 'ferror', 'fesetenv', 'fesetexceptflag', 'fesetround', 'fetestexcept', 'feupdateenv', 'fflush', 'fgetc', 'fgetpos', 'fgets', 'fgetwc', 'fgetws', 'floor', 'floorf', 'floorl',
-                \ 'fma', 'fmaf', 'fmal', 'fmax', 'fmaxf', 'fmaxl', 'fmin', 'fminf', 'fminl', 'fmod', 'fmodf', 'fmodl', 'fopen', 'fpclassify', 'fprintf', 'fputc', 'fputs', 'fputwc', 'fputws', 'fread', 'freopen', 'frexp', 'frexpf',
-                \ 'frexpl', 'fscanf', 'fseek', 'fsetpos', 'ftell', 'fwide', 'fwprintf', 'fwrite', 'fwscanf', 'getc', 'getchar', 'getenv', 'gets', 'getwc', 'getwchar', 'gmtime', 'hypot', 'hypotf', 'hypotl', 'ilogb', 'ilogbf', 'ilogbl',
-                \ 'ioctl', 'isalnum', 'isalpha', 'iscntrl', 'isdigit', 'isfinite', 'isgraph', 'isgreater', 'isgreaterequal', 'isinf', 'isless', 'islessequal', 'islessgreater', 'islower', 'isnan', 'isnormal', 'isprint', 'ispunct',
-                \ 'isspace', 'isunordered', 'isupper', 'iswalnum', 'iswalpha', 'iswcntrl', 'iswctype', 'iswdigit', 'iswgraph', 'iswlower', 'iswprint', 'iswpunct', 'iswspace', 'iswupper', 'iswxdigit', 'isxdigit', 'labs', 'ldexp',
-                \ 'ldexpf', 'ldexpl', 'ldiv', 'lgamma', 'lgammaf', 'lgammal', 'llabs', 'lldiv', 'llrint', 'llrintf', 'llrintl', 'llround', 'llroundf', 'llroundl', 'localeconv', 'localtime', 'log', 'log10', 'log10f', 'log10l', 'log1p',
-                \ 'log1pf', 'log1pl', 'log2', 'log2f', 'log2l', 'logb', 'logbf', 'logbl', 'logf', 'logl', 'longjmp', 'lrint', 'lrintf', 'lrintl', 'lround', 'lroundf', 'lroundl', 'lseek', 'main', 'mblen', 'mbrlen', 'mbrtowc',
-                \ 'mbsinit', 'mbsrtowcs', 'mbstowcs', 'mbtowc', 'memchr', 'memcmp', 'memcpy', 'memmem', 'memmove', 'memset', 'mktime', 'mkxtime', 'modf', 'modff', 'modfl', 'nan', 'nanf', 'nanl', 'nearbyint', 'nearbyintf',
-                \ 'nearbyintl', 'nextafter', 'nextafterf', 'nextafterl', 'nextafterx', 'nextafterxf', 'nextafterxl', 'offsetof', 'open', 'perror', 'pow', 'powf', 'powl', 'printf', 'putc', 'putchar', 'puts', 'putwc', 'putwchar',
-                \ 'qsort', 'raise', 'rand', 'read', 'remainder', 'remainderf', 'remainderl', 'remove', 'remquo', 'remquof', 'remquol', 'rename', 'rewind', 'rint', 'rintf', 'rintl', 'round', 'roundf', 'roundl', 'scalbln', 'scalblnf',
-                \ 'scalblnl', 'scalbn', 'scalbnf', 'scalbnl', 'scanf', 'setbuf', 'setjmp', 'setlocale', 'setvbuf', 'signal', 'signbit', 'sin', 'sinf', 'sinh', 'sinhf', 'sinhl', 'sinl', 'snprintf', 'sprintf', 'sqrt', 'sqrtf', 'sqrtl',
-                \ 'srand', 'sscanf', 'strcat', 'strchr', 'strcmp', 'strcoll', 'strcpy', 'strcspn', 'strerror', 'strftime', 'strfxtime', 'strlcat', 'strlcpy', 'strlen', 'strncat', 'strncmp', 'strncpy', 'strpbrk', 'strrchr', 'strsep',
-                \ 'strspn', 'strstr', 'strtod', 'strtof', 'strtoimax', 'strtok', 'strtol', 'strtold', 'strtoll', 'strtonum', 'strtoul', 'strtoull', 'strtoumax', 'strxfrm', 'swprintf', 'swscanf', 'system', 'tan', 'tanf', 'tanh',
-                \ 'tanhf', 'tanhl', 'tanl', 'tgamma', 'tgammaf', 'tgammal', 'time', 'tmpfile', 'tmpnam', 'tolower', 'toupper', 'towctrans', 'towlower', 'towupper', 'trunc', 'truncf', 'truncl', 'ungetc', 'ungetwc', 'va_arg', 'va_copy',
-                \ 'va_end', 'va_start', 'vfprintf', 'vfscanf', 'vfwprintf', 'vfwscanf', 'vprintf', 'vscanf', 'vsnprintf', 'vsprintf', 'vsscanf', 'vswprintf', 'vswscanf', 'vwprintf', 'vwscanf', 'wcrtomb', 'wcscat', 'wcschr', 'wcscmp',
-                \ 'wcscoll', 'wcscpy', 'wcscspn', 'wcsftime', 'wcsfxtime', 'wcslen', 'wcsncat', 'wcsncmp', 'wcsncpy', 'wcspbrk', 'wcsrchr', 'wcsrtombs', 'wcsspn', 'wcsstr', 'wcstod', 'wcstof', 'wcstoimax', 'wcstok', 'wcstol',
-                \ 'wcstold', 'wcstoll', 'wcstombs', 'wcstoul', 'wcstoull', 'wcstoumax', 'wcsxfrm', 'wctob', 'wctomb', 'wctrans', 'wctype', 'wmemchr', 'wmemcmp', 'wmemcpy', 'wmemmove', 'wmemset', 'wprintf', 'write', 'wscanf',
-                \ 'zonetime', 'asprintf', 'vasprintf', 'errno',
-                \ ])
+    "call extend(g:tag_highlight#ignored_tags['c'], [
+    "            \ 'DIVU_', 'DIV_', 'MODU_', 'MOD_', 'MULU_', 'MUL_', 'abort', 'abs', 'acos', 'acosf', 'acosh', 'acoshf', 'acoshl', 'acosl', 'asctime', 'asin', 'asinf', 'asinh', 'asinhf',
+    "            \ 'asinhl', 'asinl', 'atan', 'atan2', 'atan2f', 'atan2l', 'atanf', 'atanh', 'atanhf', 'atanhl', 'atanl', 'atexit', 'atof', 'atoi', 'atol', 'atoll', 'bsearch', 'btowc', 'cabs', 'cabsf', 'cabsl', 'cacos', 'cacosf',
+    "            \ 'cacosh', 'cacoshf', 'cacoshl', 'cacosl', 'carg', 'cargf', 'cargl', 'casin', 'casinf', 'casinh', 'casinhf', 'casinhl', 'casinl', 'catan', 'catanf', 'catanh', 'catanhf', 'catanhl', 'catanl', 'cbrt', 'cbrtf', 'cbrtl',
+    "            \ 'ccos', 'ccosf', 'ccosh', 'ccoshf', 'ccoshl', 'ccosl', 'ceil', 'ceilf', 'ceill', 'cexp', 'cexpf', 'cexpl', 'cimag', 'cimagf', 'cimagl', 'clearerr', 'clock', 'clog', 'clogf', 'clogl', 'close', 'conj', 'conjf',
+    "            \ 'conjl', 'copysign', 'copysignf', 'copysignl', 'cos', 'cosf', 'cosh', 'coshf', 'coshl', 'cosl', 'cpow', 'cpowf', 'cpowl', 'cproj', 'cprojf', 'cprojl', 'creal', 'crealf', 'creall', 'csin', 'csinf', 'csinh', 'csinhf',
+    "            \ 'csinhl', 'csinl', 'csqrt', 'csqrtf', 'csqrtl', 'ctan', 'ctanf', 'ctanh', 'ctanhf', 'ctanhl', 'ctanl', 'ctime', 'difftime', 'div', 'dup', 'dup2', 'erf', 'erfc', 'erfcf', 'erfcl', 'erff', 'erfl', 'exit', 'exp',
+    "            \ 'exp2', 'exp2f', 'exp2l', 'expf', 'expl', 'expm1', 'expm1f', 'expm1l', 'fabs', 'fabsf', 'fabsl', 'fclose', 'fcntl', 'fdim', 'fdimf', 'fdiml', 'feclearexcept', 'fegetenv', 'fegetexceptflag', 'fegetround',
+    "            \ 'feholdexcept', 'feof', 'feraiseexcept', 'ferror', 'fesetenv', 'fesetexceptflag', 'fesetround', 'fetestexcept', 'feupdateenv', 'fflush', 'fgetc', 'fgetpos', 'fgets', 'fgetwc', 'fgetws', 'floor', 'floorf', 'floorl',
+    "            \ 'fma', 'fmaf', 'fmal', 'fmax', 'fmaxf', 'fmaxl', 'fmin', 'fminf', 'fminl', 'fmod', 'fmodf', 'fmodl', 'fopen', 'fpclassify', 'fprintf', 'fputc', 'fputs', 'fputwc', 'fputws', 'fread', 'freopen', 'frexp', 'frexpf',
+    "            \ 'frexpl', 'fscanf', 'fseek', 'fsetpos', 'ftell', 'fwide', 'fwprintf', 'fwrite', 'fwscanf', 'getc', 'getchar', 'getenv', 'gets', 'getwc', 'getwchar', 'gmtime', 'hypot', 'hypotf', 'hypotl', 'ilogb', 'ilogbf', 'ilogbl',
+    "            \ 'ioctl', 'isalnum', 'isalpha', 'iscntrl', 'isdigit', 'isfinite', 'isgraph', 'isgreater', 'isgreaterequal', 'isinf', 'isless', 'islessequal', 'islessgreater', 'islower', 'isnan', 'isnormal', 'isprint', 'ispunct',
+    "            \ 'isspace', 'isunordered', 'isupper', 'iswalnum', 'iswalpha', 'iswcntrl', 'iswctype', 'iswdigit', 'iswgraph', 'iswlower', 'iswprint', 'iswpunct', 'iswspace', 'iswupper', 'iswxdigit', 'isxdigit', 'labs', 'ldexp',
+    "            \ 'ldexpf', 'ldexpl', 'ldiv', 'lgamma', 'lgammaf', 'lgammal', 'llabs', 'lldiv', 'llrint', 'llrintf', 'llrintl', 'llround', 'llroundf', 'llroundl', 'localeconv', 'localtime', 'log', 'log10', 'log10f', 'log10l', 'log1p',
+    "            \ 'log1pf', 'log1pl', 'log2', 'log2f', 'log2l', 'logb', 'logbf', 'logbl', 'logf', 'logl', 'longjmp', 'lrint', 'lrintf', 'lrintl', 'lround', 'lroundf', 'lroundl', 'lseek', 'main', 'mblen', 'mbrlen', 'mbrtowc',
+    "            \ 'mbsinit', 'mbsrtowcs', 'mbstowcs', 'mbtowc', 'memchr', 'memcmp', 'memcpy', 'memmem', 'memmove', 'memset', 'mktime', 'mkxtime', 'modf', 'modff', 'modfl', 'nan', 'nanf', 'nanl', 'nearbyint', 'nearbyintf',
+    "            \ 'nearbyintl', 'nextafter', 'nextafterf', 'nextafterl', 'nextafterx', 'nextafterxf', 'nextafterxl', 'offsetof', 'open', 'perror', 'pow', 'powf', 'powl', 'printf', 'putc', 'putchar', 'puts', 'putwc', 'putwchar',
+    "            \ 'qsort', 'raise', 'rand', 'read', 'remainder', 'remainderf', 'remainderl', 'remove', 'remquo', 'remquof', 'remquol', 'rename', 'rewind', 'rint', 'rintf', 'rintl', 'round', 'roundf', 'roundl', 'scalbln', 'scalblnf',
+    "            \ 'scalblnl', 'scalbn', 'scalbnf', 'scalbnl', 'scanf', 'setbuf', 'setjmp', 'setlocale', 'setvbuf', 'signal', 'signbit', 'sin', 'sinf', 'sinh', 'sinhf', 'sinhl', 'sinl', 'snprintf', 'sprintf', 'sqrt', 'sqrtf', 'sqrtl',
+    "            \ 'srand', 'sscanf', 'strcat', 'strchr', 'strcmp', 'strcoll', 'strcpy', 'strcspn', 'strerror', 'strftime', 'strfxtime', 'strlcat', 'strlcpy', 'strlen', 'strncat', 'strncmp', 'strncpy', 'strpbrk', 'strrchr', 'strsep',
+    "            \ 'strspn', 'strstr', 'strtod', 'strtof', 'strtoimax', 'strtok', 'strtol', 'strtold', 'strtoll', 'strtonum', 'strtoul', 'strtoull', 'strtoumax', 'strxfrm', 'swprintf', 'swscanf', 'system', 'tan', 'tanf', 'tanh',
+    "            \ 'tanhf', 'tanhl', 'tanl', 'tgamma', 'tgammaf', 'tgammal', 'time', 'tmpfile', 'tmpnam', 'tolower', 'toupper', 'towctrans', 'towlower', 'towupper', 'trunc', 'truncf', 'truncl', 'ungetc', 'ungetwc', 'va_arg', 'va_copy',
+    "            \ 'va_end', 'va_start', 'vfprintf', 'vfscanf', 'vfwprintf', 'vfwscanf', 'vprintf', 'vscanf', 'vsnprintf', 'vsprintf', 'vsscanf', 'vswprintf', 'vswscanf', 'vwprintf', 'vwscanf', 'wcrtomb', 'wcscat', 'wcschr', 'wcscmp',
+    "            \ 'wcscoll', 'wcscpy', 'wcscspn', 'wcsftime', 'wcsfxtime', 'wcslen', 'wcsncat', 'wcsncmp', 'wcsncpy', 'wcspbrk', 'wcsrchr', 'wcsrtombs', 'wcsspn', 'wcsstr', 'wcstod', 'wcstof', 'wcstoimax', 'wcstok', 'wcstol',
+    "            \ 'wcstold', 'wcstoll', 'wcstombs', 'wcstoul', 'wcstoull', 'wcstoumax', 'wcsxfrm', 'wctob', 'wctomb', 'wctrans', 'wctype', 'wmemchr', 'wmemcmp', 'wmemcpy', 'wmemmove', 'wmemset', 'wprintf', 'write', 'wscanf',
+    "            \ 'zonetime', 'asprintf', 'vasprintf', 'errno',
+    "            \ ])
 
     " call extend(g:tag_highlight#ignored_tags['cpp'], ['noreturn', 'nodiscard'])
-    let g:tag_highlight#ignored_tags['c'] = sort(g:tag_highlight#ignored_tags['c'])
-    let g:tag_highlight#ignored_tags['cpp'] = sort(g:tag_highlight#ignored_tags['cpp'])
+    let g:tag_highlight#ignored_tags['c'] = uniq(sort(g:tag_highlight#ignored_tags['c']))
+    let g:tag_highlight#ignored_tags['cpp'] = uniq(sort(g:tag_highlight#ignored_tags['cpp']))
 
     let g:ale_fixers = { 'c': ['clangtidy'], 'cpp': ['clangtidy'] }
 

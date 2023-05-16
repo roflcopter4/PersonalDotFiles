@@ -19,6 +19,8 @@ BinPackParameters: false
 BinPackArguments: true
 
 AlignAfterOpenBracket: Align
+#AlignAfterOpenBracket: BlockIndent
+
 AlignArrayOfStructures: Left
 AlignConsecutiveAssignments: true
 AlignConsecutiveBitFields: AcrossEmptyLinesAndComments
@@ -37,6 +39,7 @@ AllowShortLoopsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: false
 # AllowShortFunctionsOnASingleLine: Inline
 # AllowShortFunctionsOnASingleLine: All
+AllowShortLambdasOnASingleLine: All
 
 # AlwaysBreakAfterReturnType: AllDefinitions
 AlwaysBreakAfterReturnType: TopLevelDefinitions
@@ -48,8 +51,8 @@ PenaltyBreakAssignment: 30
 # PenaltyExcessCharacter: 3
 # PenaltyBreakBeforeFirstCallParameter: 500
 
-# PPIndentWidth: 1
-# IndentPPDirectives: AfterHash
+PPIndentWidth: 1
+IndentPPDirectives: AfterHash
 
 # NamespaceIndentation: Inner
 # IndentWrappedFunctionNames: true
@@ -88,6 +91,7 @@ ColumnLimit: 90
 # ##Custom##
 #BreakBeforeBraces: Custom
 #IndentWidth: 6
+#LambdaBodyIndentation: OuterScope
 #BraceWrapping:
 #  AfterClass:            true
 #  AfterControlStatement: false
@@ -100,6 +104,7 @@ ColumnLimit: 90
 #  BeforeCatch:           false
 #  BeforeElse:            false
 #  IndentBraces:          false
+#  BeforeLambdaBody:      true
 #  SplitEmptyFunction:    false
 #  SplitEmptyRecord:      false
 #  SplitEmptyNamespace:   false

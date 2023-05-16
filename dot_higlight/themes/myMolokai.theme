@@ -2,6 +2,8 @@
 
 Description = "vim molokai"
 
+Categories = {"dark", "vim"}
+
 Default       = { Colour="#F8F8F2" }
 BlockComment  = { Colour="#75715E" }
 Canvas        = { Colour="#272822" }
@@ -21,4 +23,21 @@ Keywords = {
   { Colour="#66D9EF" },
   { Colour="#95f067" },
   { Colour="#25faac" },
+  { Colour="#d388c6" },
+  { Colour="#fd971f" },
+}
+
+
+SemanticTokenTypes  = {
+  { Type = 'keyword', Style = Keywords[1] },
+  { Type = 'type', Style = Keywords[2] },
+  { Type = 'function', Style = Keywords[4] },
+  { Type = 'method', Style = Keywords[4] },
+  { Type = 'class', Style =  Keywords[1] },
+  { Type = 'struct', Style = Keywords[2] },
+  { Type = 'parameter', Style = Keywords[6] },
+  { Type = 'variable', Style = Keywords[5] },
+  { Type = 'number', Style = Number },
+  { Type = 'regexp', Style = String },
+  { Type = 'operator', Style = Operator },
 }

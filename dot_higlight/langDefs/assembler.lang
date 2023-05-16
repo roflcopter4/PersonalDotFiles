@@ -1,0 +1,318 @@
+Description = "Generic Assembler"
+
+Categories = {"assembler"}
+
+--Digits = [[ (?:0x|0X|\$)[0-9a-fA-F]+|\d*[\.\_]?\d+(?:[eE][\-\+]\d+)?[bBhHlLuU]* ]]
+
+Digits=[[ (?x)
+        # ============ HEX ============
+        # C (0xFF) & Pascal ($FF) style:
+
+          (?:(?<!\$)\b0x|\b0X|(?<!\w|\$)\$)[0-9a-fA-F_']+\b(?!\$)
+
+        # h syntax (0FFh) -- req. leading 0:
+
+        | \b0[0-9a-fA-F_']+[hH]\b
+
+        # ============ OCTAL ============
+        | \b[0-7_']+[oOqQ]\b         # 377o / 377q                        [See: #4]
+
+        # ============ BINARY ============
+        | \b[01_']+[bB]\b
+
+        # ============ FLOAT ============
+        | \b[0-9_']+f\b              # 1f  syntax
+        | \b[0-9_']+\.[0-9_']+\b       # 1E0 syntax (scientific notation)
+        | \b[0-9_']+[eE][0-9_']+\b     # 1.0 syntax
+
+        # ============ DECIMAL ============
+        | (?<!\$)\b[0-9_']+[dD]?\b(?!\$)
+      ]]
+
+Keywords = {
+    {
+        Id = 1,
+        List = {
+            "aaa", "aad", "aam", "aas", "adc", "adcx", "add", "addpd", "addps", "addsd", "addss", "addsubpd",
+            "addsubps", "adox", "aesdec", "aesdec128kl", "aesdec256kl", "aesdeclast", "aesdecwide128kl",
+            "aesdecwide256kl", "aesenc", "aesenc128kl", "aesenc256kl", "aesenclast", "aesencwide128kl",
+            "aesencwide256kl", "aesimc", "aeskeygenassist", "and", "andn", "andnpd", "andnps", "andpd", "andps", "arpl",
+            "bextr", "blendpd", "blendps", "blendvpd", "blendvps", "blsi", "blsmsk", "blsr", "bndcl", "bndcn", "bndcu",
+            "bndldx", "bndmk", "bndmov", "bndstx", "bound", "bsf", "bsr", "bswap", "bt", "btc", "btr", "bts", "bzhi",
+            "call", "cbw", "cdq", "cdqe", "clac", "clc", "cld", "cldemote", "clflush", "clflushopt", "cli", "clrssbsy",
+            "clts", "clwb", "cmc", "cmova", "cmovae", "cmovb", "cmovbe", "cmovc", "cmove", "cmovg", "cmovge", "cmovl",
+            "cmovle", "cmovna", "cmovnae", "cmovnb", "cmovnbe", "cmovnc", "cmovne", "cmovng", "cmovnge", "cmovnl",
+            "cmovnle", "cmovno", "cmovnp", "cmovns", "cmovnz", "cmovo", "cmovp", "cmovpe", "cmovpo", "cmovs",
+            "cmovssbsy", "cmovz", "cmp", "cmppd", "cmpps", "cmps", "cmpsb", "cmpsd", "cmpsq", "cmpss", "cmpsw",
+            "cmpxchg", "cmpxchg16b", "cmpxchg8b", "comisd", "comiss", "cpuid", "cqo", "crc32", "cvtdq2pd", "cvtdq2ps",
+            "cvtpd2dq", "cvtpd2pi", "cvtpd2ps", "cvtpi2pd", "cvtpi2ps", "cvtps2dq", "cvtps2pd", "cvtps2pi", "cvtsd2si",
+            "cvtsd2ss", "cvtsi2sd", "cvtsi2ss", "cvtss2sd", "cvtss2si", "cvttpd2dq", "cvttpd2pi", "cvttps2dq",
+            "cvttps2pi", "cvttsd2si", "cvttss2si", "cwd", "cwde", "daa", "das", "dec", "div", "divpd", "divps", "divsd",
+            "divss", "dppd", "dpps", "emms", "encodekey128", "encodekey256", "endbr32", "endbr64", "enter", "esc",
+            "extractps", "f2xm1", "fabs", "fadd", "faddp", "fbld", "fbstp", "fchs", "fclex", "fcmova", "fcmovae",
+            "fcmovb", "fcmovbe", "fcmovc", "fcmove", "fcmovg", "fcmovge", "fcmovl", "fcmovle", "fcmovna", "fcmovnae",
+            "fcmovnb", "fcmovnbe", "fcmovnc", "fcmovne", "fcmovng", "fcmovnge", "fcmovnl", "fcmovnle", "fcmovno",
+            "fcmovnp", "fcmovns", "fcmovnz", "fcmovo", "fcmovp", "fcmovpe", "fcmovpo", "fcmovs", "fcmovz", "fcom",
+            "fcomi", "fcomip", "fcomp", "fcompp", "fcos", "fdecstp", "fdisi", "fdiv", "fdivp", "fdivr", "fdivrp",
+            "feni", "ffree", "fiadd", "ficom", "ficomp", "fidiv", "fidivr", "fild", "fimul", "fincstp", "finit", "fist",
+            "fistp", "fisttp", "fisub", "fisubr", "fld", "fld1", "fldcw", "fldenv", "fldl2e", "fldl2t", "fldlg2",
+            "fldln2", "fldpi", "fldz", "fmul", "fmulp", "fnclex", "fndisi", "fneni", "fninit", "fnop", "fnsave",
+            "fnstcw", "fnstenv", "fnstsw", "fpatan", "fprem", "fprem1", "fptan", "frndint", "frstor", "fsave", "fscale",
+            "fsetpm", "fsin", "fsincos", "fsqrt", "fst", "fstcw", "fstenv", "fstp", "fstsw", "fsub", "fsubp", "fsubr",
+            "fsubrp", "ftst", "fucom", "fucomi", "fucomip", "fucomp", "fucompp", "fwait", "fxam", "fxch", "fxrstor",
+            "fxsave", "fxtract", "fyl2x", "fyl2xp1", "gf2p8affineinvqb", "gf2p8affineqb", "gf2p8mulb", "haddpd",
+            "haddps", "hlt", "hreset", "hsubpd", "hsubps", "idiv", "imul", "in", "inc", "incsspd", "incsspq", "ins",
+            "insb", "insd", "insertps", "insw", "int", "int1", "int3", "into", "invd", "invlpg", "invpcid", "iret",
+            "iretd", "iretq", "ja", "jae", "jb", "jbe", "jc", "jcxz", "je", "jecxz", "jg", "jge", "jl", "jle", "jmp",
+            "jna", "jnae", "jnb", "jnbe", "jnc", "jne", "jng", "jnge", "jnl", "jnle", "jno", "jnp", "jns", "jnz", "jo",
+            "jp", "jpe", "jpo", "js", "jz", "kaddb", "kaddd", "kaddq", "kaddw", "kandb", "kandd", "kandnb", "kandnd",
+            "kandnq", "kandnw", "kandq", "kandw", "kmovb", "kmovd", "kmovq", "kmovw", "knotb", "knotd", "knotq",
+            "knotw", "korb", "kord", "korq", "kortestb", "kortestd", "kortestq", "kortestw", "korw", "kshiftlb",
+            "kshiftld", "kshiftlq", "kshiftlw", "kshiftrb", "kshiftrd", "kshiftrq", "kshiftrw", "ktestb", "ktestd",
+            "ktestq", "ktestw", "kunpckbw", "kunpckdq", "kunpckwd", "kxnorb", "kxnord", "kxnorq", "kxnorw", "kxorb",
+            "kxord", "kxorq", "kxorw", "lahf", "lar", "lddqu", "ldmxcsr", "lds", "lea", "leave", "les", "lfence", "lfs",
+            "lgdt", "lgs", "lidt", "lldt", "lmsw", "loadiwkey", "local", "lock", "lods", "lodsb", "lodsd", "lodsq",
+            "lodsw", "loop", "loopd", "loopde", "loopdne", "loopdnz", "loopdz", "loope", "loopne", "loopnz", "loopz",
+            "lsl", "lss", "ltr", "lzcnt", "maskmovdqu", "maskmovq", "maxpd", "maxps", "maxsd", "maxss", "mfence",
+            "minpd", "minps", "minsd", "minss", "monitor", "mov", "movabs", "movapd", "movaps", "movbe", "movd", "movddup",
+            "movdir64b", "movdiri", "movdq2q", "movdqa", "movdqu", "movhlps", "movhpd", "movhps", "movlhps", "movlpd",
+            "movlps", "movmskpd", "movmskps", "movntdq", "movntdqa", "movnti", "movntpd", "movntps", "movntq", "movq",
+            "movq2dq", "movs", "movsb", "movsd", "movshdup", "movsldup", "movsq", "movss", "movsw", "movsx", "movsxd",
+            "movupd", "movups", "movzx", "mpsadbw", "mul", "mulpd", "mulps", "mulsd", "mulss", "mulx", "mwait", "neg",
+            "nop", "not", "or", "orpd", "orps", "out", "outs", "outsb", "outsd", "outsw", "pabsb", "pabsd", "pabsq",
+            "pabsw", "packssdw", "packsswb", "packusdw", "packuswb", "paddb", "paddd", "paddq", "paddsb", "paddsw",
+            "paddusb", "paddusw", "paddw", "palignr", "pand", "pandn", "pause", "pavgb", "pavgw", "pblendvb", "pblendw",
+            "pclmulqdq", "pcmpeqb", "pcmpeqd", "pcmpeqq", "pcmpeqw", "pcmpestri", "pcmpestrm", "pcmpgtb", "pcmpgtd",
+            "pcmpgtq", "pcmpgtw", "pcmpistri", "pcmpistrm", "pconfig", "pdep", "pext", "pextrb", "pextrd", "pextrq",
+            "pextrw", "phaddd", "phaddsw", "phaddw", "phminposuw", "phsubd", "phsubsw", "phsubw", "pinsrb", "pinsrd",
+            "pinsrq", "pinsrw", "pmaddubsw", "pmaddwd", "pmaxsb", "pmaxsd", "pmaxsq", "pmaxsw", "pmaxub", "pmaxud",
+            "pmaxuq", "pmaxuw", "pminsb", "pminsd", "pminsq", "pminsw", "pminub", "pminud", "pminuq", "pminuw",
+            "pmovmskb", "pmovsx", "pmovzx", "pmuldq", "pmulhrsw", "pmulhuw", "pmulhw", "pmulld", "pmullq", "pmullw",
+            "pmuludq", "pop", "popa", "popad", "popcnt", "popf", "popfd", "popfq", "por", "prefetchh", "prefetchw",
+            "psadbw", "pshufb", "pshufd", "pshufhw", "pshuflw", "pshufw", "psignb", "psignd", "psignw", "pslld",
+            "pslldq", "psllq", "psllw", "psrad", "psraq", "psraw", "psrld", "psrldq", "psrlq", "psrlw", "psubb",
+            "psubd", "psubq", "psubsb", "psubsw", "psubusb", "psubusw", "psubw", "ptest", "ptwrite", "punpckhbw",
+            "punpckhdq", "punpckhqdq", "punpckhwd", "punpcklbw", "punpckldq", "punpcklqdq", "punpcklwd", "push",
+            "pusha", "pushad", "pushf", "pushfd", "pushfq", "pxor", "rcl", "rcpps", "rcpss", "rcr", "rdfsbase",
+            "rdgsbase", "rdmsr", "rdpid", "rdpkru", "rdpmc", "rdrand", "rdseed", "rdsspd", "rdsspq", "rdtsc", "rdtscp",
+            "rep", "repe", "repne", "repnz", "repz", "ret", "retf", "retn", "rol", "ror", "rorx", "roundpd", "roundps",
+            "roundsd", "roundss", "rsm", "rsqrtps", "rsqrtss", "rstorssp", "sahf", "sal", "sar", "sarx", "saveprevssp",
+            "sbb", "scas", "scasb", "scasd", "scasw", "segss", "serialize", "seta", "setae", "setb", "setbe", "setc",
+            "sete", "setg", "setge", "setl", "setle", "setna", "setnae", "setnb", "setnbe", "setnc", "setne", "setng",
+            "setnge", "setnl", "setnle", "setno", "setnp", "setns", "setnz", "seto", "setp", "setpe", "setpo", "sets",
+            "setz", "sfence", "sgdt", "sha1msg1", "sha1msg2", "sha1nexte", "sha1rnds4", "sha256msg1", "sha256msg2",
+            "sha256rnds2", "shl", "shld", "shlx", "shr", "shrd", "shrx", "shufpd", "shufps", "sidt", "sldt", "smsw",
+            "sqrtpd", "sqrtps", "sqrtsd", "sqrtss", "stac", "stc", "std", "sti", "stmxcsr", "stos", "stosb", "stosd",
+            "stosq", "stosw", "str", "sub", "subpd", "subps", "subsd", "subss", "swapgs", "symtype", "syscall",
+            "sysenter", "sysexit", "sysret", "test", "tpause", "tzcnt", "ucomisd", "ucomiss", "ud", "umonitor",
+            "umwait", "unpckhpd", "unpckhps", "unpcklpd", "unpcklps", "vaddpd", "vaddps", "vaddsd", "vaddss",
+            "vaddsubpd", "vaddsubps", "vaesdec", "vaesdeclast", "vaesenc", "vaesenclast", "vaesimc", "vaeskeygenassist",
+            "valignd", "valignq", "vandnpd", "vandnps", "vandpd", "vandps", "vblendmpd", "vblendmps", "vblendpd",
+            "vblendps", "vblendvpd", "vblendvps", "vbroadcast", "vbroadcastf128", "vbroadcastf32x2", "vbroadcastf32x4",
+            "vbroadcastf32x8", "vbroadcastf64x2", "vbroadcastf64x4", "vbroadcasti128", "vbroadcasti32x2",
+            "vbroadcasti32x4", "vbroadcasti32x8", "vbroadcasti64x2", "vbroadcasti64x4", "vbroadcastsd", "vbroadcastss",
+            "vcmpeq_ospd", "vcmpeq_osps", "vcmpeq_ossd", "vcmpeq_osss", "vcmpeq_uqpd", "vcmpeq_uqps", "vcmpeq_uqsd",
+            "vcmpeq_uqss", "vcmpeq_uspd", "vcmpeq_usps", "vcmpeq_ussd", "vcmpeq_usss", "vcmpeqpd", "vcmpeqps",
+            "vcmpeqsd", "vcmpeqss", "vcmpfalse_ospd", "vcmpfalse_osps", "vcmpfalse_ossd", "vcmpfalse_osss",
+            "vcmpfalsepd", "vcmpfalseps", "vcmpfalsesd", "vcmpfalsess", "vcmpge_oqpd", "vcmpge_oqps", "vcmpge_oqsd",
+            "vcmpge_oqss", "vcmpgepd", "vcmpgeps", "vcmpgesd", "vcmpgess", "vcmpgt_oqpd", "vcmpgt_oqps", "vcmpgt_oqsd",
+            "vcmpgt_oqss", "vcmpgtpd", "vcmpgtps", "vcmpgtsd", "vcmpgtss", "vcmple_oqpd", "vcmple_oqps", "vcmple_oqsd",
+            "vcmple_oqss", "vcmplepd", "vcmpleps", "vcmplesd", "vcmpless", "vcmplt_oqpd", "vcmplt_oqps", "vcmplt_oqsd",
+            "vcmplt_oqss", "vcmpltpd", "vcmpltps", "vcmpltsd", "vcmpltss", "vcmpneq_oqpd", "vcmpneq_oqps",
+            "vcmpneq_oqsd", "vcmpneq_oqss", "vcmpneq_ospd", "vcmpneq_osps", "vcmpneq_ossd", "vcmpneq_osss",
+            "vcmpneq_uspd", "vcmpneq_usps", "vcmpneq_ussd", "vcmpneq_usss", "vcmpneqpd", "vcmpneqps", "vcmpneqsd",
+            "vcmpneqss", "vcmpnge_uqpd", "vcmpnge_uqps", "vcmpnge_uqsd", "vcmpnge_uqss", "vcmpngepd", "vcmpngeps",
+            "vcmpngesd", "vcmpngess", "vcmpngt_uqpd", "vcmpngt_uqps", "vcmpngt_uqsd", "vcmpngt_uqss", "vcmpngtpd",
+            "vcmpngtps", "vcmpngtsd", "vcmpngtss", "vcmpnle_uqpd", "vcmpnle_uqps", "vcmpnle_uqsd", "vcmpnle_uqss",
+            "vcmpnlepd", "vcmpnleps", "vcmpnlesd", "vcmpnless", "vcmpnlt_uqpd", "vcmpnlt_uqps", "vcmpnlt_uqsd",
+            "vcmpnlt_uqss", "vcmpnltpd", "vcmpnltps", "vcmpnltsd", "vcmpnltss", "vcmpord_spd", "vcmpord_sps",
+            "vcmpord_ssd", "vcmpord_sss", "vcmpordpd", "vcmpordps", "vcmpordsd", "vcmpordss", "vcmppd", "vcmpps",
+            "vcmpsd", "vcmpss", "vcmptrue_uspd", "vcmptrue_usps", "vcmptrue_ussd", "vcmptrue_usss", "vcmptruepd",
+            "vcmptrueps", "vcmptruesd", "vcmptruess", "vcmpunord_spd", "vcmpunord_sps", "vcmpunord_ssd",
+            "vcmpunord_sss", "vcmpunordpd", "vcmpunordps", "vcmpunordsd", "vcmpunordss", "vcomisd", "vcomiss",
+            "vcompresspd", "vcompressps", "vcompressw", "vcvtdq2pd", "vcvtdq2ps", "vcvtne2ps2bf16", "vcvtneps2bf16",
+            "vcvtpd2dq", "vcvtpd2ps", "vcvtpd2qq", "vcvtpd2udq", "vcvtpd2uqq", "vcvtph2ps", "vcvtps2dq", "vcvtps2pd",
+            "vcvtps2ph", "vcvtps2qq", "vcvtps2udq", "vcvtps2uqq", "vcvtqq2pd", "vcvtqq2ps", "vcvtsd2si", "vcvtsd2ss",
+            "vcvtsd2usi", "vcvtsi2sd", "vcvtsi2ss", "vcvtss2sd", "vcvtss2si", "vcvtss2usi", "vcvttpd2dq", "vcvttpd2qq",
+            "vcvttpd2udq", "vcvttpd2uqq", "vcvttps2dq", "vcvttps2qq", "vcvttps2udq", "vcvttps2uqq", "vcvttsd2si",
+            "vcvttsd2usi", "vcvttss2si", "vcvttss2usi", "vcvtudq2pd", "vcvtudq2ps", "vcvtuqq2pd", "vcvtuqq2ps",
+            "vcvtusi2sd", "vcvtusi2ss", "vdbpsadbw", "vdivpd", "vdivps", "vdivsd", "vdivss", "vdpbf16ps", "vdppd",
+            "vdpps", "verr", "verw", "vexp2pd", "vexp2ps", "vexpandpd", "vexpandps", "vextractf128", "vextractf32x4",
+            "vextractf32x8", "vextractf64x2", "vextractf64x4", "vextracti128", "vextracti32x4", "vextracti32x8",
+            "vextracti64x2", "vextracti64x4", "vextractps", "vfixupimmpd", "vfixupimmps", "vfixupimmsd", "vfixupimmss",
+            "vfmadd132pd", "vfmadd132ps", "vfmadd132sd", "vfmadd132ss", "vfmadd213pd", "vfmadd213ps", "vfmadd213sd",
+            "vfmadd213ss", "vfmadd231pd", "vfmadd231ps", "vfmadd231sd", "vfmadd231ss", "vfmaddsub132pd",
+            "vfmaddsub132ps", "vfmaddsub213pd", "vfmaddsub213ps", "vfmaddsub231pd", "vfmaddsub231ps", "vfmsub132pd",
+            "vfmsub132ps", "vfmsub132sd", "vfmsub132ss", "vfmsub213pd", "vfmsub213ps", "vfmsub213sd", "vfmsub213ss",
+            "vfmsub231pd", "vfmsub231ps", "vfmsub231sd", "vfmsub231ss", "vfmsubadd132pd", "vfmsubadd132ps",
+            "vfmsubadd213pd", "vfmsubadd213ps", "vfmsubadd231pd", "vfmsubadd231ps", "vfnmadd132pd", "vfnmadd132ps",
+            "vfnmadd132sd", "vfnmadd132ss", "vfnmadd213pd", "vfnmadd213ps", "vfnmadd213sd", "vfnmadd213ss",
+            "vfnmadd231pd", "vfnmadd231ps", "vfnmadd231sd", "vfnmadd231ss", "vfnmsub132pd", "vfnmsub132ps",
+            "vfnmsub132sd", "vfnmsub132ss", "vfnmsub213pd", "vfnmsub213ps", "vfnmsub213sd", "vfnmsub213ss",
+            "vfnmsub231pd", "vfnmsub231ps", "vfnmsub231sd", "vfnmsub231ss", "vfpclasspd", "vfpclassps", "vfpclasssd",
+            "vfpclassss", "vgatherdpd", "vgatherdps", "vgatherqpd", "vgatherqps", "vgetexppd", "vgetexpps", "vgetexpsd",
+            "vgetexpss", "vgetmantpd", "vgetmantps", "vgetmantsd", "vgetmantss", "vhaddpd", "vhaddps", "vhsubpd",
+            "vhsubps", "vinsertf128", "vinsertf32x4", "vinsertf32x8", "vinsertf64x2", "vinsertf64x4", "vinserti128",
+            "vinserti32x4", "vinserti32x8", "vinserti64x2", "vinserti64x4", "vinsertps", "vlddqu", "vmaskmov",
+            "vmaskmovdqu", "vmaskmovpd", "vmaskmovps", "vmaxpd", "vmaxps", "vmaxsd", "vmaxss", "vminpd", "vminps",
+            "vminsd", "vminss", "vmovapd", "vmovaps", "vmovd", "vmovddup", "vmovdqa", "vmovdqa32", "vmovdqa64",
+            "vmovdqu", "vmovdqu16", "vmovdqu32", "vmovdqu64", "vmovdqu8", "vmovhlps", "vmovhpd", "vmovhps", "vmovlhps",
+            "vmovlpd", "vmovlps", "vmovmskpd", "vmovmskps", "vmovntdq", "vmovntdqa", "vmovntpd", "vmovntps", "vmovq",
+            "vmovsd", "vmovshdup", "vmovsldup", "vmovss", "vmovupd", "vmovups", "vmpsadbw", "vmulpd", "vmulps",
+            "vmulsd", "vmulss", "vorpd", "vorps", "vp2intersectd", "vp2intersectq", "vpabsb", "vpabsd", "vpabsq",
+            "vpabsw", "vpackssdw", "vpacksswb", "vpackusdw", "vpackuswb", "vpaddb", "vpaddd", "vpaddq", "vpaddsb",
+            "vpaddsw", "vpaddusb", "vpaddusw", "vpaddw", "vpalignr", "vpand", "vpandd", "vpandn", "vpandnd", "vpandnq",
+            "vpandq", "vpavgb", "vpavgw", "vpblendd", "vpblendmb", "vpblendmd", "vpblendmq", "vpblendmw", "vpblendvb",
+            "vpblendw", "vpbroadcast", "vpbroadcastb", "vpbroadcastd", "vpbroadcastm", "vpbroadcastmb2q",
+            "vpbroadcastmw2d", "vpbroadcastq", "vpbroadcastw", "vpclmulhqhdq", "vpclmulhqlqdq", "vpclmullqhdq",
+            "vpclmullqlqdq", "vpclmulqdq", "vpcmpb", "vpcmpd", "vpcmpeqb", "vpcmpeqd", "vpcmpeqq", "vpcmpeqw",
+            "vpcmpestri", "vpcmpestrm", "vpcmpgtb", "vpcmpgtd", "vpcmpgtq", "vpcmpgtw", "vpcmpistri", "vpcmpistrm",
+            "vpcmpleb", "vpcmpled", "vpcmpleq", "vpcmpleub", "vpcmpleud", "vpcmpleuq", "vpcmpleuw", "vpcmplew",
+            "vpcmpltb", "vpcmpltd", "vpcmpltq", "vpcmpltub", "vpcmpltud", "vpcmpltuq", "vpcmpltuw", "vpcmpltw",
+            "vpcmpneqb", "vpcmpneqd", "vpcmpneqq", "vpcmpnequb", "vpcmpnequd", "vpcmpnequq", "vpcmpnequw", "vpcmpneqw",
+            "vpcmpnleb", "vpcmpnled", "vpcmpnleq", "vpcmpnleub", "vpcmpnleud", "vpcmpnleuq", "vpcmpnleuw", "vpcmpnlew",
+            "vpcmpnltb", "vpcmpnltd", "vpcmpnltq", "vpcmpnltub", "vpcmpnltud", "vpcmpnltuq", "vpcmpnltuw", "vpcmpnltw",
+            "vpcmpq", "vpcmpub", "vpcmpud", "vpcmpuq", "vpcmpuw", "vpcmpw", "vpcompressb", "vpcompressd", "vpcompressq",
+            "vpconflictd", "vpconflictq", "vpdpbusd", "vpdpbusds", "vpdpwssd", "vpdpwssds", "vperm2f128", "vperm2i128",
+            "vpermb", "vpermd", "vpermi2b", "vpermi2d", "vpermi2pd", "vpermi2ps", "vpermi2q", "vpermi2w", "vpermilpd",
+            "vpermilps", "vpermpd", "vpermps", "vpermq", "vpermt2b", "vpermt2d", "vpermt2pd", "vpermt2ps", "vpermt2q",
+            "vpermt2w", "vpermw", "vpexpandb", "vpexpandd", "vpexpandq", "vpexpandw", "vpextrb", "vpextrd", "vpextrq",
+            "vpextrw", "vpgatherdd", "vpgatherdq", "vpgatherqd", "vpgatherqq", "vphaddd", "vphaddsw", "vphaddw",
+            "vphminposuw", "vphsubd", "vphsubsw", "vphsubw", "vpinsrb", "vpinsrd", "vpinsrq", "vpinsrw", "vplzcntd",
+            "vplzcntq", "vpmadd52huq", "vpmadd52luq", "vpmaddubsw", "vpmaddwd", "vpmaskmov", "vpmaskmovd", "vpmaskmovq",
+            "vpmaxsb", "vpmaxsd", "vpmaxsq", "vpmaxsw", "vpmaxub", "vpmaxud", "vpmaxuq", "vpmaxuw", "vpminsb",
+            "vpminsd", "vpminsq", "vpminsw", "vpminub", "vpminud", "vpminuq", "vpminuw", "vpmovb2m", "vpmovd2m",
+            "vpmovdb", "vpmovdw", "vpmovm2b", "vpmovm2d", "vpmovm2q", "vpmovm2w", "vpmovmskb", "vpmovq2m", "vpmovqb",
+            "vpmovqd", "vpmovqw", "vpmovsdb", "vpmovsdw", "vpmovsqb", "vpmovsqd", "vpmovsqw", "vpmovswb", "vpmovsxbd",
+            "vpmovsxbq", "vpmovsxbw", "vpmovsxdq", "vpmovsxwd", "vpmovsxwq", "vpmovusdb", "vpmovusdw", "vpmovusqb",
+            "vpmovusqd", "vpmovusqw", "vpmovuswb", "vpmovw2m", "vpmovwb", "vpmovzxbd", "vpmovzxbq", "vpmovzxbw",
+            "vpmovzxdq", "vpmovzxwd", "vpmovzxwq", "vpmuldq", "vpmulhrsw", "vpmulhuw", "vpmulhw", "vpmulld", "vpmullq",
+            "vpmullw", "vpmultishiftqb", "vpmuludq", "vpopcnt", "vpor", "vpord", "vporq", "vprold", "vprolq", "vprolvd",
+            "vprolvq", "vprord", "vprorq", "vprorvd", "vprorvq", "vpsadbw", "vpscatterdd", "vpscatterdq", "vpscatterqd",
+            "vpscatterqq", "vpshld", "vpshldv", "vpshrd", "vpshrdv", "vpshufb", "vpshufbitqmb", "vpshufd", "vpshufhw",
+            "vpshuflw", "vpsignb", "vpsignd", "vpsignw", "vpslld", "vpslldq", "vpsllq", "vpsllvd", "vpsllvq", "vpsllvw",
+            "vpsllw", "vpsrad", "vpsraq", "vpsravd", "vpsravq", "vpsravw", "vpsraw", "vpsrld", "vpsrldq", "vpsrlq",
+            "vpsrlvd", "vpsrlvq", "vpsrlvw", "vpsrlw", "vpsubb", "vpsubd", "vpsubq", "vpsubsb", "vpsubsw", "vpsubusb",
+            "vpsubusw", "vpsubw", "vpternlogd", "vpternlogq", "vptest", "vptestmb", "vptestmd", "vptestmq", "vptestmw",
+            "vptestnmb", "vptestnmd", "vptestnmq", "vptestnmw", "vpunpckhbw", "vpunpckhdq", "vpunpckhqdq", "vpunpckhwd",
+            "vpunpcklbw", "vpunpckldq", "vpunpcklqdq", "vpunpcklwd", "vpxor", "vpxord", "vpxorq", "vrangepd",
+            "vrangeps", "vrangesd", "vrangess", "vrcp14pd", "vrcp14ps", "vrcp14sd", "vrcp14ss", "vrcp28pd", "vrcp28ps",
+            "vrcp28sd", "vrcp28ss", "vrcpps", "vrcpss", "vreducepd", "vreduceps", "vreducesd", "vreducess",
+            "vrndscalepd", "vrndscaleps", "vrndscalesd", "vrndscaless", "vroundpd", "vroundps", "vroundsd", "vroundss",
+            "vrsqrt14pd", "vrsqrt14ps", "vrsqrt14sd", "vrsqrt14ss", "vrsqrt28pd", "vrsqrt28ps", "vrsqrt28sd",
+            "vrsqrt28ss", "vrsqrtps", "vrsqrtss", "vscalefpd", "vscalefps", "vscalefsd", "vscalefss", "vscatterdpd",
+            "vscatterdps", "vscatterqpd", "vscatterqps", "vshuff32x4", "vshuff64x2", "vshufi32x4", "vshufi64x2",
+            "vshufpd", "vshufps", "vsqrtpd", "vsqrtps", "vsqrtsd", "vsqrtss", "vsubpd", "vsubps", "vsubsd", "vsubss",
+            "vtestpd", "vtestps", "vucomisd", "vucomiss", "vunpckhpd", "vunpckhps", "vunpcklpd", "vunpcklps", "vxorpd",
+            "vxorps", "vzeroall", "vzeroupper", "wait", "wbinvd", "wbnoinvd", "width", "wrfsbase", "wrgsbase", "wrmsr",
+            "wrpkru", "wrssd", "wrssq", "wrussd", "wrussq", "xabort", "xacquire", "xadd", "xbegin", "xchg", "xend",
+            "xgetbv", "xlat", "xlatb", "xor", "xorpd", "xorps", "xrelease", "xrstor", "xrstors", "xsave", "xsavec",
+            "xsaveopt", "xsaves", "xsetbv", "xtest" ,
+        }
+    },
+    {
+        Id = 7,
+        List = {
+            -- Pointer Registers                                                [See: #2]
+            "eip", "rip",               -- Instruction pointers (32, 64 bit)
+            "spl", "sp", "esp", "rsp",  -- Stack Pointers (8, 16, 32, 64 bit)
+            "bpl", "bp", "ebp", "rbp",  -- Stack Base Pointers (8, 16, 32, 64 bit)
+            -- Index Registers
+            "sil", "si", "esi", "rsi",  -- Source Indexes (8, 16, 32, 64 bit)
+            "dil", "di", "edi", "rdi",  -- Destination Indexes (8, 16, 32, 64 bit)
+            -- 8-bit registers
+            "al",    "ah",   "bl",     "bh",    "cl",    "ch",    "dl",    "dh",
+            "r8b",   "r9b",  "r10b",   "r11b",  "r12b",  "r13b",  "r14b",  "r15b",
+            "r8l",   "r9l",  "r10l",   "r11l",  "r12l",  "r13l",  "r14l",  "r15l",
+            -- 16-bit registers
+            "ax",    "bx",   "cx",     "dx",
+            "r8w",   "r9w",  "r10w",   "r11w",  "r12w",  "r13w",  "r14w",  "r15w",
+            -- 32-bit registers
+            "r8d",   "r9d",  "r10d",   "r11d",  "r12d",  "r13d",  "r14d",  "r15d",
+            "eax",   "ebx",  "ecx",    "edx",
+            -- 64-bit registers
+            "rax",   "rbx",  "rcx",    "rdx",
+            "r8",    "r9",   "r10",    "r11",   "r12",   "r13",   "r14",   "r15",
+            -- Segment registers
+            "cs",    "ds",    "es",    "fs",    "gs",    "ss",
+            -- Floating point stack registers
+            "st",    "st0",   "st1",   "st2",   "st3",   "st4",   "st5",   "st6",   "st7",
+            -- MMX Registers (64-bit)
+            "mm0",   "mm1",   "mm2",   "mm3",   "mm4",   "mm5",   "mm6",   "mm7",
+            -- SSE registers (128-bit)
+            "xmm0",  "xmm1",  "xmm2",  "xmm3",  "xmm4",  "xmm5",  "xmm6",  "xmm7",  "xmm8",  "xmm9",
+            "xmm10", "xmm11", "xmm12", "xmm13", "xmm14", "xmm15", "xmm16", "xmm17", "xmm18", "xmm19",
+            "xmm20", "xmm21", "xmm22", "xmm23", "xmm24", "xmm25", "xmm26", "xmm27", "xmm28", "xmm29",
+            "xmm30", "xmm31",
+            -- AVX registers (256-bit)
+            "ymm0",  "ymm1",  "ymm2",  "ymm3",  "ymm4",  "ymm5",  "ymm6",  "ymm7",  "ymm8",  "ymm9",
+            "ymm10", "ymm11", "ymm12", "ymm13", "ymm14", "ymm15", "ymm16", "ymm17", "ymm18", "ymm19",
+            "ymm20", "ymm21", "ymm22", "ymm23", "ymm24", "ymm25", "ymm26", "ymm27", "ymm28", "ymm29",
+            "ymm30", "ymm31",
+            -- AVX-512F registers
+            "zmm0",  "zmm1",  "zmm2",  "zmm3",  "zmm4",  "zmm5",  "zmm6",  "zmm7",  "zmm8",  "zmm9",
+            "zmm10", "zmm11", "zmm12", "zmm13", "zmm14", "zmm15", "zmm16", "zmm17", "zmm18", "zmm19",
+            "zmm20", "zmm21", "zmm22", "zmm23", "zmm24", "zmm25", "zmm26", "zmm27", "zmm28", "zmm29",
+            "zmm30", "zmm31",
+            -- AVX-512F mask registers
+            "k0", "k1", "k2", "k3", "k4", "k5", "k6", "k7",
+            -- Bound (MPX) register
+            "bnd0", "bnd1", "bnd2", "bnd3",
+            -- Special registers
+            "cr0",  "cr1",  "cr2",  "cr3",  "cr4",  "cr8",          -- Control registers
+                    "cr5",  "cr6",  "cr7",  "cr9",  "cr10",
+                    "cr11", "cr12", "cr13", "cr14", "cr15",
+            "dr0",  "dr1",  "dr2",  "dr3", " dr8",                    -- Debug registers
+                    "dr4",  "dr5",  "dr6", " dr7",  "dr9", "dr10",
+                    "dr11", "dr12", "dr13", "dr14", "dr15",
+            "tr3",  "tr4",  "tr5",  "tr6",  "tr7",                     -- Test registers
+                    "tr0",  "tr1",  "tr2",
+        }
+    },
+    {
+        Id = 3,
+        Regex = [[ [\w@]+\: ]],
+    },
+    {
+        Id = 4,
+        Regex = [[ (@[\w@]+)|(<.*>) ]]
+    },
+    {
+        Id = 2,
+        List = {
+            "high", "low",
+            "mod", "offset",
+            "ptr",
+            "type",
+            "invoke", "assume", "org", "entry", "eq", "equ", 
+            "end", "endm", "endp", "ends", 
+            "section", "seg", "segcs", "segds", "seges", "segfs", "seggs", "segment", 
+            "proc", "public", "global", "import", 
+            "dq", "dt", "dw", "db", "db", "dd",
+            "align", "alignb",
+
+            "byte", "word", "dword", "qword", "tbyte",
+            "xmmword", "ymmword", "zmmword",
+        }
+    }
+}
+
+Strings = {
+    Delimiter = [["|'|`]]
+}
+
+IgnoreCase = true
+
+Comments = {
+    {
+        Block = false,
+        Delimiter = {[[ [;#] ]]}
+    },
+    {
+        Block = true,
+        Nested = false,
+        Delimiter = {[[\{]], [[\}]]}
+    }
+}
+
+Operators = [[\(|\)|\[|\]|\,|\:|\&|<|>|\!|\=|\/|\*|\%|\+|\-|\?]]

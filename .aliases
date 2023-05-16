@@ -752,6 +752,13 @@ goinstallsub() {
 }
 
 
+if Exists 'emacs'; then
+    emacs() {
+        command emacs --maximized "$@" >/dev/null 2>&1 &
+    }
+fi
+
+
 case "$SYSID" in
     'gentoo'|'gentoo-laptop')
         etcp() {

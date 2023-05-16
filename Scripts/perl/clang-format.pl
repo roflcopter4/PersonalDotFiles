@@ -140,9 +140,10 @@ if (defined $opt{indent}) {
     }
 }
 
-# my @clformat = which('clang-format');
-# my $prog     = ($0 =~ /clang-format/ ? $clformat[1] : $clformat[0]);
-my $prog = '/opt/clang-bin/clang-format';
+my @clformat = which('clang-format');
+my $prog     = ($0 =~ /clang-format/ ? $clformat[1] : $clformat[0]);
+die 'clang-format not found' if not $prog;
+# my $prog = '/opt/clang-bin/clang-format';
 
 if ($opt{dump}) {
     say qq/exec($prog $prog, "-style=$data", @ARGV)\n/;

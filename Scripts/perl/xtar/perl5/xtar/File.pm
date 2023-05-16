@@ -361,6 +361,7 @@ sub _normalize_type :prototype($) ($extention)
     elsif (/^(ace|winace)$/n)   { $type = 'ace' }
     elsif (/^(rar)$/n)          { $type = 'rar' }
     elsif (/^(a)$/n)            { $type = 'archive' }
+    elsif (/^(zst)$/n)          { $type = 'zstd' }
 
     return $type;
 }
@@ -419,6 +420,11 @@ sub determine_decompressor : prototype($$) ($self, $type)
     }
     elsif (/^(lz4)$/ni and which('lz4')) {
         $CMD      = 'lz4';
+        $allFlags = '-dc';
+        $Stdout   = true;
+    }
+    elsif (/^(zstd)$/ni and which('zstd')) {
+        $CMD      = 'zstd';
         $allFlags = '-dc';
         $Stdout   = true;
     }

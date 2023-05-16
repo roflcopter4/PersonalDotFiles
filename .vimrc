@@ -128,7 +128,7 @@ let g:myNova_BG = '#1B1D1E'
 
 " Set the following to avoid loading the plugin
 let g:operator_highlight_enable = 1
-let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c' ]
+let g:ophigh_filetypes = [ 'c', 'cpp', 'rust', 'lua', 'go', 'x4c', 'tcasm']
 
 "let g:ophigh_highlight_link_group = 'Operator'
 let g:ophigh_highlight_link_group = 'OperatorChars'
@@ -773,6 +773,7 @@ highlight link perlMatchStartEnd	perlMatchSE
 " This makes sure vim knows that /bin/sh is not bash.
 let g:is_posix = 1
 let g:is_kornshell = 1
+let g:is_bash = 1
 let g:perl_sub_signatures = 1
 let g:c_gnu = 1
 
@@ -938,6 +939,7 @@ com! DiffSaved call s:DiffWithSaved()
 
 set cinoptions=N-s
 set formatoptions-=o
+set formatoptions-=n
 
 augroup FOptKillme
     autocmd BufEnter * setlocal formatoptions-=o

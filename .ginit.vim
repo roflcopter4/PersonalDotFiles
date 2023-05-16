@@ -25,14 +25,20 @@ else
         GuiTabline 0
     endif
     if exists(':GuiPopupmenu')
-        GuiPopupmenu 0
+        GuiPopupmenu 1
     endif
     if exists(':GuiScrollBar')
         GuiScrollBar 1
     endif
 
-    GuiAdaptiveColor 1
-    GuiAdaptiveStyle 1
+    try 
+        GuiAdaptiveColor 1
+    catch //
+    endtry
+    try
+        GuiAdaptiveStyle 1
+    catch //
+    endtry
 
     " Right Click Context Menu (Copy-Cut-Paste)
     nnoremap <silent><RightMouse> :call GuiShowContextMenu()<CR>

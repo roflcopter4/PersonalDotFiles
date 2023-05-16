@@ -30,8 +30,14 @@ fi
 # export FPATH="${FPATH}:${HOME}/personaldotfiles/zsh/autoload"
 
 if [[ -o interactive ]]; then
-    [[ -r /etc/profile ]] && source /etc/profile
+    if [[ -r /etc/zsh/zprofile ]]; then
+        source /etc/zsh/zprofile
+    elif [[ -r /etc/profile ]]; then
+        source /etc/profile
+    fi
     [[ -r /etc/environment ]] && source /etc/environment
+    [[ -r /etc/zsh/zshenv ]] && source /etc/zsh/zshenv
+    [[ -r /etc/zshenv ]] && source /etc/zshenv
 
     # NO FUCKING MANPATHS
     [[ -n "$MANPATH" ]] && unset MANPATH
@@ -109,6 +115,16 @@ case "$SYSID" in
         ;;
     msys2)
         __mingw_fix_path() {
+            if [[ "$MINGW_PREFIX" ]]; then
+                export path=( "${MINGW_PREFIX}/bin" $path )
+            fi
+            export path=( "${HOME}/.local/bin" /opt/bin $path /c/Vim/Neovim/bin )
+            
+            #if echo $path | grep -q 'ucrt64' &>/dev/null; then
+            #    export path=( "${HOME}/.local/bin" /ucrt64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
+            #else
+            #    export path=( "${HOME}/.local/bin" /mingw64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
+            #fi                                           
             export path=( "${HOME}/.local/bin" /mingw64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
             for ((i = 1; i <= $#path; ++i)); do
                 [[ $path[$i] == '/bin' ]] && path[$i]=()
@@ -121,7 +137,10 @@ case "$SYSID" in
         export winpath=($__split_path_return)
         ;;
     WSL_Ubuntu)
-        export path=( "${HOME}/.local/bin" $need_path /usr/lib/ccache/bin /opt/bin /opt/clang-bin /opt/go/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin $path )
+        export path=( "${HOME}/.local/bin" $need_path /opt/bin /opt/gcc12/bin /opt/cargo/bin /opt/clang-bin /opt/go/bin /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin $path )
+        export CARGO_HOME=/opt/cargo
+        export PERL5LIB="${PERL5LIB}:${HOME}/personaldotfiles/Scripts/perl/xtar/perl5"
+        export MAKESYSPATH=/opt/bmake/share/mk
         ;;
 esac
 

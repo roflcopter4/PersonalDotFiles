@@ -3409,7 +3409,7 @@ if (( $#grep_options > 0 )); then
     o=${grep_options:+"${grep_options[*]}"}
     #a2# Execute \kbd{grep -{}-color=auto}
     alias grep='grep '$o
-    alias egrep='grep -E '$o
+    alias egrep='egrep '$o
     unset o
 fi
 

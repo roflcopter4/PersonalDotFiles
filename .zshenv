@@ -30,8 +30,14 @@ fi
 # export FPATH="${FPATH}:${HOME}/personaldotfiles/zsh/autoload"
 
 if [[ -o interactive ]]; then
-    [[ -r /etc/profile ]] && source /etc/profile
+    if [[ -r /etc/zsh/zprofile ]]; then
+        source /etc/zsh/zprofile
+    elif [[ -r /etc/profile ]]; then
+        source /etc/profile
+    fi
     [[ -r /etc/environment ]] && source /etc/environment
+    [[ -r /etc/zsh/zshenv ]] && source /etc/zsh/zshenv
+    [[ -r /etc/zshenv ]] && source /etc/zshenv
 
     # NO FUCKING MANPATHS
     [[ -n "$MANPATH" ]] && unset MANPATH
@@ -109,6 +115,16 @@ case "$SYSID" in
         ;;
     msys2)
         __mingw_fix_path() {
+            if [[ "$MINGW_PREFIX" ]]; then
+                export path=( "${MINGW_PREFIX}/bin" $path )
+            fi
+            export path=( "${HOME}/.local/bin" /opt/bin $path /c/Vim/Neovim/bin )
+            
+            #if echo $path | grep -q 'ucrt64' &>/dev/null; then
+            #    export path=( "${HOME}/.local/bin" /ucrt64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
+            #else
+            #    export path=( "${HOME}/.local/bin" /mingw64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
+            #fi                                           
             export path=( "${HOME}/.local/bin" /mingw64/bin $path /c/Vim/Neovim/bin /d/libs/bin )
             for ((i = 1; i <= $#path; ++i)); do
                 [[ $path[$i] == '/bin' ]] && path[$i]=()

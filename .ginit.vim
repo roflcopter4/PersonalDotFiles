@@ -31,8 +31,11 @@ else
         GuiScrollBar 1
     endif
 
-    GuiAdaptiveColor 1
-    GuiAdaptiveStyle 1
+    try
+        GuiAdaptiveColor 1
+        GuiAdaptiveStyle 1
+    catch //
+    endtry
 
     " Right Click Context Menu (Copy-Cut-Paste)
     nnoremap <silent><RightMouse> :call GuiShowContextMenu()<CR>

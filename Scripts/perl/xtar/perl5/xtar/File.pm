@@ -453,8 +453,10 @@ sub determine_decompressor : prototype($$) ($self, $type)
     #     $NeedOdir = true;
     # }
     elsif (/^(7z|gz|bz|bz2|xz|lzma|lz|lz4|zip|cpio|rar|z|jar|
-             deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
-             compress|gzip|bzip2?|7[-]?zip|archive)$/nxi
+              deb|rpm|a|ar|iso|img|0{1,2}[1-9]|
+              compress|gzip|bzip2?|7[-]?zip|archive|
+              ima # floppy image
+             )$/nxi
           and which('7z'))
     {
        $CMD    = '7z';

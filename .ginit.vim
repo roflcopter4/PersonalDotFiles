@@ -12,7 +12,8 @@ else
     " set mouse=a
 
     if exists(':GuiFont')
-        if WINDOWS()
+        if OSX()
+        elseif WINDOWS()
             GuiFont Dina:h8
             execute 'GuiLinespace ' . s:linespace
         else

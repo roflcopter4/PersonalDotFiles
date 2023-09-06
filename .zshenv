@@ -142,6 +142,9 @@ case "$SYSID" in
         export PERL5LIB="${PERL5LIB}:${HOME}/personaldotfiles/Scripts/perl/xtar/perl5"
         export MAKESYSPATH=/opt/bmake/share/mk
         ;;
+    macOS)
+        export path=( /usr/local/opt/gcc/bin /usr/local/opt/binutils/bin /usr/local/opt/llvm/bin $path )
+        ;;
 esac
 
 if [[ -o interactive ]] && [[ -z "$_PAGER_OPTS_SET" ]]; then

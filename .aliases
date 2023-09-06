@@ -18,7 +18,7 @@ ID_SHELL () {
         [ "${_UNAME}" = 'DragonFly' ] || [ "${_UNAME}" = 'OpenBSD' ] || \
         [ "${_UNAME_O}" = 'Cygwin' ]  || [ "${_UNAME_O}" = 'Msys' ]
     }; then
-        _shname="$(basename "$(ps -o comm= $$)")"
+        _shname="$(basename -- "$(ps -o comm= $$)")"
     elif [ "$IS_ZSH" = 'true' ]; then
         _shname='zsh'
     else

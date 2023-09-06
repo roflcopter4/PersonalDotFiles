@@ -30,7 +30,7 @@ function! IsSourced(name)
     return dein#is_sourced(a:name)
 endfunction
 
-if LINUX() || CYGWIN() || BSD()
+if LINUX() || CYGWIN() || BSD() || OSX()
     let g:load_path   = expand('~/.vim/dein')
     let g:dein_path   = expand('~/.vim/dein/repos/github.com/Shougo/dein.vim')
     let &runtimepath .= ',' . g:dein_path
